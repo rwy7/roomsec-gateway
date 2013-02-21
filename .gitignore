@@ -1,0 +1,30 @@
+# .gitignore 
+
+# Editor backup files
+*~
+*.bak
+*.old
+*.rej
+*.ori
+
+# Build chain generated files
+.deps
+*.a
+*.o
+*.Po
+
+# Autoconf generated files
+*.scan
+autoscan*
+Makefile
+Makefile.am.*
+config.*
+aclocal.m4
+autom4te.cache
+configure
+Makefile.in
+sysconfig.h
+src/*dep
+
+# Executables
+src/cpp/roomsec-gateway
