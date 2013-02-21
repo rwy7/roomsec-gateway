@@ -1,0 +1,49 @@
+RoomSec Gateway
+===============
+
+About
+-----
+A Gateway controller for the roomsec system.  A gateway is the name of
+any object which is secured, and allows access.  This program is
+specifically designed to control a secured doorway in the roomsec
+system.  RoomSec Gateway belongs in a suite of tools, and usaually is
+deployed alongside them.
+
+
+Compiling
+=========
+
+Dependancies
+------------
+Unknown.
+
+
+Compiling
+---------
+To compile, run
+
+   ./configure && make
+
+
+Optional Dependancies
+---------------------
+
+To re-generate the configure script, it requires the autotools suite;
+automake , autocon andlibtool.  To generate, run:
+
+  autoreconf
+
+To regenerate the thrift interface, it requires a thrift intstall.  To
+generate, run:
+
+  make thrift
+
+
+Authors
+=======
+Tyler Atkin        atkintc@mcmaster.ca
+Andrew Young       youngar@mcmaster.ca
+Robert Young       youngrw@mcmaster.ca
+J Guo              guoj9@mcmaster.ca
+M.N. Yaraskavitch  yaraskmn@mcmaster.ca
+Gaurav Sodi        gsodi89@gmail.com
