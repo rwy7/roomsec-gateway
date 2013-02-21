@@ -10,7 +10,8 @@ AM_INIT_AUTOMAKE(foreign -Wall -Werror)
 # Checks for programs.
 AC_PROG_CC
 AC_PROG_CXX
-
+AM_PROG_AR
+AC_PROG_RANLIB
 # Checks for libraries.
 
 # Checks for header files.
@@ -18,5 +19,5 @@ AC_PROG_CXX
 # Checks for typedefs, structures, and compiler characteristics.
 
 # Checks for library functions.
-AC_CONFIG_FILES([Makefile src/Makefile src/cpp/Makefile])
+AC_CONFIG_FILES([Makefile libauthorize/Makefile src/Makefile src/cpp/Makefile])
 AC_OUTPUT
