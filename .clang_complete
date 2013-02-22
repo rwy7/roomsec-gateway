@@ -1,0 +1,3 @@
+-I./libauthorize
+-I/usr/include/thrift
+-I./wiringPi/
