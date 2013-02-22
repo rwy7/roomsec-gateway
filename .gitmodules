@@ -1,3 +1,6 @@
 [submodule "authorize"]
 	path = authorize
 	url = ./authorize
+[submodule "wiringPi"]
+	path = wiringPi
+	url = git://git.drogon.net/wiringPi
