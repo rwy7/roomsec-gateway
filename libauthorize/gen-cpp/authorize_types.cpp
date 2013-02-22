@@ -8,7 +8,7 @@
 
 #include <algorithm>
 
-namespace authorize {
+namespace roomsec { namespace interface {
 
 int _kAuthorizationReplyValues[] = {
   AuthorizationReply::grant,
@@ -442,4 +442,4 @@ void swap(CredentialState &a, CredentialState &b) {
   swap(a.__isset, b.__isset);
 }
 
-} // namespace
+}} // namespace

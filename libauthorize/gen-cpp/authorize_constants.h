@@ -9,7 +9,7 @@
 
 #include "authorize_types.h"
 
-namespace authorize {
+namespace roomsec { namespace interface {
 
 class authorizeConstants {
  public:
@@ -19,6 +19,6 @@ class authorizeConstants {
 
 extern const authorizeConstants g_authorize_constants;
 
-} // namespace
+}} // namespace
 
 #endif

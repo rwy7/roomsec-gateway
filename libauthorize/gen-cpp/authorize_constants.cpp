@@ -6,12 +6,12 @@
  */
 #include "authorize_constants.h"
 
-namespace authorize {
+namespace roomsec { namespace interface {
 
 const authorizeConstants g_authorize_constants;
 
 authorizeConstants::authorizeConstants() {
 }
 
-} // namespace
+}} // namespace
 

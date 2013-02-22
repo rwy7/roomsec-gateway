@@ -6,7 +6,7 @@
  */
 #include "CredentialBackChannel.h"
 
-namespace authorize {
+namespace roomsec { namespace interface {
 
 uint32_t CredentialBackChannel_getState_args::read(::apache::thrift::protocol::TProtocol* iprot) {
 
@@ -307,5 +307,5 @@ void CredentialBackChannelProcessor::process_getState(int32_t seqid, ::apache::t
   ::boost::shared_ptr< ::apache::thrift::TProcessor > processor(new CredentialBackChannelProcessor(handler));
   return processor;
 }
-} // namespace
+}} // namespace
 

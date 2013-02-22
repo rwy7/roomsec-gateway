@@ -10,13 +10,13 @@
 #include <thrift/TDispatchProcessor.h>
 #include "authorize_types.h"
 
-namespace authorize {
+namespace roomsec { namespace interface {
 
 class AuthorityIf {
  public:
   virtual ~AuthorityIf() {}
   virtual void checkRequirements(std::vector<CredentialSpec> & _return, const std::string& resource) = 0;
-  virtual AuthorizationReply::type request(const AuthorizationRequest& request) = 0;
+  virtual AuthorizationReply::type authorize(const AuthorizationRequest& request) = 0;
 };
 
 class AuthorityIfFactory {
@@ -49,7 +49,7 @@ class AuthorityNull : virtual public AuthorityIf {
   void checkRequirements(std::vector<CredentialSpec> & /* _return */, const std::string& /* resource */) {
     return;
   }
-  AuthorizationReply::type request(const AuthorizationRequest& /* request */) {
+  AuthorizationReply::type authorize(const AuthorizationRequest& /* request */) {
     AuthorizationReply::type _return = (AuthorizationReply::type)0;
     return _return;
   }
@@ -163,38 +163,38 @@ class Authority_checkRequirements_presult {
 
 };
 
-typedef struct _Authority_request_args__isset {
-  _Authority_request_args__isset() : request(false) {}
+typedef struct _Authority_authorize_args__isset {
+  _Authority_authorize_args__isset() : request(false) {}
   bool request;
-} _Authority_request_args__isset;
+} _Authority_authorize_args__isset;
 
-class Authority_request_args {
+class Authority_authorize_args {
  public:
 
-  Authority_request_args() {
+  Authority_authorize_args() {
   }
 
-  virtual ~Authority_request_args() throw() {}
+  virtual ~Authority_authorize_args() throw() {}
 
   AuthorizationRequest request;
 
-  _Authority_request_args__isset __isset;
+  _Authority_authorize_args__isset __isset;
 
   void __set_request(const AuthorizationRequest& val) {
     request = val;
   }
 
-  bool operator == (const Authority_request_args & rhs) const
+  bool operator == (const Authority_authorize_args & rhs) const
   {
     if (!(request == rhs.request))
       return false;
     return true;
   }
-  bool operator != (const Authority_request_args &rhs) const {
+  bool operator != (const Authority_authorize_args &rhs) const {
     return !(*this == rhs);
   }
 
-  bool operator < (const Authority_request_args & ) const;
+  bool operator < (const Authority_authorize_args & ) const;
 
   uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
   uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
@@ -202,11 +202,11 @@ class Authority_request_args {
 };
 
 
-class Authority_request_pargs {
+class Authority_authorize_pargs {
  public:
 
 
-  virtual ~Authority_request_pargs() throw() {}
+  virtual ~Authority_authorize_pargs() throw() {}
 
   const AuthorizationRequest* request;
 
@@ -214,58 +214,58 @@ class Authority_request_pargs {
 
 };
 
-typedef struct _Authority_request_result__isset {
-  _Authority_request_result__isset() : success(false) {}
+typedef struct _Authority_authorize_result__isset {
+  _Authority_authorize_result__isset() : success(false) {}
   bool success;
-} _Authority_request_result__isset;
+} _Authority_authorize_result__isset;
 
-class Authority_request_result {
+class Authority_authorize_result {
  public:
 
-  Authority_request_result() : success((AuthorizationReply::type)0) {
+  Authority_authorize_result() : success((AuthorizationReply::type)0) {
   }
 
-  virtual ~Authority_request_result() throw() {}
+  virtual ~Authority_authorize_result() throw() {}
 
   AuthorizationReply::type success;
 
-  _Authority_request_result__isset __isset;
+  _Authority_authorize_result__isset __isset;
 
   void __set_success(const AuthorizationReply::type val) {
     success = val;
   }
 
-  bool operator == (const Authority_request_result & rhs) const
+  bool operator == (const Authority_authorize_result & rhs) const
   {
     if (!(success == rhs.success))
       return false;
     return true;
   }
-  bool operator != (const Authority_request_result &rhs) const {
+  bool operator != (const Authority_authorize_result &rhs) const {
     return !(*this == rhs);
   }
 
-  bool operator < (const Authority_request_result & ) const;
+  bool operator < (const Authority_authorize_result & ) const;
 
   uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
   uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
 
 };
 
-typedef struct _Authority_request_presult__isset {
-  _Authority_request_presult__isset() : success(false) {}
+typedef struct _Authority_authorize_presult__isset {
+  _Authority_authorize_presult__isset() : success(false) {}
   bool success;
-} _Authority_request_presult__isset;
+} _Authority_authorize_presult__isset;
 
-class Authority_request_presult {
+class Authority_authorize_presult {
  public:
 
 
-  virtual ~Authority_request_presult() throw() {}
+  virtual ~Authority_authorize_presult() throw() {}
 
   AuthorizationReply::type* success;
 
-  _Authority_request_presult__isset __isset;
+  _Authority_authorize_presult__isset __isset;
 
   uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
 
@@ -294,9 +294,9 @@ class AuthorityClient : virtual public AuthorityIf {
   void checkRequirements(std::vector<CredentialSpec> & _return, const std::string& resource);
   void send_checkRequirements(const std::string& resource);
   void recv_checkRequirements(std::vector<CredentialSpec> & _return);
-  AuthorizationReply::type request(const AuthorizationRequest& request);
-  void send_request(const AuthorizationRequest& request);
-  AuthorizationReply::type recv_request();
+  AuthorizationReply::type authorize(const AuthorizationRequest& request);
+  void send_authorize(const AuthorizationRequest& request);
+  AuthorizationReply::type recv_authorize();
  protected:
   boost::shared_ptr< ::apache::thrift::protocol::TProtocol> piprot_;
   boost::shared_ptr< ::apache::thrift::protocol::TProtocol> poprot_;
@@ -313,12 +313,12 @@ class AuthorityProcessor : public ::apache::thrift::TDispatchProcessor {
   typedef std::map<std::string, ProcessFunction> ProcessMap;
   ProcessMap processMap_;
   void process_checkRequirements(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
-  void process_request(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_authorize(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
  public:
   AuthorityProcessor(boost::shared_ptr<AuthorityIf> iface) :
     iface_(iface) {
     processMap_["checkRequirements"] = &AuthorityProcessor::process_checkRequirements;
-    processMap_["request"] = &AuthorityProcessor::process_request;
+    processMap_["authorize"] = &AuthorityProcessor::process_authorize;
   }
 
   virtual ~AuthorityProcessor() {}
@@ -357,17 +357,17 @@ class AuthorityMultiface : virtual public AuthorityIf {
     return;
   }
 
-  AuthorizationReply::type request(const AuthorizationRequest& request) {
+  AuthorizationReply::type authorize(const AuthorizationRequest& request) {
     size_t sz = ifaces_.size();
     size_t i = 0;
     for (; i < (sz - 1); ++i) {
-      ifaces_[i]->request(request);
+      ifaces_[i]->authorize(request);
     }
-    return ifaces_[i]->request(request);
+    return ifaces_[i]->authorize(request);
   }
 
 };
 
-} // namespace
+}} // namespace
 
 #endif

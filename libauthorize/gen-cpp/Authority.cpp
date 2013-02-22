@@ -6,7 +6,7 @@
  */
 #include "Authority.h"
 
-namespace authorize {
+namespace roomsec { namespace interface {
 
 uint32_t Authority_checkRequirements_args::read(::apache::thrift::protocol::TProtocol* iprot) {
 
@@ -202,7 +202,7 @@ uint32_t Authority_checkRequirements_presult::read(::apache::thrift::protocol::T
   return xfer;
 }
 
-uint32_t Authority_request_args::read(::apache::thrift::protocol::TProtocol* iprot) {
+uint32_t Authority_authorize_args::read(::apache::thrift::protocol::TProtocol* iprot) {
 
   uint32_t xfer = 0;
   std::string fname;
@@ -242,9 +242,9 @@ uint32_t Authority_request_args::read(::apache::thrift::protocol::TProtocol* ipr
   return xfer;
 }
 
-uint32_t Authority_request_args::write(::apache::thrift::protocol::TProtocol* oprot) const {
+uint32_t Authority_authorize_args::write(::apache::thrift::protocol::TProtocol* oprot) const {
   uint32_t xfer = 0;
-  xfer += oprot->writeStructBegin("Authority_request_args");
+  xfer += oprot->writeStructBegin("Authority_authorize_args");
 
   xfer += oprot->writeFieldBegin("request", ::apache::thrift::protocol::T_STRUCT, 1);
   xfer += this->request.write(oprot);
@@ -255,9 +255,9 @@ uint32_t Authority_request_args::write(::apache::thrift::protocol::TProtocol* op
   return xfer;
 }
 
-uint32_t Authority_request_pargs::write(::apache::thrift::protocol::TProtocol* oprot) const {
+uint32_t Authority_authorize_pargs::write(::apache::thrift::protocol::TProtocol* oprot) const {
   uint32_t xfer = 0;
-  xfer += oprot->writeStructBegin("Authority_request_pargs");
+  xfer += oprot->writeStructBegin("Authority_authorize_pargs");
 
   xfer += oprot->writeFieldBegin("request", ::apache::thrift::protocol::T_STRUCT, 1);
   xfer += (*(this->request)).write(oprot);
@@ -268,7 +268,7 @@ uint32_t Authority_request_pargs::write(::apache::thrift::protocol::TProtocol* o
   return xfer;
 }
 
-uint32_t Authority_request_result::read(::apache::thrift::protocol::TProtocol* iprot) {
+uint32_t Authority_authorize_result::read(::apache::thrift::protocol::TProtocol* iprot) {
 
   uint32_t xfer = 0;
   std::string fname;
@@ -310,11 +310,11 @@ uint32_t Authority_request_result::read(::apache::thrift::protocol::TProtocol* i
   return xfer;
 }
 
-uint32_t Authority_request_result::write(::apache::thrift::protocol::TProtocol* oprot) const {
+uint32_t Authority_authorize_result::write(::apache::thrift::protocol::TProtocol* oprot) const {
 
   uint32_t xfer = 0;
 
-  xfer += oprot->writeStructBegin("Authority_request_result");
+  xfer += oprot->writeStructBegin("Authority_authorize_result");
 
   if (this->__isset.success) {
     xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_I32, 0);
@@ -326,7 +326,7 @@ uint32_t Authority_request_result::write(::apache::thrift::protocol::TProtocol* 
   return xfer;
 }
 
-uint32_t Authority_request_presult::read(::apache::thrift::protocol::TProtocol* iprot) {
+uint32_t Authority_authorize_presult::read(::apache::thrift::protocol::TProtocol* iprot) {
 
   uint32_t xfer = 0;
   std::string fname;
@@ -426,18 +426,18 @@ void AuthorityClient::recv_checkRequirements(std::vector<CredentialSpec> & _retu
   throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::MISSING_RESULT, "checkRequirements failed: unknown result");
 }
 
-AuthorizationReply::type AuthorityClient::request(const AuthorizationRequest& request)
+AuthorizationReply::type AuthorityClient::authorize(const AuthorizationRequest& request)
 {
-  send_request(request);
-  return recv_request();
+  send_authorize(request);
+  return recv_authorize();
 }
 
-void AuthorityClient::send_request(const AuthorizationRequest& request)
+void AuthorityClient::send_authorize(const AuthorizationRequest& request)
 {
   int32_t cseqid = 0;
-  oprot_->writeMessageBegin("request", ::apache::thrift::protocol::T_CALL, cseqid);
+  oprot_->writeMessageBegin("authorize", ::apache::thrift::protocol::T_CALL, cseqid);
 
-  Authority_request_pargs args;
+  Authority_authorize_pargs args;
   args.request = &request;
   args.write(oprot_);
 
@@ -446,7 +446,7 @@ void AuthorityClient::send_request(const AuthorizationRequest& request)
   oprot_->getTransport()->flush();
 }
 
-AuthorizationReply::type AuthorityClient::recv_request()
+AuthorizationReply::type AuthorityClient::recv_authorize()
 {
 
   int32_t rseqid = 0;
@@ -466,13 +466,13 @@ AuthorizationReply::type AuthorityClient::recv_request()
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
   }
-  if (fname.compare("request") != 0) {
+  if (fname.compare("authorize") != 0) {
     iprot_->skip(::apache::thrift::protocol::T_STRUCT);
     iprot_->readMessageEnd();
     iprot_->getTransport()->readEnd();
   }
   AuthorizationReply::type _return;
-  Authority_request_presult result;
+  Authority_authorize_presult result;
   result.success = &_return;
   result.read(iprot_);
   iprot_->readMessageEnd();
@@ -481,7 +481,7 @@ AuthorizationReply::type AuthorityClient::recv_request()
   if (result.__isset.success) {
     return _return;
   }
-  throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::MISSING_RESULT, "request failed: unknown result");
+  throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::MISSING_RESULT, "authorize failed: unknown result");
 }
 
 bool AuthorityProcessor::dispatchCall(::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, const std::string& fname, int32_t seqid, void* callContext) {
@@ -557,38 +557,38 @@ void AuthorityProcessor::process_checkRequirements(int32_t seqid, ::apache::thri
   }
 }
 
-void AuthorityProcessor::process_request(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
+void AuthorityProcessor::process_authorize(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
 {
   void* ctx = NULL;
   if (this->eventHandler_.get() != NULL) {
-    ctx = this->eventHandler_->getContext("Authority.request", callContext);
+    ctx = this->eventHandler_->getContext("Authority.authorize", callContext);
   }
-  ::apache::thrift::TProcessorContextFreer freer(this->eventHandler_.get(), ctx, "Authority.request");
+  ::apache::thrift::TProcessorContextFreer freer(this->eventHandler_.get(), ctx, "Authority.authorize");
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->preRead(ctx, "Authority.request");
+    this->eventHandler_->preRead(ctx, "Authority.authorize");
   }
 
-  Authority_request_args args;
+  Authority_authorize_args args;
   args.read(iprot);
   iprot->readMessageEnd();
   uint32_t bytes = iprot->getTransport()->readEnd();
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->postRead(ctx, "Authority.request", bytes);
+    this->eventHandler_->postRead(ctx, "Authority.authorize", bytes);
   }
 
-  Authority_request_result result;
+  Authority_authorize_result result;
   try {
-    result.success = iface_->request(args.request);
+    result.success = iface_->authorize(args.request);
     result.__isset.success = true;
   } catch (const std::exception& e) {
     if (this->eventHandler_.get() != NULL) {
-      this->eventHandler_->handlerError(ctx, "Authority.request");
+      this->eventHandler_->handlerError(ctx, "Authority.authorize");
     }
 
     ::apache::thrift::TApplicationException x(e.what());
-    oprot->writeMessageBegin("request", ::apache::thrift::protocol::T_EXCEPTION, seqid);
+    oprot->writeMessageBegin("authorize", ::apache::thrift::protocol::T_EXCEPTION, seqid);
     x.write(oprot);
     oprot->writeMessageEnd();
     oprot->getTransport()->writeEnd();
@@ -597,17 +597,17 @@ void AuthorityProcessor::process_request(int32_t seqid, ::apache::thrift::protoc
   }
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->preWrite(ctx, "Authority.request");
+    this->eventHandler_->preWrite(ctx, "Authority.authorize");
   }
 
-  oprot->writeMessageBegin("request", ::apache::thrift::protocol::T_REPLY, seqid);
+  oprot->writeMessageBegin("authorize", ::apache::thrift::protocol::T_REPLY, seqid);
   result.write(oprot);
   oprot->writeMessageEnd();
   bytes = oprot->getTransport()->writeEnd();
   oprot->getTransport()->flush();
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->postWrite(ctx, "Authority.request", bytes);
+    this->eventHandler_->postWrite(ctx, "Authority.authorize", bytes);
   }
 }
 
@@ -617,5 +617,5 @@ void AuthorityProcessor::process_request(int32_t seqid, ::apache::thrift::protoc
   ::boost::shared_ptr< ::apache::thrift::TProcessor > processor(new AuthorityProcessor(handler));
   return processor;
 }
-} // namespace
+}} // namespace
 

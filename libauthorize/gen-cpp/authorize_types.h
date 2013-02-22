@@ -14,7 +14,7 @@
 
 
 
-namespace authorize {
+namespace roomsec { namespace interface {
 
 struct AuthorizationReply {
   enum type {
@@ -298,6 +298,6 @@ class CredentialState {
 
 void swap(CredentialState &a, CredentialState &b);
 
-} // namespace
+}} // namespace
 
 #endif

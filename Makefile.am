@@ -7,4 +7,4 @@ EXTRA_DIST = autogen.sh m4/gnulib-cache.m4
 
 thrift:
 	mkdir -p ./libauthorize
-	thrift --gen cpp -o $(top_dir)./libauthorize
+	thrift -v --gen cpp -o $(top_dir)./libauthorize $(top_srcdir)/authorize/src/main/thrift/authorize.thrift 

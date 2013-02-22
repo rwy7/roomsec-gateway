@@ -10,7 +10,7 @@
 #include <thrift/TDispatchProcessor.h>
 #include "authorize_types.h"
 
-namespace authorize {
+namespace roomsec { namespace interface {
 
 class CredentialBackChannelIf {
  public:
@@ -241,6 +241,6 @@ class CredentialBackChannelMultiface : virtual public CredentialBackChannelIf {
 
 };
 
-} // namespace
+}} // namespace
 
 #endif
