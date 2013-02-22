@@ -5,6 +5,7 @@
 #include <transport/TSocket.h>
 #include <transport/TTransportUtils.h>
 
+#include "wiringPi/wiringPi.h"
 #include "gen-cpp/Authority.h"
 
 #define authorityIP "192.168.0.194"
@@ -46,7 +47,7 @@ main (int argc, char *argv[])
       std::vector<roomsec::interface::CredentialSpec> credential_spec;
       std::string resource = "ca.mcmaster.itb.234";
       client.checkRequirements(credential_spec, resource);
-      client.
+
       cout << "Obtained connection\n";
       cout << "resource: " << resource << "cred: ";
       transport->close();
