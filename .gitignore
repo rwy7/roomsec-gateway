@@ -37,6 +37,8 @@ test-driver
 test-suite.log
 libtool
 ltmain.sh
+missing
+ar-lib
 
 # doxygen
 Doxyfile
@@ -46,7 +48,7 @@ doc/html/*
 
 # Executables
 roomsecgateway
-libroomsecgateway
+libroomsecgateway.la
 
 # Thrif generated files
 src/cpp/gen-cpp/*
