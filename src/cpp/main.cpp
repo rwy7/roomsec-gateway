@@ -1,4 +1,5 @@
 #include <iostream>
+
 #include <protocol/TBinaryProtocol.h>
 #include <server/TSimpleServer.h>
 #include <transport/TServerSocket.h>
@@ -11,52 +12,65 @@
 #define authorityIP "192.168.0.194"
 #define authorityPort 8080
 
-using namespace apache::thrift;
-using namespace apache::thrift::protocol;
-using namespace apache::thrift::transport;
-using namespace apache::thrift::server;
+namespace roomsec {
+  int start_repl();
+}
 
-using namespace std;
-
-int
-main (int argc, char *argv[])
-{
-  std::cout << "RoomSec Gateway\n";
-
-  /* a simple repl */
-  bool quit = false;
-  string input;
-
-  std::cout<<"('help' for commands)\n";
-
-  while(!quit) {
-    cout<<"Input?\n";
-    getline(cin, input);
-
-    if (!input.compare("quit")) {
-      quit = true;
-    }
-
-    if(!input.compare("request"))  {
-      boost::shared_ptr<TSocket> socket(new TSocket(authorityIP, authorityPort));
-      boost::shared_ptr<TTransport> transport(new TBufferedTransport(socket));
-      boost::shared_ptr<TProtocol> protocol(new TBinaryProtocol(transport));
-      roomsec::interface::AuthorityClient client(protocol);
-      transport->open();
-
-      std::vector<roomsec::interface::CredentialSpec> credential_spec;
-      std::string resource = "ca.mcmaster.itb.234";
-      client.checkRequirements(credential_spec, resource);
-
-      cout << "Obtained connection\n";
-      cout << "resource: " << resource << "cred: ";
-      transport->close();
-    }
-
-    if(!input.compare("help")) {
-      cout << "request   - try to obtain permission";
-    }
-  }
-
+int main (int argc, char *argv[]) {
+  roomsec::start_repl();
   return 0;
+}
+
+namespace roomsec {
+
+  namespace thrift = ::apache::thrift;
+  namespace transport = ::apache::thrift::transport;
+  namespace protocol = ::apache::thrift::protocol;
+
+  int start_repl(void);
+
+
+  int start_repl() {
+    std::cout << "RoomSec Gateway\n";
+
+    /* a simple repl */
+    bool quit = false;
+    std::string input;
+
+    std::cout << "('help' for commands)\n";
+
+    while(!quit) {
+      std::cout << "Input?\n";
+      std::getline(std::cin, input);
+
+      if (!input.compare("quit")) {
+	quit = true;
+      }
+
+      if(!input.compare("request"))  {
+	/* Open a new request */
+	boost::shared_ptr<transport::TSocket> socket(new transport::TSocket(authorityIP, authorityPort));
+	boost::shared_ptr<transport::TTransport> transport(new transport::TBufferedTransport(socket));
+	boost::shared_ptr<protocol::TProtocol> protocol(new protocol::TBinaryProtocol(transport));
+
+	iface::AuthorityClient client(protocol);
+	transport->open();
+
+	std::vector<iface::CredentialSpec> requiredCreds;
+	std::string resource = "ca.mcmaster.itb.234";
+
+	client.checkRequirements(requiredCreds, resource);
+
+	std::cout << "Obtained connection\n";
+	std::cout << "resource: " << resource << "cred: ";
+	transport->close();
+      }
+
+      if(!input.compare("help")) {
+	std::cout << "request   - try to obtain permission";
+      }
+    }
+
+    return 0;
+  }
 }
