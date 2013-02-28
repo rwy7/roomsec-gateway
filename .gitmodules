@@ -1,6 +1,7 @@
 [submodule "authorize"]
 	path = authorize
-	url = ./authorize
+	url = ssh://git@youngra.ca:2222/roomsec/authorize
 [submodule "wiringPi"]
 	path = wiringPi
 	url = git://git.drogon.net/wiringPi
+
