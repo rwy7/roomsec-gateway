@@ -57,7 +57,7 @@ roomsecgateway_CPPFLAGS = \
 			       -std=c++11 -pedantic -DHAVE_INTTYPES_H -DHAVE_NETINET_IN_H \
 			       -I./wiringPi
 
-roomsecgateway_LDADD = -lstdc++ -lthrift -lboost_system -lboost_thread
+roomsecgateway_LDADD = -lstdc++ -lthrift -lboost_system -lboost_thread -lroomsecgateway
 
 
 ###
