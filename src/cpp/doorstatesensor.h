@@ -7,7 +7,8 @@ namespace roomsec {
 
   class DoorStateSensor {
     public:
-
+      DoorStateSensor(int pin);
+      getDoorState()
     private:
       DISALLOW_COPY_AND_ASSIGN(DoorStateSensor);
 
