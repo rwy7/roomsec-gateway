@@ -41,7 +41,6 @@ ltmain.sh
 
 # doxygen
 Doxyfile
-Doxyfile.in
 build-aux/*
 doc/html/*
 
