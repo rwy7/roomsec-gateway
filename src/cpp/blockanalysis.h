@@ -29,6 +29,8 @@ class BlockAnalysis{
 	bool analyze();	
 	std::vector<unsigned int> isolateBlocks(std::vector<unsigned float> stream);
 	std::vector<std::pair<unsigned int, unsigned int>> simplifyStream(std::vector<unsigned float> stream, std::vector<unsigned int> blocks);
+	std::vector<unsigned int> combineStreams(std::vector<std::pair<unsigned int, unsigned int>>[] streams);
+	std::vector<
 	//depricated
 	std::vector<unsigned int> findMajorCrests(std::vector<unsigned float> stream);
 	//depricated

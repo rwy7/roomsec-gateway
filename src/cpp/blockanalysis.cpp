@@ -109,6 +109,7 @@ bool BlockAnalysis::analyze()
 	vector<unsigned float>[streamCount] smoothedStreams;
 	vector<unsigned int>[streamCount] blockStreams;
 	vector<pair<unsigned int, unsigned int>>[streamCount] simplifiedStreams;
+	vector<unsigned int> combinedStream;
 
 	for(int i = 0; i < streamCount; i++)
 	{
@@ -116,7 +117,19 @@ bool BlockAnalysis::analyze()
 		blockStreams[i] = isolateBlocks(smoothedStreams[i]);
 		simplifiedStreams[i] = simplifyStream(smoothedStreams[i], blockStreams[i]);
 	}
-	
+	//combinedStream = combineStreams(simplifiedStreams);
+	//TODO - turn this into a real analysis
+	unsigned int objs = 0;
+	for(int i = 0; i < simplifiedStreams[0].size(); i++)
+	{
+		if(simplifiedStream[i].second == 2)
+			objs++;
+	}
+	PassageTriple blocks;
+	blocks.incoming = 0;
+	blocks.outgoing = 0
+	blocks.unknown = objs;
+	blockages.push_back(blocks);
 	
 
 	return 1;
@@ -248,6 +261,35 @@ vector<pair<unsigned int, unsigned int>> BlockAnalysis::simplifyStream(vector<un
 		criticalPoints.push_back(make_pair(blocks[i+1], 0));
 	}
 	return criticalPoints;
+}
+
+vector<unsigned int> combineStreams(vector<pair<unsigned int, unsigned int>>[] streams)
+{
+	vector<unsigned int> combined;
+	unsigned int end = streams[0][streams[0].size()-1].first;
+
+	unsigned int val = 0, index = 0;
+	
+	for(int i = 0; i < end; i++)
+	{
+		if(i == streams[0][index].first)
+			val = streams[0][index].second;
+		while(i > streams[0][index].first)
+			index++;
+		combined.push_back(val);
+	
+	for(int j = 1; j < streams.size(); j++)
+	{
+		for(int i = 0; i < end; i++)
+		{
+			if(i == streams[0][index].first)
+				val = streams[0][index].second;
+			while(i > streams[0][index].first)
+				index++;
+			combined[i] = combined[i]*val;
+		}
+	}
+	return combined;
 }
 
 bool BlockAnalysis::generateNormalDistribution()
