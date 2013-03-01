@@ -116,14 +116,17 @@ check_PROGRAMS=
 UNIT_TESTS += test/roomsecgateway_test
 check_PROGRAMS += test/roomsecgateway_test
 
-test_roomsecgateway_test_CPPFLAGS = -I$(top_srcdir)/src/cpp $(GTEST_CPPFLAGS)
+test_roomsecgateway_test_CPPFLAGS = -I$(top_srcdir)/test -I$(top_srcdir)/src/cpp $(GTEST_CPPFLAGS)
 test_roomsecgateway_test_CXXFLAGS = $(GTEST_CXXFLAGS)
 test_roomsecgateway_test_LDFLAGS = $(GTEST_LDFLAGS)
-test_roomsecgateway_test_LDADD = $(top_builddir)/libroomsecgateway.la \
-				   $(GTEST_LIBS) \
-				   $(top_builddir)/lib/gmock/libgmock_main.la \
-				   $(top_builddir)/lib/gmock/libgmock.la
-test_roomsecgateway_test_SOURCES = 
+
+test_roomsecgateway_test_LDADD = \
+	$(top_builddir)/libroomsecgateway.la \
+	$(GTEST_LIBS) \
+	$(top_builddir)/lib/gmock/libgmock_main.la \
+	$(top_builddir)/lib/gmock/libgmock.la
+
+test_roomsecgateway_test_SOURCES = test/authorityadaptertest.cpp
 
 TESTS += $(UNIT_TESTS)
 
