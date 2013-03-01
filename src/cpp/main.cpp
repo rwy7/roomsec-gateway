@@ -13,7 +13,7 @@
 #define authorityPort 8080
 
 namespace roomsec {
-  int start_repl();
+  int start_repl(void);
 }
 
 int main (int argc, char *argv[]) {

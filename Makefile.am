@@ -32,32 +32,38 @@ thrift_cpp = \
 # generate thrift interfaces
 $(thrift_cpp) : authorize/src/main/thrift/authorize.thrift 
 	mkdir -p src/cpp/gen-cpp
-	thrift --gen cpp -r -I ./authorize/src/main/thrift -o ./src/cpp/ ./authorize/src/main/thrift/authorize.thrift
+	thrift --gen cpp -r -I ./authorize/src/main/thrift -o ./src/cpp/  \
+		./authorize/src/main/thrift/authorize.thrift
 
 # main library sources
-libroomsecgateway_la_SOURCES = $(thrift_cpp) \
-			       src/cpp/gateway.cpp
+libroomsecgateway_la_SOURCES = \
+	$(thrift_cpp) \
+	src/cpp/gateway.cpp \
+	src/cpp/authorityadapter.cpp
 
 libroomsecgateway_la_CPPFLAGS = \
-			       -I/usr/include/thrift $(DEBUG) -Wall -W -Wwrite-strings \
-			       -std=c++11 -pedantic -DHAVE_INTTYPES_H -DHAVE_NETINET_IN_H \
-			       -I. -I./wiringPi
+	-I/usr/include/thrift $(DEBUG) -Wall -W -Wwrite-strings \
+	-std=c++11 -pedantic -DHAVE_INTTYPES_H -DHAVE_NETINET_IN_H \
+	-I. -I./wiringPi
 
-libroomsecgateway_la_LIBADD = -lstdc++ -lthrift -lboost_system -lboost_thread
+libroomsecgateway_la_LIBADD = \
+	-lstdc++ -lthrift -lboost_system -lboost_thread
 
 
 ###
 ### roomsecgateway
 ###
 
-roomsecgateway_SOURCES = src/cpp/main.cpp
+roomsecgateway_SOURCES = \
+	src/cpp/main.cpp
 
 roomsecgateway_CPPFLAGS = \
-			       -I/usr/include/thrift $(DEBUG) -Wall -W -Wwrite-strings \
-			       -std=c++11 -pedantic -DHAVE_INTTYPES_H -DHAVE_NETINET_IN_H \
-			       -I./wiringPi
+	-I/usr/include/thrift $(DEBUG) -Wall -W -Wwrite-strings \
+	-std=c++11 -pedantic -DHAVE_INTTYPES_H -DHAVE_NETINET_IN_H \
+	-I./wiringPi
 
-roomsecgateway_LDADD = -lstdc++ -lthrift -lboost_system -lboost_thread -lroomsecgateway
+roomsecgateway_LDADD = \
+	-lstdc++ -lthrift -lboost_system -lboost_thread -lroomsecgateway
 
 
 ###
@@ -66,28 +72,29 @@ roomsecgateway_LDADD = -lstdc++ -lthrift -lboost_system -lboost_thread -lroomsec
 
 # Build rules for testing framework.
 check_LTLIBRARIES = \
-		    lib/gmock/libgmock.la \
-		    lib/gmock/libgmock_main.la
+	lib/gmock/libgmock.la \
+	lib/gmock/libgmock_main.la
 
 lib_gmock_libgmock_la_SOURCES = \
-				lib/gmock/gmock/gmock.h \
-				lib/gmock/gtest/gtest.h \
-				lib/gmock/gmock-gtest-all.cc
+	lib/gmock/gmock/gmock.h \
+	lib/gmock/gtest/gtest.h \
+	lib/gmock/gmock-gtest-all.cc
+
 lib_gmock_libgmock_la_CPPFLAGS = $(GTEST_CPPFLAGS)
 lib_gmock_libgmock_la_CXXFLAGS = $(GTEST_CXXFLAGS)
 lib_gmock_libgmock_la_LDFLAGS = $(GTEST_LDFLAGS)
 lib_gmock_libgmock_la_LIBADD = $(GTEST_LIBS)
-
 lib_gmock_libgmock_main_la_SOURCES = \
-				     lib/gmock/gmock/gmock.h \
-				     lib/gmock/gtest/gtest.h \
-				     lib/gmock/gmock_main.cc
+	lib/gmock/gmock/gmock.h \
+	lib/gmock/gtest/gtest.h \
+	lib/gmock/gmock_main.cc
+
 lib_gmock_libgmock_main_la_CPPFLAGS = $(GTEST_CPPFLAGS)
 lib_gmock_libgmock_main_la_CXXFLAGS = $(GTEST_CXXFLAGS)
 lib_gmock_libgmock_main_la_LDFLAGS = $(GTEST_LDFLAGS)
 lib_gmock_libgmock_main_la_LIBADD = \
-				    $(GTEST_LIBS) \
-				    lib/gmock/libgmock.la
+	$(GTEST_LIBS) \
+	lib/gmock/libgmock.la
 
 
 ###
