@@ -39,7 +39,8 @@ $(thrift_cpp) : authorize/src/main/thrift/authorize.thrift
 libroomsecgateway_la_SOURCES = \
 	$(thrift_cpp) \
 	src/cpp/gateway.cpp \
-	src/cpp/authorityadapter.cpp
+	src/cpp/authorityadapter.cpp \
+	src/cpp/thriftauthorityadapter.cpp
 
 libroomsecgateway_la_CPPFLAGS = \
 	-I/usr/include/thrift $(DEBUG) -Wall -W -Wwrite-strings \
