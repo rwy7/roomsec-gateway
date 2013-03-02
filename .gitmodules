@@ -5,3 +5,9 @@
 	path = wiringPi
 	url = git://git.drogon.net/wiringPi
 
+[submodule "fingerprintauthn"]
+	path = fingerprintauthn
+	url = ssh://git@youngra.ca:2222/roomsec/fingerprintauthn
+[submodule "libfprint"]
+	path = libfprint
+	url = ssh://git@youngra.ca:2222/roomsec/libfprint
