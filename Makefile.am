@@ -1,15 +1,19 @@
 ACLOCAL_AMFLAGS = -I m4
 dist_doc_DATA = README
-EXTRA_DIST = autogen.sh \
-	     m4/gnulib-cache.m4 \
-	     	     scripts/cpplint.py \
-	     $(DX_DOCDIR)
+EXTRA_DIST = \
+	autogen.sh \
+	m4/gnulib-cache.m4 \
+	scripts/cpplint.py \
+	$(DX_DOCDIR)
 
 AM_CPPFLAGS = \
-	      -I$(top_srcdir)/src
+	-I$(top_srcdir)/src
+	-I$(top_srcdir)/libfprint
 
 pkginclude_HEADERS =
+
 bin_PROGRAMS = roomsecgateway
+
 lib_LTLIBRARIES = libroomsecgateway.la
 
 .PHONY = thrift
@@ -26,29 +30,40 @@ thrift_cpp = \
 	src/cpp/gen-cpp/authorize_constants.h \
 	src/cpp/gen-cpp/authorize_types.cpp \
 	src/cpp/gen-cpp/authorize_types.h \
+	src/cpp/gen-cpp/FingerprintAuthn.cpp \
+	src/cpp/gen-cpp/FingerprintAuthn.h \
+	src/cpp/gen-cpp/fingerprintauthn_constants.cpp \
+	src/cpp/gen-cpp/fingerprintauthn_constants.h \
+	src/cpp/gen-cpp/fingerprintauthn_types.cpp \
+	src/cpp/gen-cpp/fingerprintauthn_types.h \
 	src/cpp/gen-cpp/Validator.cpp \
 	src/cpp/gen-cpp/Validator.h
 
 # generate thrift interfaces
-$(thrift_cpp) : authorize/src/main/thrift/authorize.thrift 
-	mkdir -p src/cpp/gen-cpp
-	thrift --gen cpp -r -I ./authorize/src/main/thrift -o ./src/cpp/  \
-		./authorize/src/main/thrift/authorize.thrift
+$(thrift_cpp) : authorize/src/main/thrift/authorize.thrift \
+	fingerprintauthn/src/thrift/fingerprintauthn.thrift
+	mkdir -p $(top_builddir)/src/cpp/gen-cpp
+	thrift --gen cpp -r -I $(top_srcdir)/authorize/src/main/thrift \
+		-o $(top_builddir)/src/cpp/  \
+		$(top_srcdir)/fingerprintauthn/src/thrift/fingerprintauthn.thrift
 
-# main library sources
+# main library sourcesX(
 libroomsecgateway_la_SOURCES = \
 	$(thrift_cpp) \
 	src/cpp/gateway.cpp \
 	src/cpp/authorityadapter.cpp \
-	src/cpp/thriftauthorityadapter.cpp
+	src/cpp/thriftauthorityadapter.cpp \
+	src/cpp/fingerprintauthnadapter.cpp \
+	src/cpp/thriftfingerprintauthnadapter.cpp
+#src/cpp/fingerprintauthn.cpp
 
 libroomsecgateway_la_CPPFLAGS = \
 	-I/usr/include/thrift $(DEBUG) -Wall -W -Wwrite-strings \
 	-std=c++11 -pedantic -DHAVE_INTTYPES_H -DHAVE_NETINET_IN_H \
-	-I. -I./wiringPi
+	-I. -I./wiringPi -I$(top_srcdir)/libfprint
 
 libroomsecgateway_la_LIBADD = \
-	-lstdc++ -lthrift -lboost_system -lboost_thread
+	-lstdc++ -lthrift -lboost_system -lboost_thread $(top_srcdir)/libfprint/libfprint/libfprint.la
 
 
 ###
@@ -61,7 +76,7 @@ roomsecgateway_SOURCES = \
 roomsecgateway_CPPFLAGS = \
 	-I/usr/include/thrift $(DEBUG) -Wall -W -Wwrite-strings \
 	-std=c++11 -pedantic -DHAVE_INTTYPES_H -DHAVE_NETINET_IN_H \
-	-I./wiringPi
+	-I$(top_srcdir)/wiringPi -I$(top_srcdir)/libfprint
 
 roomsecgateway_LDADD = \
 	-lstdc++ -lthrift -lboost_system -lboost_thread -lroomsecgateway
@@ -147,4 +162,3 @@ check-unit-tests-with-valgrind:
 include Makefile.am.coverage
 include Makefile.am.checkstyle
 include Makefile.am.doxygen
-
