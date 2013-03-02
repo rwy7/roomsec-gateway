@@ -2,18 +2,24 @@
 
 using namespace std;
 
-BlockAnalysis::BlockAnalysis(BlockSensor*[] sensorPointers)
+
+BlockAnalysis::BlockAnalysis(std::vector<BlockSensor*> sensorPointers)
 {
-	sensors = sensorPointers;
+	sensors.clear();
+	streamCount = sensorPointers.size();
+	for(int i = 0; i < streamCount; i++)
+		sensors.push_back(sensorPointers[i]);
 	initialize();
 }
 
 //
 bool BlockAnalysis::initialize()
 {
+	
 	initializeStreams();
-	normalDistribution = new unsigned int[frameSize];
-	blockages = new vector<PassageTriple>;
+	normalSum = 0;
+	normalDistribution = new float[frameSize];
+	blockages.clear();
 	return 1;
 }
 
@@ -22,15 +28,17 @@ bool BlockAnalysis::initializeStreams()
 	analyze();
 	streamSize = 0;
 	zeroCount = 0;
-	rawStreams = new vector<unsigned float>[sensors.size()];
-	smoothStreams = new vector<unsigned float>[sensors.size()];
+	rawStreams = new vector<float>[sensors.size()];
+	smoothedStreams = new vector<float>[sensors.size()];
 	return 1;
 }
 
 bool BlockAnalysis::update()
 {
-	sensorValueUpdate()
-	if(zeroCount >= cutOff)
+	if(streamCount < 1)
+		return 0;
+	sensorValueUpdate();
+	if(zeroCount >= zeroCutOff)
 		initializeStreams();
 	return 1;
 }
@@ -38,44 +46,44 @@ bool BlockAnalysis::update()
 /*unsigned int getResults()
  *returns the number of detected blockages since last initialize()
  */
-unsigned int BlockAnalysis::getResults()
+PassageTriple BlockAnalysis::getResults()
 {
 	PassageTriple totals;
-	totals.incoming = 0;
+	totals.ingoing = 0;
 	totals.outgoing = 0;
 	totals.unknown = 0;
 	for(int i = 0; i < blockages.size(); i++)
 	{
-		totals.incoming += blockages[i].incoming;
+		totals.ingoing += blockages[i].ingoing;
 		totals.outgoing += blockages[i].outgoing;
 		totals.unknown += blockages[i].unknown;
 	}
 	return totals;
 }
 
-bool BlockAnalysis::sensorValueUpdate(unsigned int value)
+bool BlockAnalysis::sensorValueUpdate()
 {
 	streamSize++;
 	for(int i = 0; i < sensors.size(); i++)
 	{
-		unsigned int val = sensors[i]->getSensorValue()
-		rawStreams[i].pushBack(val);
+		unsigned int val = sensors[i]->getSensorValue();
+		rawStreams[i].push_back(val);
 		if(val != 0)
 			zeroCount = 0;
 	}
 	return 1;
 }
 
-vector<unsigned float> BlockAnalysis::smoothStream(vector<unsigned float> raw)
+vector<float> BlockAnalysis::smoothStream(vector<float> raw)
 {
 	unsigned int size = raw.size();
-	vector<unsigned float> smoothed;
-	unsigned int extension = math.floor(frameSize/2.);
-	vector<unsigned float> flooredRaw;
+	vector<float> smoothed;
+	unsigned int extension = floor(frameSize/2.);
+	vector<float> flooredRaw;
 
 	for(int i = 0; i < size; i++)
 	{
-		if(raw[i] < floor)
+		if(raw[i] < floorCutOff)
 			flooredRaw.push_back(0);
 		else
 			flooredRaw.push_back(raw[i]);
@@ -83,32 +91,31 @@ vector<unsigned float> BlockAnalysis::smoothStream(vector<unsigned float> raw)
 
 	for(int i = 0; i < extension; i++)
 	{
-		flooredRaw.insert(0,0);
+		flooredRaw.insert(flooredRaw.begin(),0);
 		flooredRaw.push_back(0);
 	}
 
 	for(int i = 0; i < size; i++)
 	{
-		sum = 0;
+		 int sum = 0;
 
 		for(int j = 0; j < frameSize; j++)
 		{
 			sum += normalDistribution[i] * flooredRaw[j-extension];
 		}
 
-		smoothed.push_back(sum/normalSum)
+		smoothed.push_back(sum/normalSum);
 	}
 	return smoothed;
 }
 
 bool BlockAnalysis::analyze()
 {
-	if(streamSize < 1)
+	if(streamSize < 1 || streamCount < 1)
 		return 0;
-	unsigned int streamCount = rawStreams.size();
-	vector<unsigned float>[streamCount] smoothedStreams;
-	vector<unsigned int>[streamCount] blockStreams;
-	vector<pair<unsigned int, unsigned int>>[streamCount] simplifiedStreams;
+	vector<float> smoothedStreams[streamCount];
+	vector<unsigned int> blockStreams[streamCount];
+	vector<pair<unsigned int, unsigned int> > simplifiedStreams[streamCount];
 	vector<unsigned int> combinedStream;
 
 	for(int i = 0; i < streamCount; i++)
@@ -122,12 +129,12 @@ bool BlockAnalysis::analyze()
 	unsigned int objs = 0;
 	for(int i = 0; i < simplifiedStreams[0].size(); i++)
 	{
-		if(simplifiedStream[i].second == 2)
+		if(simplifiedStreams[0][i].second == 2)
 			objs++;
 	}
 	PassageTriple blocks;
-	blocks.incoming = 0;
-	blocks.outgoing = 0
+	blocks.ingoing = 0;
+	blocks.outgoing = 0;
 	blocks.unknown = objs;
 	blockages.push_back(blocks);
 	
@@ -135,63 +142,8 @@ bool BlockAnalysis::analyze()
 	return 1;
 }
 
-//depricated
-vector<unsigned int> BlockAnalysis::findMajorCrests(vector<unsigned float> stream)
-{
-	vector<unsigned int> crests;
-	unsigned int size = stream.size();
-	unsigned int extension = math.floor(frameSize/2.);
 
-	for(int i = 0; i < extension; i++)
-	{
-		stream.insert(0,0);
-		stream.push_back(0);
-	}
-
-	for(int i = 0; i < size; i++)
-	{
-		bool crest = true;
-		if(stream[i+extension] <= 0)
-			crest = false;
-		for(int j = 0; j < frameSize && crest; j++)
-		{
-			if(stream[i+extension] < stream[i+j]0)
-				crest = false;
-		}
-		if(crest)
-			crests.push_back(i);
-	}
-	return crests;
-}
-
-//depricated
-vector<pair<unsigned int, bool>> BlockAnalysis::findMajorTroughs(vector<unsigned float> stream)
-{
-	vector<unsigned int> troughs;
-	unsigned int size = stream.size();
-
-	troughs.push_back(0);
-
-	stream.insert(0,0);
-	stream.push_back(0);
-
-	for(int i = 0; i < size; i++)
-	{
-		if(stream[i] > 0 && stream[i+1] == 0)
-			troughs.push_back(make_pair(i, true));
-		if(stream[i+2] > 0 && stream[i+1] == 0)
-			troughs.push_back(make_pair(i, false));
-	}
-	if(troughs(troughs.size()-1).first != size-1)
-		if(troughs(troughs.size-2).second == true)
-			troughs.push_back(make_pair(troughs.size()-1, false));
-		else if(troughs(troughs.size-2).second == false)
-			troughs.push_back(make_pair(troughs.size()-1, true));
-
-	returns troughs;
-}
-
-std::vector<unsigned int> BlockAnalysis::isolateBlocks(std::vector<unsigned float> stream)
+std::vector<unsigned int> BlockAnalysis::isolateBlocks(std::vector<float> stream)
 {
 	vector<unsigned int> edges;
 
@@ -213,8 +165,8 @@ std::vector<unsigned int> BlockAnalysis::isolateBlocks(std::vector<unsigned floa
 		else
 			if(stream[i] > 0 && stream[i-1] == 0)
 			{
-				edges.push_back(i)
-				high = true
+				edges.push_back(i);
+				high = true;
 			}
 	}
 	if(high)
@@ -223,16 +175,16 @@ std::vector<unsigned int> BlockAnalysis::isolateBlocks(std::vector<unsigned floa
 	return edges;
 }
 
-vector<pair<unsigned int, unsigned int>> BlockAnalysis::simplifyStream(vector<unsigned float> stream, vector<unsigned int> blocks)
+vector<pair<unsigned int, unsigned int> > BlockAnalysis::simplifyStream(vector<float> stream, vector<unsigned int> blocks)
 {
-	int floorCutoff = 0.2
-	vector<pair<unsigned int, unsigned int>> criticalPoints;
+	int floorCutoff = 0.2;
+	vector<pair<unsigned int, unsigned int> > criticalPoints;
 	for(int i = 0; i < blocks.size(); i+=2)
 	{
 
 		unsigned int a = blocks[i], b = blocks[i+1];
-		unsigned float sum = 0, average = 0;
-		vector<unsigned float> streamBlock;
+		float sum = 0, average = 0;
+		vector<float> streamBlock;
 		for(int j = a; j < b; j++)
 		{
 			sum += stream[j];
@@ -263,7 +215,7 @@ vector<pair<unsigned int, unsigned int>> BlockAnalysis::simplifyStream(vector<un
 	return criticalPoints;
 }
 
-vector<unsigned int> combineStreams(vector<pair<unsigned int, unsigned int>>[] streams)
+vector<unsigned int> BlockAnalysis::combineStreams(vector<pair<unsigned int, unsigned int> > streams[])
 {
 	vector<unsigned int> combined;
 	unsigned int end = streams[0][streams[0].size()-1].first;
@@ -277,8 +229,8 @@ vector<unsigned int> combineStreams(vector<pair<unsigned int, unsigned int>>[] s
 		while(i > streams[0][index].first)
 			index++;
 		combined.push_back(val);
-	
-	for(int j = 1; j < streams.size(); j++)
+	}
+	for(int j = 1; j < streamCount; j++)
 	{
 		for(int i = 0; i < end; i++)
 		{
@@ -294,14 +246,14 @@ vector<unsigned int> combineStreams(vector<pair<unsigned int, unsigned int>>[] s
 
 bool BlockAnalysis::generateNormalDistribution()
 {
-	float u = 0
-	float a = 1
-	float pi = 3.1415926
+	float u = 0;
+	float a = 1;
+	float pi = 3.1415926;
 	int min = -2, max = 2;
 	for(int i = 0; i < frameSize; i++)
 	{
-		x = i*(max-min) - min;
-		val = exp( (-pow(x-u,2)) / (2*pow(a,2)) ) / ( a*sqrt(2*pi) );
+		int x = i*(max-min) - min;
+		float val = exp( (-pow(x-u,2)) / (2*pow(a,2)) ) / ( a*sqrt(2*pi) );
 		normalSum += val;
 		normalDistribution[i] = val;
 	}
