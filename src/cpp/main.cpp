@@ -21,11 +21,10 @@ extern "C" {
 #include "libfprint/fprint.h"
 }
 
-
-
 namespace roomsec {
+
 #define authorityIP "192.168.0.194"
-#define authorityPort 8080
+#define authorityPort 9090
 #define fingerprintAuthnIp "192.168.0.172"
 #define fingerprintAuthnPort 8080
 
@@ -187,6 +186,9 @@ namespace roomsec {
 	     
 	      fingerprintAuthAdapter.authenticate
 		(credential, std::string(fprint, fprint + fprint_size));
+
+	      std::cout << "Recieved: " << credential.token 
+			<< " User: " << credential.userid << "\n";
 	    }
 
 	    fp_exit();
@@ -198,13 +200,20 @@ namespace roomsec {
       }
 
       if(!input.compare("check"))  {
+	std::string resource;
+	std::cout << "resource: ";
+	std::cin >> resource;
+	
+	std::cout << "checking\n";
 	std::vector<iface::CredentialSpec> requiredCreds;
-	std::string resource = "ca.mcmaster.itb.234";
-
 	authAdapter.checkRequirements(requiredCreds, resource);
-
-	std::cout << "Obtained connection\n";
-	std::cout << "resource: " << resource << "cred: ... \n";
+	
+	std::cout << "requires credentials:\n";
+	for(std::vector<iface::CredentialSpec>::iterator it =  requiredCreds.begin(); 
+	    it != requiredCreds.end(); ++it) {
+	  std::cout << "  " << "provider: " << it->provider
+		    <<" mechanism: " << it->mechanism << "\n";
+	}
       }
 
       if(!input.compare("help")) {
