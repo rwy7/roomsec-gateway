@@ -7,14 +7,15 @@ EXTRA_DIST = \
 	$(DX_DOCDIR)
 
 AM_CPPFLAGS = \
-	-I$(top_srcdir)/src
-	-I$(top_srcdir)/libfprint
+	-I$(top_srcdir)/src \
+	-I$(top_srcdir)/libfprint \
+	$(THRIFT_CFLAGS)
 
 pkginclude_HEADERS =
 
 bin_PROGRAMS = roomsecgateway
 
-lib_LTLIBRARIES = libroomsecgateway.la
+noinst_LTLIBRARIES = libroomsecgateway.la
 
 .PHONY = thrift
 
@@ -58,12 +59,14 @@ libroomsecgateway_la_SOURCES = \
 #src/cpp/fingerprintauthn.cpp
 
 libroomsecgateway_la_CPPFLAGS = \
-	-I/usr/include/thrift $(DEBUG) -Wall -W -Wwrite-strings \
-	-std=c++11 -pedantic -DHAVE_INTTYPES_H -DHAVE_NETINET_IN_H \
-	-I. -I./wiringPi -I$(top_srcdir)/libfprint
+	$(THRIFT_CFLAGS) $(DEBUG) -Wall -W -Wwrite-strings \
+	-pedantic -DHAVE_INTTYPES_H -DHAVE_NETINET_IN_H \
+	-I. -I$(top_srcdir)/wiringPi -I$(top_srcdir)/libfprint
+
+libroomsecgateway_la_LDFLAGS = -version-info 1:0:0
 
 libroomsecgateway_la_LIBADD = \
-	-lstdc++ -lthrift -lboost_system -lboost_thread $(top_srcdir)/libfprint/libfprint/libfprint.la
+	-lstdc++ $(THRIFT_LIBS) -lboost_system -lboost_thread $(top_srcdir)/libfprint/libfprint/libfprint.la
 
 
 ###
@@ -74,12 +77,15 @@ roomsecgateway_SOURCES = \
 	src/cpp/main.cpp
 
 roomsecgateway_CPPFLAGS = \
-	-I/usr/include/thrift $(DEBUG) -Wall -W -Wwrite-strings \
+	$(THRIFT_CFLAGS) $(DEBUG) -Wall -W -Wwrite-strings \
 	-std=c++11 -pedantic -DHAVE_INTTYPES_H -DHAVE_NETINET_IN_H \
 	-I$(top_srcdir)/wiringPi -I$(top_srcdir)/libfprint
 
+roomsecgateway_LDFLAGS = -static
+
 roomsecgateway_LDADD = \
-	-lstdc++ -lthrift -lboost_system -lboost_thread -lroomsecgateway
+	-lstdc++ $(THRIFT_LIBS) -lboost_system -lboost_thread -lroomsecgateway \
+	$(top_srcdir)/libfprint/libfprint/libfprint.la
 
 
 ###
