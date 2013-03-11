@@ -85,8 +85,7 @@ roomsecgateway_LDFLAGS = -static
 
 roomsecgateway_LDADD = \
 	-lstdc++ $(THRIFT_LIBS) -lboost_system -lboost_thread -lroomsecgateway \
-	$(top_srcdir)/libfprint/libfprint/libfprint.la
-
+	$(top_srcdir)/libfprint/libfprint/libfprint.la -lboost_program_options
 
 ###
 ### Google Testing Framework
