@@ -20,7 +20,7 @@ AC_PROG_MKDIR_P
 ACX_PTHREAD([have_pthread=yes], [have_pthread=no])
 
 # Initialize libtool
-LT_INIT
+LT_INIT([disable-shared])
 
 # Define variables for unit test using gtest
 GTEST_VERSION="1.6.0"
@@ -60,13 +60,16 @@ AC_CHECK_COVERAGE
 # Check for C++11 supports
 #   ext: use extended mode (e.g. -std=gnu++11)
 #   noext: use non-extended mode (e.g. -std=c++11)
-# AX_CXX_COMPILE_STDCXX_11([noext])
+AX_CXX_COMPILE_STDCXX_11([noext])
 
 # Check for header files.
+
 
 # Check for typedefs, structures, and compiler characteristics.
 
 # Check for library functions.
+# Thrift
+PKG_CHECK_MODULES([THRIFT], [thrift])
 
 # Check for the existance of a file in the source directory.
 AC_CONFIG_SRCDIR([src/])
