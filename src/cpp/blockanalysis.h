@@ -21,16 +21,15 @@ class BlockAnalysis{
 	std::vector<float> *rawStreams, *smoothedStreams;
 	std::vector<PassageTriple> blockages;
 	
-	public: //temporary exposing internalfunctions for testing purposes
 	bool generateNormalDistribution();
 	bool sensorValueUpdate();
 	std::vector<float> smoothStream(std::vector<float> raw);
 	bool analyze();	
 	std::vector<unsigned int> isolateBlocks(std::vector<float> stream);
-	std::vector<std::pair<unsigned int, unsigned int> > simplifyStream(std::vector<float> stream, std::vector<unsigned int> blocks);
-	std::vector<unsigned int> combineStreams(std::vector<std::pair<unsigned int, unsigned int> > streams[]);
+	std::vector<std::pair<unsigned int, float> > simplifyStream(std::vector<float> stream, std::vector<unsigned int> blocks);
 
-	//public:
+
+	public:
 	BlockAnalysis(std::vector<BlockSensor*> sensorPointers);
 	bool initialize();
 	bool initializeStreams();

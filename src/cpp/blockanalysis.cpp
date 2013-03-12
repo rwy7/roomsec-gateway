@@ -116,7 +116,6 @@ bool BlockAnalysis::analyze()
 	vector<float> smoothedStreams[streamCount];
 	vector<unsigned int> blockStreams[streamCount];
 	vector<pair<unsigned int, unsigned int> > simplifiedStreams[streamCount];
-	vector<unsigned int> combinedStream;
 
 	for(int i = 0; i < streamCount; i++)
 	{
@@ -124,12 +123,13 @@ bool BlockAnalysis::analyze()
 		blockStreams[i] = isolateBlocks(smoothedStreams[i]);
 		simplifiedStreams[i] = simplifyStream(smoothedStreams[i], blockStreams[i]);
 	}
-	//combinedStream = combineStreams(simplifiedStreams);
+
 	//TODO - turn this into a real analysis
+	//TODO - use multiple streams to determine direction
 	unsigned int objs = 0;
 	for(int i = 0; i < simplifiedStreams[0].size(); i++)
 	{
-		if(simplifiedStreams[0][i].second == 2)
+		if(simplifiedStreams[0][i].second >= 2)
 			objs++;
 	}
 	PassageTriple blocks;
@@ -198,7 +198,7 @@ vector<pair<unsigned int, unsigned int> > BlockAnalysis::simplifyStream(vector<f
 			if(streamBlock[j] > average*floorCutoff)
 			{
 				if(!high)
-					criticalPoints.push_back(make_pair(a+j, 2));
+					criticalPoints.push_back(make_pair(a+j, 2 + streamBlock[j]));
 				high = true;
 				low = false;
 			}
