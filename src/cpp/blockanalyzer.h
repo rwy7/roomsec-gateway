@@ -79,13 +79,13 @@ class BlockAnalyzer{
 	bool update();
 
 	/**
-	 * @brief 
+	 * @brief Performs analysis on the collected data to determine number and direction of passages through doorway
 	 *
 	 */
 	bool analyze();	
 
 	/**
-	 *
+	 * @brief Gets the accumulated results of all analysis since the last initialization
 	 *
 	 */
 	PassageTriple getResults();
