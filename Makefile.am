@@ -38,7 +38,9 @@ thrift_cpp = \
 	src/cpp/gen-cpp/fingerprintauthn_types.cpp \
 	src/cpp/gen-cpp/fingerprintauthn_types.h \
 	src/cpp/gen-cpp/Validator.cpp \
-	src/cpp/gen-cpp/Validator.h
+	src/cpp/gen-cpp/Validator.h \
+	src/cpp/gateway.cpp \
+	src/cpp/replgateway.cpp
 
 # generate thrift interfaces
 $(thrift_cpp) : authorize/src/main/thrift/authorize.thrift \
