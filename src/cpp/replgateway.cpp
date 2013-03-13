@@ -150,11 +150,6 @@ namespace roomsec {
       if (!input.compare("authn")) {
 	std::cout << "Authenticating\n";
 
-	/** 
-	 * TODO: Scan fingerprints 
-	 * NOTE: COPY PASTA NOT OUR CODE HERE 
-	 */
-
 	int r = fp_init();
 	if (r < 0) {
 	  fprintf(stderr, "Failed to initialize libfprint\n");
