@@ -215,35 +215,6 @@ vector<pair<unsigned int, unsigned int> > BlockAnalyzer::simplifyStream(vector<f
 	return criticalPoints;
 }
 
-vector<unsigned int> BlockAnalyzer::combineStreams(vector<pair<unsigned int, unsigned int> > streams[])
-{
-	vector<unsigned int> combined;
-	unsigned int end = streams[0][streams[0].size()-1].first;
-
-	unsigned int val = 0, index = 0;
-	
-	for(int i = 0; i < end; i++)
-	{
-		if(i == streams[0][index].first)
-			val = streams[0][index].second;
-		while(i > streams[0][index].first)
-			index++;
-		combined.push_back(val);
-	}
-	for(int j = 1; j < streamCount; j++)
-	{
-		for(int i = 0; i < end; i++)
-		{
-			if(i == streams[0][index].first)
-				val = streams[0][index].second;
-			while(i > streams[0][index].first)
-				index++;
-			combined[i] = combined[i]*val;
-		}
-	}
-	return combined;
-}
-
 bool BlockAnalyzer::generateNormalDistribution()
 {
 	float u = 0;

@@ -22,31 +22,31 @@ class BlockAnalyzer{
 	std::vector<PassageTriple> blockages;
 	
 	/**
-	 *
+	 * @brief Generates a normal distribution of the length frameSize for use in smoothing
 	 *
 	 */
 	bool generateNormalDistribution();
 
 	/**
-	 *
+	 * @brief Grabs the current values from the sensors
 	 *
 	 */
 	bool sensorValueUpdate();
 
 	/**
-	 *
+	 * @brief Performs a simple smoothing algorithm on a sensor value stream
 	 *
 	 */
 	std::vector<float> smoothStream(std::vector<float> raw);
 
 	/**
-	 *
+	 * @brief Identifies blocks of detection from a sensor value stream
 	 *
 	 */
 	std::vector<unsigned int> isolateBlocks(std::vector<float> stream);
 
 	/**
-	 *
+	 * @brief Simplifies a sensor value stream into a series of critical values, eg. local peaks and troughs
 	 *
 	 */
 	std::vector<std::pair<unsigned int, float> > simplifyStream(std::vector<float> stream, std::vector<unsigned int> blocks);
@@ -55,31 +55,31 @@ class BlockAnalyzer{
 	public:
 
 	/**
-	 * @ 
+	 * @brief 
 	 *
 	 */
 	BlockAnalyzer(std::vector<BlockSensor*> sensorPointers);
 
 	/**
-	 *
+	 * @brief Reinitializes all volatile values
 	 *
 	 */
 	bool initialize();
 
 	/**
-	 *
+	 * @brief Reinitializes the sensor value streams
 	 *
 	 */
 	bool initializeStreams();
 
 	/**
-	 *
+	 * @brief Primary update method to be called during each iteration of controlling classes main loop
 	 *
 	 */
 	bool update();
 
 	/**
-	 *
+	 * @brief 
 	 *
 	 */
 	bool analyze();	
