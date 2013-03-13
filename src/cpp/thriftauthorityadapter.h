@@ -6,15 +6,37 @@
 #ifndef _ROOMSEC_THRIFTAUTHORITYADAPTER_H_
 #define _ROOMSEC_THRIFTAUTHORITYADAPTER_H_
 
-#include "authorityadapter.h"
-
 /*
-class apache::thrift::transport::TSocket;
-class apache::thrift::transport::TTransport;
-class apache::thrift::protocol::TProtocol;
+#include <boost/shared_ptr.hpp>
+#include <transport/TSocket.h>
+#include <transport/TTransport.h>
+#include <protocol/TProtocol.h>
 */
 
+#include "authorityadapter.h"
+
+/* Thrift dependencies -- forward declarations */
+namespace apache { namespace thrift {
+    namespace transport {
+      class TSocket;
+      class TTransport;
+    }
+    namespace protocol {
+      class apache::thrift::protocol::TProtocol;
+    }
+  }
+}
+
 namespace roomsec {
+
+  /**
+   * An adapter to a remotely placed authority process.  Communication
+   * between the adapter and the authority occurs over an ip-based
+   * thrift protocol.
+   *
+   * The exact thrift protocol is unspecified, leaving the decision up
+   * to the policy of higher level modules.
+   */
   class ThriftAuthorityAdapter: public AuthorityAdapter {
   public:
     ThriftAuthorityAdapter(const std::string& authorityServer,
@@ -30,9 +52,20 @@ namespace roomsec {
 
   private:
 
+    /**
+     * Obtain a record of required credentials for a resource.
+     *
+     * This resource is generated and produced by a remote authority agent.
+     *
+     * @param[out] requirements  A specification of required credentials.
+     * @param[in]  resource      a URL which uniquely identifies the resource.
+     */
     void checkRequirementsImpl(std::vector<iface::CredentialSpec>& requirements,
 			       const std::string& resource);
 
+    /**
+     * Defer an authorization decision to a remotely placed authority process.
+     */
     iface::AuthorizationReply::type authorizeImpl(const iface::AuthorizationRequest& request);
   };
 }
