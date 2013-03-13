@@ -7,7 +7,7 @@ class BlockSensor{
 	float mSensorValue;
 	int iSensorValue
 	public:
-	virtual int getSensorValue();//TODO implement this sh*t
+	virtual int getSensorValue();
 };	
 
 #endif
