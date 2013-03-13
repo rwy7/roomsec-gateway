@@ -67,7 +67,6 @@ public:
 	/**
 	 * @brief Analyzes the results from the last monitoring session to detect tailgating
 	 *
-	 * 
 	 *  
 	 * @return bool
 	 */

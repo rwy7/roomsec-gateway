@@ -6,12 +6,28 @@
 #include "math.h"
 #include <utility>
 
-
+/**
+ * @brief A structure that holds a triple of values representing the number of passages through the doorway
+ *
+ * ingoing - the number of recorded ingoing passages
+ * outgoing - the number of recorded outgoing passages
+ * unknown - the estimated number of passages for which direction could not be determined
+ */
 struct PassageTriple
 {
 	unsigned int ingoing, outgoing, unknown;
 };
 
+/**
+ * @brief This class analyzes the readings from the block sensors in order to monitor the number of passages through the doorway
+ *
+ * The class begins creates a digital data stream for each sensor by periodically sampling their values. No analysis of the data is 
+ * made until the monitoring session is complete. At the end of the monitoring session, the streams are smoothed and refined.
+ *
+ * The class then steps through the streams, identifying peaks in the data, and identifying matching peaks across the data streams.
+ * From this, the class determines the number of passages through the doorway and the probable direction of each passage.
+ *
+ */
 class BlockAnalyzer{
 	static const unsigned int frameSize = 5, low = 0, high = 1000, floorCutOff = 10, zeroCutOff = 100;
 	unsigned int zeroCount, streamSize, streamCount;
