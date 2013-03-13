@@ -1,3 +1,10 @@
 -I./libauthorize
 -I/usr/include/thrift
 -I./wiringPi/
+-I./src/cpp/
+-I./libfprint
+-Wall
+-W
+-I./
+-std=c++11
+
