@@ -38,9 +38,7 @@ thrift_cpp = \
 	src/cpp/gen-cpp/fingerprintauthn_types.cpp \
 	src/cpp/gen-cpp/fingerprintauthn_types.h \
 	src/cpp/gen-cpp/Validator.cpp \
-	src/cpp/gen-cpp/Validator.h \
-	src/cpp/gateway.cpp \
-	src/cpp/replgateway.cpp
+	src/cpp/gen-cpp/Validator.h
 
 # generate thrift interfaces
 $(thrift_cpp) : authorize/src/main/thrift/authorize.thrift \
@@ -57,8 +55,9 @@ libroomsecgateway_la_SOURCES = \
 	src/cpp/authorityadapter.cpp \
 	src/cpp/thriftauthorityadapter.cpp \
 	src/cpp/fingerprintauthnadapter.cpp \
-	src/cpp/thriftfingerprintauthnadapter.cpp
-#src/cpp/fingerprintauthn.cpp
+	src/cpp/thriftfingerprintauthnadapter.cpp \
+	src/cpp/gateway.cpp \
+	src/cpp/replgateway.cpp
 
 libroomsecgateway_la_CPPFLAGS = \
 	$(THRIFT_CFLAGS) $(DEBUG) -Wall -W -Wwrite-strings \
@@ -87,8 +86,7 @@ roomsecgateway_LDFLAGS = -static
 
 roomsecgateway_LDADD = \
 	-lstdc++ $(THRIFT_LIBS) -lboost_system -lboost_thread -lroomsecgateway \
-	$(top_srcdir)/libfprint/libfprint/libfprint.la
-
+	$(top_srcdir)/libfprint/libfprint/libfprint.la -lboost_program_options
 
 ###
 ### Google Testing Framework

@@ -2,10 +2,12 @@
 #define BLOCKSENSOR
 
 class BlockSensor{
-	unsigned int sensorValue;
-	bool pollSensorValue();
+	protected:
+	static const iMin = 0, iMax = 100;
+	float mSensorValue;
+	int iSensorValue
 	public:
-	unsigned int getSensorValue();//TODO implement this sh*t
+	virtual int getSensorValue();
 };	
 
 #endif
