@@ -24,7 +24,7 @@ namespace roomsec {
        *
        * @return The current door state.
        */
-      virtual DoorState getDoorState();
+      virtual State getDoorState();
 
     private:
 
