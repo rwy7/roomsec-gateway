@@ -38,12 +38,26 @@ bool TailgateAnalyzer::beginSession()
 {
 	if (sessionRunning || !blockAnalyzer)
 		return false;
-	blockAnalyzer->initialize();
+	sessionRunning = true;
+	blockAnalyzer->beginMonitoringSession();
+	return true;
 }
 
-PassageTriple TailgateAnalyzer::finishSession()
+bool TailgateAnalyzer::finishSession()
 {
+	if (!sessionRunning || !blockAnalyzer)
+		return false;
 	sessionRunning = false;
-	blockAnalyzer->analyze();
-	return blockAnalyzer->getResults();
+	blockAnalyzer->endMonitoringSession();
+	results = blockAnalyzer->getResults();
+	return true;
+}
+
+bool TailgateAnalyzer::analyze()
+{
+	//if results.ingoing > 1
+		//tailgate = true
+	//else if (results.ingoing + results.unkown > 1)
+		//tailgate = possible
+	return false;
 }
