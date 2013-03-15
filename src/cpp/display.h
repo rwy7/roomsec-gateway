@@ -31,7 +31,7 @@ namespace roomsec {
     virtual ~Display();
 
     /**
-     * Ste the backlight color of the display.  This call should
+     * Set the backlight color of the display.  This call should
      * update the screen immediately.
      */
     virtual setColor(Color c);
