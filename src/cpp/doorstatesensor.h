@@ -8,13 +8,13 @@ namespace roomsec {
    */
   enum DoorState {open, closed};
 
-
   /**
    * @brief Senses if a door is opened or closed.
    */
   class DoorStateSensor {
 
     public:
+      virtual ~DoorStateSensor();
 
       /**
        * @brief Get the current door state.
@@ -27,10 +27,9 @@ namespace roomsec {
       virtual DoorState getDoorState();
 
     private:
-      DISALLOW_COPY_AND_ASSIGN(DoorStateSensor);
 
   };
 }
 
-#endif /* _DOORSTATESENSOR */
+#endif /* _DOORSTATESENSOR_H */
 
