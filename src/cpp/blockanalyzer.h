@@ -5,6 +5,9 @@
 #include <vector>
 #include "math.h"
 #include <utility>
+#include <cstdio>
+
+namespace roomsec{
 
 /**
  * @brief A structure that holds a triple of values representing the number of passages through the doorway
@@ -27,6 +30,17 @@ struct PassageTriple
  * The class then steps through the streams, identifying peaks in the data, and identifying matching peaks across the data streams.
  * From this, the class determines the number of passages through the doorway and the probable direction of each passage.
  *
+ * update() is intended to be called periodically within some loop by the controlling class. update() must be called periodically 
+ * during the monitoring session for proper data gathering to occur. Calling update() outside of the monitoring session is unnecessary,
+ * but doind so will not result in any adverse behavior.
+ *
+ * A monitoring session is started with startMonitoringSession(). This initializes the data and begins the data collection process. 
+ * No data will be sampled from the sensors until the monitoring session is initialized with startMonitoringSession().
+ *
+ * A monitoring session is ended with endMonitoringSession(). This ends the collection of data, and performs analyis on the collected data.
+ *
+ * getResults() will return a PassageTriple containing the identified passages from the last monitoring session. getResults() should only be called 
+ * after the monitoring session has been ended with endMonitoringSession(), otherwise getResults() will report incomplete data.
  */
 class BlockAnalyzer{
 	static const unsigned int frameSize = 5, low = 0, high = 1000, floorCutOff = 10, zeroCutOff = 100;
@@ -36,6 +50,7 @@ class BlockAnalyzer{
 	std::vector<BlockSensor *> sensors;
 	std::vector<float> *rawStreams, *smoothedStreams;
 	std::vector<PassageTriple> blockages;
+	bool monitoring;
 	
 	/**
 	 * @brief Generates a normal distribution of the length frameSize for use in smoothing
@@ -67,14 +82,11 @@ class BlockAnalyzer{
 	 */
 	std::vector<std::pair<unsigned int, float> > simplifyStream(std::vector<float> stream, std::vector<unsigned int> blocks);
 
-
-	public:
-
 	/**
-	 * @brief 
+	 * @brief Performs analysis on the collected data to determine number and direction of passages through doorway
 	 *
 	 */
-	BlockAnalyzer(std::vector<BlockSensor*> sensorPointers);
+	bool analyze();	
 
 	/**
 	 * @brief Reinitializes all volatile values
@@ -88,6 +100,15 @@ class BlockAnalyzer{
 	 */
 	bool initializeStreams();
 
+	public:
+	bool DEBUG;
+
+	/**
+	 * @brief 
+	 *
+	 */
+	BlockAnalyzer(std::vector<BlockSensor*> sensorPointers, bool debug = false);
+
 	/**
 	 * @brief Primary update method to be called during each iteration of controlling classes main loop
 	 *
@@ -95,10 +116,16 @@ class BlockAnalyzer{
 	bool update();
 
 	/**
-	 * @brief Performs analysis on the collected data to determine number and direction of passages through doorway
+	 * @brief initializes the monitoring session so that the collection of data may begin
 	 *
 	 */
-	bool analyze();	
+	bool beginMonitoringSession();
+
+	/**
+	 * @brief ends the monitoring session and performs analysis on the collected data
+	 *
+	 */
+	bool endMonitoringSession();
 
 	/**
 	 * @brief Gets the accumulated results of all analysis since the last initialization
@@ -107,5 +134,5 @@ class BlockAnalyzer{
 	PassageTriple getResults();
 	
 };
-
+}
 #endif

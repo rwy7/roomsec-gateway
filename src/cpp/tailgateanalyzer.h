@@ -60,9 +60,9 @@ public:
 	 *
 	 * Ends the monitoring session, analyzes the collected data and returns the results of the analysis.
 	 *  
-	 * @return PassageTriple indicating how many objects passed through the gateway and in which direction.
+	 * @return bool
 	 */
-	PassageTriple finishSession();
+	bool finishSession();
 
 	/**
 	 * @brief Analyzes the results from the last monitoring session to detect tailgating
@@ -70,7 +70,7 @@ public:
 	 *  
 	 * @return bool
 	 */
-	bool analyzeResults();
+	bool analyze();
 
 }
 
