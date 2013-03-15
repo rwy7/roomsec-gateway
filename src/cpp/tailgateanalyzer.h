@@ -56,7 +56,7 @@ public:
 	bool beginSession();
 
 	/**
-	 * @brief Ends the monitoring session, and retreivs the results
+	 * @brief Ends the monitoring session, and retreives the results
 	 *
 	 * Ends the monitoring session, analyzes the collected data and returns the results of the analysis.
 	 *  
@@ -68,9 +68,16 @@ public:
 	 * @brief Analyzes the results from the last monitoring session to detect tailgating
 	 *
 	 *  
-	 * @return bool
+	 * @return bool whether or not tailgating was detected by the analysis
 	 */
 	bool analyze();
+
+	/**
+	 * @brief A method to retrive a PassageTriple representing the passages observed in the last monitoring session
+	 *
+	 * @return PassageTriple a triple of values denoting the inward, outward, and directionless passages observed
+	 */
+	PassageTriple getPassageResults();
 
 }
 
