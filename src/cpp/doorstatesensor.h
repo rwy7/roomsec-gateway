@@ -4,17 +4,17 @@
 namespace roomsec {
 
   /**
-   * @brief Whether the door is open or closed.
-   */
-  enum DoorState {open, closed};
-
-  /**
    * @brief Senses if a door is opened or closed.
    */
   class DoorStateSensor {
 
     public:
       virtual ~DoorStateSensor();
+
+      /**
+       * @brief Whether the door is open or closed.
+       */
+      enum State {open, closed};
 
       /**
        * @brief Get the current door state.
