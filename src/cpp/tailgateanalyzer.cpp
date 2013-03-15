@@ -38,12 +38,22 @@ bool TailgateAnalyzer::beginSession()
 {
 	if (sessionRunning || !blockAnalyzer)
 		return false;
-	blockAnalyzer->initialize();
+	sessionRunning = true;
+	blockAnalyzer->beginMonitoringSession();
+	return true;
 }
 
-PassageTriple TailgateAnalyzer::finishSession()
+bool TailgateAnalyzer::finishSession()
 {
+	if (!sessionRunning || !blockAnalyzer)
+		return false;
 	sessionRunning = false;
-	blockAnalyzer->analyze();
-	return blockAnalyzer->getResults();
+	blockAnalyzer->endMonitoringSession();
+	return true;
+}
+
+bool TailgateAnalyzer::analyze()
+{
+
+	return false;
 }

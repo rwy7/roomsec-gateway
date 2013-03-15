@@ -2,14 +2,16 @@
 
 using namespace std;
 
+namespace roomsec{
 
-BlockAnalyzer::BlockAnalyzer(std::vector<BlockSensor*> sensorPointers)
+BlockAnalyzer::BlockAnalyzer(std::vector<BlockSensor*> sensorPointers, bool debug)
 {
+	DEBUG = debug;
 	sensors.clear();
 	streamCount = sensorPointers.size();
 	for(int i = 0; i < streamCount; i++)
 		sensors.push_back(sensorPointers[i]);
-	initialize();
+	monitoring = false;
 }
 
 //
@@ -35,6 +37,8 @@ bool BlockAnalyzer::initializeStreams()
 
 bool BlockAnalyzer::update()
 {
+	if(!monitoring)
+		return 0;
 	if(streamCount < 1)
 		return 0;
 	sensorValueUpdate();
@@ -48,6 +52,8 @@ bool BlockAnalyzer::update()
  */
 PassageTriple BlockAnalyzer::getResults()
 {
+	if (DEBUG && monitoring)
+		printf("getResult() - called during monitoring session; Possible incomplete results returned;\n");
 	PassageTriple totals;
 	totals.ingoing = 0;
 	totals.outgoing = 0;
@@ -63,14 +69,25 @@ PassageTriple BlockAnalyzer::getResults()
 
 bool BlockAnalyzer::sensorValueUpdate()
 {
+	if (DEBUG)
+		printf("sensorValueUpdate() - sensors.size() = %i;", sensors.size());
 	streamSize++;
+	bool zero = true;
 	for(int i = 0; i < sensors.size(); i++)
 	{
 		unsigned int val = sensors[i]->getSensorValue();
 		rawStreams[i].push_back(val);
 		if(val != 0)
-			zeroCount = 0;
+			zero = false;
+		if (DEBUG)
+			printf(" sensors[%i]->getSensorValue = val;", val); 
 	}
+	if (DEBUG)
+		printf(" sensorValueUpdate() - Complete;\n")
+	if(zero)
+		zeroCount++;
+	else
+		zeroCount = 0;
 	return 1;
 }
 
@@ -80,6 +97,9 @@ vector<float> BlockAnalyzer::smoothStream(vector<float> raw)
 	vector<float> smoothed;
 	unsigned int extension = floor(frameSize/2.);
 	vector<float> flooredRaw;
+
+	if (DEBUG)
+		printf("smoothStream(raw) - stream.size() = %i; extension = %i;\n", size, extension);
 
 	for(int i = 0; i < size; i++)
 	{
@@ -106,13 +126,21 @@ vector<float> BlockAnalyzer::smoothStream(vector<float> raw)
 
 		smoothed.push_back(sum/normalSum);
 	}
+	if (DEBUG)
+		printf("smoothStream(raw) - Complete;\n");
 	return smoothed;
 }
 
 bool BlockAnalyzer::analyze()
 {
+	if (DEBUG)
+		printf("analyze() - streamSize = %i; streamCount = %i;\n", streamSize, streamCount);
 	if(streamSize < 1 || streamCount < 1)
+	{
+		if (DEBUG)
+			printf("analyze() - premature termination; streamSize < 1 || streamCount < 1;\n");
 		return 0;
+	}
 	vector<float> smoothedStreams[streamCount];
 	vector<unsigned int> blockStreams[streamCount];
 	vector<pair<unsigned int, unsigned int> > simplifiedStreams[streamCount];
@@ -138,20 +166,23 @@ bool BlockAnalyzer::analyze()
 	blocks.unknown = objs;
 	blockages.push_back(blocks);
 	
-
+	if (DEBUG)
+		printf("analyze() - Complete;\n");
 	return 1;
 }
 
 
 std::vector<unsigned int> BlockAnalyzer::isolateBlocks(std::vector<float> stream)
 {
-	vector<unsigned int> edges;
+	if (DEBUG)
+		printf("isolateBlocks(stream) - stream.size() = %i;\n", stream.size());
+	vector<unsigned int> blockEdges;
 
 	bool high = false;
 
 	if(stream[0] > 0)
 	{
-		edges.push_back(0);
+		blockEdges.push_back(0);
 		high = true;
 	}
 
@@ -159,24 +190,29 @@ std::vector<unsigned int> BlockAnalyzer::isolateBlocks(std::vector<float> stream
 	{
 		if(high)
 			if(stream[i] == 0 && stream[i-1] > 0){
-				edges.push_back(i);
+				blockEdges.push_back(i);
 				high = false;
 			}
 		else
 			if(stream[i] > 0 && stream[i-1] == 0)
 			{
-				edges.push_back(i);
+				blockEdges.push_back(i);
 				high = true;
 			}
 	}
 	if(high)
-		edges.push_back(stream.size());
+		blockEdges.push_back(stream.size());
 
+	if (DEBUG)
+		printf("isolateBlocks(stream) - Complete; blockEdges.size() = %i;\n", blockEdges.size()); 
 	return edges;
 }
 
 vector<pair<unsigned int, unsigned int> > BlockAnalyzer::simplifyStream(vector<float> stream, vector<unsigned int> blocks)
 {
+	if (DEBUG)
+		printf("simplifyStream(stream, blocks) - stream.size() = %i; blocks.size() = %i;\n", stream.size(), blocks.size()); 
+
 	int floorCutoff = 0.2;
 	vector<pair<unsigned int, unsigned int> > criticalPoints;
 	for(int i = 0; i < blocks.size(); i+=2)
@@ -212,11 +248,47 @@ vector<pair<unsigned int, unsigned int> > BlockAnalyzer::simplifyStream(vector<f
 		}
 		criticalPoints.push_back(make_pair(blocks[i+1], 0));
 	}
+	if (DEBUG)
+	{
+		printf("simplifyStream(stream, blocks) - Complete; criticalPoints.size() = %i;\n", criticalPoints.size());
+	}
 	return criticalPoints;
+}
+
+bool BlockAnalyzer::beginMonitoringSession()
+{
+	if (monitoring)
+	{
+		if (DEBUG)
+			printf("beginMonitoringSession() called improperly; monitoring = true;\n);
+		return false;
+	}
+	if (DEBUG)
+		printg("beginMonitoringSession() - monitoring session started;\n");
+	monitoring = true;
+	initialize();
+	return true;
+}
+
+bool BlockAnalyzer::endMonitoringSession()
+{
+	if (!monitoring)
+	{
+		if (DEBUG)
+			printf("endMonitoringSession() called improperly; monitoring = false;\n);
+		return false;
+	}
+	if (DEBUG)
+		printg("endMonitoringSession() - monitoring session ended;\n");
+	monitoring = false;
+	initializeStream();
+	return true;
 }
 
 bool BlockAnalyzer::generateNormalDistribution()
 {
+	if (DEBUG)
+		printf("generateNormalDistribution() - frameSize = %i; u = %f; a = %f; min = %i; max = %i;\n" frameSize, u, a, min, max);
 	float u = 0;
 	float a = 1;
 	float pi = 3.1415926;
@@ -228,5 +300,15 @@ bool BlockAnalyzer::generateNormalDistribution()
 		normalSum += val;
 		normalDistribution[i] = val;
 	}
+	if (DEBUG)
+	{
+		printf("generateNormalDistribution() - Complete; normalDistribution =");
+		for(int i = 0; i < frameSize; i++)
+		{
+				printf(" %f;", normalDistribution[i]);
+		}
+		printf("\n");
+	}
 	return 1;
+}
 }
