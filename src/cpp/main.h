@@ -5,14 +5,10 @@
 
  /**
  * @mainpage RoomSec Gateway
- *
- * @section  intro_sec Introduction
- *
  * 
  * This is the RoomSec Gateway.  It represents the software that runs at each
  * gateway.
  */
-
 
 /****************************/
 /*  Namespace Documentation */

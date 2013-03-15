@@ -3,6 +3,10 @@
 
 namespace roomsec{
 
+	/**
+	 * @brief This class provides an interface for a photoelectric distance sensor
+	 *
+	 */
 class BlockSensor{
 	protected:
 	static const iLow = 0, iHigh = 100;

@@ -49,11 +49,15 @@ bool TailgateAnalyzer::finishSession()
 		return false;
 	sessionRunning = false;
 	blockAnalyzer->endMonitoringSession();
+	results = blockAnalyzer->getResults();
 	return true;
 }
 
 bool TailgateAnalyzer::analyze()
 {
-
+	//if results.ingoing > 1
+		//tailgate = true
+	//else if (results.ingoing + results.unkown > 1)
+		//tailgate = possible
 	return false;
 }
