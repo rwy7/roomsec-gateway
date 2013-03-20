@@ -82,7 +82,7 @@ namespace roomsec {
       
     };
 
-    //friend class Gateway::Builder<>;
+    template<typename B, typename G> friend class Gateway::Builder;
     
   private:
 
