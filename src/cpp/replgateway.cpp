@@ -1,4 +1,5 @@
-//#include "config.h"
+#include "config.h"
+
 #include <boost/shared_ptr.hpp>
 #include <boost/assert.hpp>
 
@@ -232,20 +233,6 @@ namespace roomsec {
   /*
    * ReplGateway Builder
    */
-
-  ReplGateway::Builder& 
-  ReplGateway::Builder::authorityAdapter
-  (boost::shared_ptr<AuthorityAdapter> authzAdapter) {
-    this->authzAdapter = authzAdapter;
-    return *this;
-  }
-
-  ReplGateway::Builder&
-  ReplGateway::Builder::fingerprintAuthnAdapter
-  (boost::shared_ptr<FingerprintAuthnAdapter> authnAdapter) {
-    this->authnAdapter = authnAdapter;
-    return *this;
-  }
 
   boost::shared_ptr<ReplGateway>
   ReplGateway::Builder::build() {

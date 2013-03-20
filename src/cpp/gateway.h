@@ -1,3 +1,5 @@
+/* -*- mode: c++; fill-column: 79 -*- */
+
 #ifndef _ROOMSEC_GATEWAY_H_
 #define _ROOMSEC_GATEWAY_H_
 
@@ -54,9 +56,30 @@ namespace roomsec {
        * last function that is called.
        */
       virtual boost::shared_ptr<GatewayT> build() = 0;
-      virtual BuilderT& authorityAdapter(boost::shared_ptr<AuthorityAdapter> authzAdapter) = 0;
-      virtual BuilderT& fingerprintAuthnAdapter(boost::shared_ptr<FingerprintAuthnAdapter> authnAdapter) = 0;
 
+      /**
+       * Set the authority adapter used by the built Gateway.
+       */
+      BuilderT&
+      authorityAdapter(boost::shared_ptr<AuthorityAdapter> authzAdapter) {
+	this->authzAdapter = authzAdapter;
+	return *static_cast<BuilderT*>(this);
+      }
+
+      /**
+       * Set the fingerprintauthn adapter used by the built Gateway.
+       */
+      BuilderT&
+      fingerprintAuthnAdapter(boost::shared_ptr<FingerprintAuthnAdapter> authnAdapter) {
+	this->authnAdapter = authnAdapter;
+	return *static_cast<BuilderT*>(this);
+      }
+      
+    protected:
+
+      boost::shared_ptr<AuthorityAdapter> authzAdapter;
+      boost::shared_ptr<FingerprintAuthnAdapter> authnAdapter;
+      
     };
 
     //friend class Gateway::Builder<>;

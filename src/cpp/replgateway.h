@@ -1,3 +1,5 @@
+/* -*- mode: c++; fill-column: 79 -*- */
+
 #ifndef _ROOMSEC_REPLGATEWAY_H_
 #define _ROOMSEC_REPLGATEWAY_H_
 
@@ -10,9 +12,9 @@ namespace roomsec {
   class FingerprintAuthnAdapter;
 
   /**
-   * Implements a gateway controlled with a REPL interface.  This
-   * class allows a human user to control the high level logic of the
-   * system.  This is intended for demonstration and testing.
+   * Implements a gateway controlled with a REPL interface.  This class allows
+   * a human user to control the high level logic of the system.  This is
+   * intended for demonstration and testing.
    */
   class ReplGateway : public Gateway {
 
@@ -25,26 +27,17 @@ namespace roomsec {
      */
     class Builder : public Gateway::Builder<ReplGateway::Builder, ReplGateway>{
 
+    private:
+
+      typedef Gateway::Builder<ReplGateway::Builder, ReplGateway> inherited;
+
     public:
 
       virtual boost::shared_ptr<ReplGateway> build();
 
-      virtual ReplGateway::Builder&
-      authorityAdapter(boost::shared_ptr<AuthorityAdapter> authzAdapter);
-
-      virtual ReplGateway::Builder&
-      fingerprintAuthnAdapter(boost::shared_ptr<FingerprintAuthnAdapter> authnAdapter);
-
-    protected:
-
-
-      boost::shared_ptr<AuthorityAdapter> authzAdapter;
-      boost::shared_ptr<FingerprintAuthnAdapter> authnAdapter;
-
     };
 
     friend class Builder;
-
 
   protected:
 
@@ -76,3 +69,5 @@ namespace roomsec {
 }
 
 #endif /* _ROOMSEC_REPLGATEWAY_H_ */
+
+
