@@ -8,6 +8,17 @@ AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR([build-aux])
 AM_INIT_AUTOMAKE([subdir-objects foreign -Wall -Werror])
 
+AC_ARG_ENABLE([gateway],
+	[AS_HELP_STRING([--enable-gateway], [enable gateway specific code (default is no)])],
+	[roomsec_gateway=$enableval])
+
+if test x"$roomsec_gateway" = xyes ; then
+	echo "++++++++++++ Building for the Raspberry Pi"
+	ENABLE_GATEWAY="TRUE"
+else
+	echo "------------ Not for Raspberry Pi"
+fi
+
 # Checks for programs.
 AC_PROG_CC
 AC_PROG_CXX
