@@ -133,6 +133,11 @@ TESTS=
 UNIT_TESTS=
 check_PROGRAMS=
 
+# Raspberry Pi specific hardware tests
+if TEST_HARDWARE 
+
+endif
+
 # Define unit tests with gtest
 UNIT_TESTS += test/roomsecgateway_test
 check_PROGRAMS += test/roomsecgateway_test

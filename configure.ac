@@ -16,7 +16,18 @@ if test x"$roomsec_gateway" = xyes ; then
 	echo "++++++++++++ Building for the Raspberry Pi"
 	ENABLE_GATEWAY="TRUE"
 else
-	echo "------------ Not for Raspberry Pi"
+	echo "------------ Not building for Raspberry Pi"
+fi
+
+AC_ARG_ENABLE([hardware-tests],
+	[AS_HELP_STRING([--enable-hardware-tests], [enable gateway hardware tests (default is no)])],
+	[test_hardware=$enableval])
+
+AM_CONDITIONAL([TEST_HARDWARE], [test x"test_hardware" = xyes])
+if test x"$hardware_tests" = xyes ; then
+	echo "++++++++++++ Enable hardware tests"
+else
+	echo "------------ Disable hardware tests"
 fi
 
 # Checks for programs.
