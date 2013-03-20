@@ -60,7 +60,7 @@ namespace roomsec {
     };
 
     //friend class Gateway::Builder<>;
-
+    
   private:
 
     /**

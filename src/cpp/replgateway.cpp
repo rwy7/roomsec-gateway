@@ -117,14 +117,14 @@ namespace roomsec {
     this->start_repl();
   }
 
-
   void
   ReplGateway::setAuthorityAdapter(boost::shared_ptr<AuthorityAdapter> authzAdapter){
     this->authzAdapter = authzAdapter;
   }
 
   void
-  ReplGateway::setFingerprintAuthnAdapter(boost::shared_ptr<FingerprintAuthnAdapter> authnAdapter) {
+  ReplGateway::setFingerprintAuthnAdapter
+  (boost::shared_ptr<FingerprintAuthnAdapter> authnAdapter) {
     this->authnAdapter = authnAdapter;
   }
 
@@ -234,13 +234,15 @@ namespace roomsec {
    */
 
   ReplGateway::Builder& 
-  ReplGateway::Builder::authorityAdapter(boost::shared_ptr<AuthorityAdapter> authzAdapter) {
+  ReplGateway::Builder::authorityAdapter
+  (boost::shared_ptr<AuthorityAdapter> authzAdapter) {
     this->authzAdapter = authzAdapter;
     return *this;
   }
 
   ReplGateway::Builder&
-  ReplGateway::Builder::fingerprintAuthnAdapter(boost::shared_ptr<FingerprintAuthnAdapter> authnAdapter) {
+  ReplGateway::Builder::fingerprintAuthnAdapter
+  (boost::shared_ptr<FingerprintAuthnAdapter> authnAdapter) {
     this->authnAdapter = authnAdapter;
     return *this;
   }
@@ -253,7 +255,7 @@ namespace roomsec {
     boost::shared_ptr<ReplGateway> replGateway(new ReplGateway);
     replGateway->setAuthorityAdapter(this->authzAdapter);
     replGateway->setFingerprintAuthnAdapter(this->authnAdapter);
-
+    
     return replGateway;
   }
 }
