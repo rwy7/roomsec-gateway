@@ -22,7 +22,7 @@ namespace apache { namespace thrift {
       class TTransport;
     }
     namespace protocol {
-      class apache::thrift::protocol::TProtocol;
+      class TProtocol;
     }
   }
 }

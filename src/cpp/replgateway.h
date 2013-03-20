@@ -37,14 +37,7 @@ namespace roomsec {
 
     protected:
 
-      /**
-       * This class is protected.  Only a friend class, such as the
-       * ReplGateway::Builder can construct a ReplGateway object.
-       * This is to ensure that the user always works through the
-       * builder's interface, rather than attempt to construct a
-       * ReplGateway directly.
-       */
-      ReplGateway();
+
       boost::shared_ptr<AuthorityAdapter> authzAdapter;
       boost::shared_ptr<FingerprintAuthnAdapter> authnAdapter;
 
@@ -52,7 +45,17 @@ namespace roomsec {
 
     friend class Builder;
 
+
   protected:
+
+    /**
+     * This class is protected.  Only a friend class, such as the
+     * ReplGateway::Builder can construct a ReplGateway object.
+     * This is to ensure that the user always works through the
+     * builder's interface, rather than attempt to construct a
+     * ReplGateway directly.
+     */
+    ReplGateway();
 
     void setAuthorityAdapter(boost::shared_ptr<AuthorityAdapter> authzAdapter);
 
