@@ -14,6 +14,9 @@
 #include "thriftfingerprintauthnadapter.h"
 
 #include "replgateway.h"
+#include "ioexpander.h"
+#include "display.h"
+#include "lcddisplay.h"
 
 #define AUTHZ_ADDR "192.168.0.194"
 #define AUTHZ_PORT 9090
@@ -24,6 +27,19 @@
 namespace po = boost::program_options;
 
 int main (int argc, char *argv[]) {
+/* TEMP */
+if (wiringPiSetup () == -1) {
+printf("went done bad");
+return -1;
+}
+
+boost::shared_ptr<roomsec::IOExpander> expander (new roomsec::IOExpander());
+expander->initialize(0x20);
+roomsec::LCDDisplay disp = roomsec::LCDDisplay(expander);
+disp.initialize();
+
+
+/* END TEMP */
 
   /* Authority Authorization information */
   int authzPort = AUTHZ_PORT;
