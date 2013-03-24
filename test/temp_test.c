@@ -72,28 +72,34 @@
 #define	LCD_CDSHIFT_RL	0x04
 
 /*  MSCP23017 -> LCD pin mapping */
-#define LCD_E    0x01
-#define LCD_RS   0x02
-#define LCD_DB4  0x04
-#define LCD_DB5  0x08
-#define LCD_DB6  0x10
-#define LCD_DB7  0x20
+#define LCD_DB4  0x01
+#define LCD_DB5  0x02
+#define LCD_DB6  0x04
+#define LCD_DB7  0x08
+#define LCD_E    0x10
+#define LCD_RS   0x20
 
-int command;
-
-int void strobe (int dev) {
+void strobe (int dev) {
   wiringPiI2CWriteReg8(dev, GPIOA, LCD_E);
   delay(50);
-  wiringPiI2CWriteReg8(dev, GPIO, LCD_E);
+/*
+for (;;) {
+wiringPiI2CWriteReg8 (dev, GPIOA, LCD_E);
+delay(500);
+wiringPiI2CWriteReg8(dev, GPIOA, 0);
+delay(500);
+}
+*/
+  wiringPiI2CWriteReg8(dev, GPIOA, 0);
   delay(50);
 }
 
 static void put4Command (int dev, uint8_t command)
 {
   uint8_t i ;
-  command = command && !LCD_RS;
+  command = command;
 wiringPiI2CWriteReg8 (dev, GPIOA, command); 
-  strobe (lcd) ;
+  strobe (dev) ;
 }
 
 static void sendDataCmd (int dev, uint8_t data)
@@ -108,7 +114,23 @@ static void sendDataCmd (int dev, uint8_t data)
   d4 = data & 0x0F ;
  wiringPiI2CWriteReg8 (dev, GPIOA, d4); 
 
-  strobe (lcd) ;
+  strobe (dev) ;
+}
+
+static void sendCharCmd (int dev, uint8_t data) {
+  uint8_t d4 ;
+  d4 = (data >> 4) & 0x0F | LCD_RS;
+
+  wiringPiI2CWriteReg8 (dev, GPIOA, d4); 
+
+  wiringPiI2CWriteReg8 (dev, GPIOA, d4 | LCD_E); 
+  //strobe (dev) ;
+
+  d4 = data & 0x0F | LCD_RS;
+ wiringPiI2CWriteReg8 (dev, GPIOA, d4); 
+
+  wiringPiI2CWriteReg8 (dev, GPIOA, d4 | LCD_E); 
+  //strobe (dev) ;
 }
 
 int main (int argc, char *argv [])
@@ -136,11 +158,14 @@ int main (int argc, char *argv [])
   put4Command (dev, func >> 4) ; delay (35) ;
   func = LCD_FUNC ;					// 4th set: 4-bit mode
   put4Command (dev, func >> 4) ; delay (35) ;
-  lcd->bits = 4 ;
 
   func |= LCD_FUNC_N ;
-  putCommand (lcd, func) ; delay (35) ;
-  
+  sendDataCmd (dev, func) ; delay (35) ;
+ 
+sendDataCmd (dev, LCD_HOME);
+sendDataCmd (dev, LCD_CLEAR);
+sendCharCmd (dev, 'A'); 
+sendCharCmd (dev,'b');
   return 0 ;
 }
 
