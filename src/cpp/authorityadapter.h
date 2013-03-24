@@ -6,6 +6,7 @@
 #ifndef _ROOMSEC_AUTHORITYADAPTER_H_
 #define _ROOMSEC_AUTHORITYADAPTER_H_
 
+#include <log4cxx/logger.h>
 #include "gen-cpp/authorize_types.h"
 
 namespace roomsec {
@@ -37,6 +38,8 @@ namespace roomsec {
       authorize(const iface::AuthorizationRequest& request);
 
   private:
+
+    static log4cxx::LoggerPtr logger;
 
     /**
      * Implements the checkRequirements interface function.
