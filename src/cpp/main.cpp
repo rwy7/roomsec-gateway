@@ -4,12 +4,8 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/program_options.hpp>
 
-#include "wiringPi/wiringPi.h"
-#include "gen-cpp/Authority.h"
-
 #include "authorityadapter.h"
 #include "thriftauthorityadapter.h"
-
 #include "fingerprintauthnadapter.h"
 #include "thriftfingerprintauthnadapter.h"
 
@@ -25,6 +21,8 @@
 #define AUTHN_PORT 8080
 
 namespace po = boost::program_options;
+
+int init_logging();
 
 int main (int argc, char *argv[]) {
 /* TEMP */
@@ -83,5 +81,10 @@ disp.initialize();
     .build()
     ->start();
 
+  return 0;
+}
+
+int init_logging() {
+  // TODO: Configure Logging
   return 0;
 }

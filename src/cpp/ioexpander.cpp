@@ -62,6 +62,8 @@ namespace roomsec {
       //TODO: Log something
     }
 
+    this->dev = dev;
+
     /*  Initialize the device */
     wiringPiI2CWriteReg8 (dev, IOCON, IOCON_INIT);
     wiringPiI2CWriteReg8 (dev, IODIRA, 0x00);
@@ -128,7 +130,7 @@ namespace roomsec {
     else
       assert (1);
 
-    *gpio &=!pins;
+    *gpio &= !pins;
     wiringPiI2CWriteReg8 (this->dev, bank, *gpio);
     return;
   }
