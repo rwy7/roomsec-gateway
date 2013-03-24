@@ -12,6 +12,7 @@ BlockAnalyzer::BlockAnalyzer(std::vector<BlockSensor*> sensorPointers, bool debu
 	for(unsigned int i = 0; i < streamCount; i++)
 		sensors.push_back(sensorPointers[i]);
 	monitoring = false;
+	firstRun = true;
 }
 
 //
@@ -21,13 +22,17 @@ bool BlockAnalyzer::initialize()
 	initializeStreams();
 	normalSum = 0;
 	normalDistribution = new float[frameSize];
+	generateNormalDistribution();
 	blockages.clear();
 	return 1;
 }
 
 bool BlockAnalyzer::initializeStreams()
 {
-	analyze();
+	if( firstRun)
+		firstRun = false;
+	else
+		analyze();
 	streamSize = 0;
 	zeroCount = 0;
 	rawStreams = new vector<float>[sensors.size()];
@@ -80,7 +85,7 @@ bool BlockAnalyzer::sensorValueUpdate()
 		if(val != 0)
 			zero = false;
 		if (DEBUG)
-			printf(" sensors[%i]->getSensorValue = val;", val); 
+			printf(" sensors[%i]->getSensorValue = %i;", i, val); 
 	}
 	if (DEBUG)
 		printf(" sensorValueUpdate() - Complete;\n");
@@ -141,14 +146,18 @@ bool BlockAnalyzer::analyze()
 			printf("analyze() - premature termination; streamSize < 1 || streamCount < 1;\n");
 		return 0;
 	}
-
+	
 	vector<float> smoothedStreams[streamCount];
 	vector<unsigned int> blockStreams[streamCount];
 	vector<pair<unsigned int, float> > simplifiedStreams[streamCount];
 
 	for(unsigned int i = 0; i < streamCount; i++)
 	{
+		//for(int j = 0; j < rawStreams[i].size(); j++)
+		//	printf("rawStreams[%i][%i] = %f;\n", i, j, rawStreams[i][j]);
 		smoothedStreams[i] = smoothStream(rawStreams[i]);
+		//for(int j = 0; j < smoothedStreams[i].size(); j++)
+		//	printf("smoothedStreams[%i][%i] = %f;\n", i, j, smoothedStreams[i][j]);
 		blockStreams[i] = isolateBlocks(smoothedStreams[i]);
 		simplifiedStreams[i] = simplifyStreams(smoothedStreams[i], blockStreams[i]);
 	}
@@ -158,6 +167,8 @@ bool BlockAnalyzer::analyze()
 	unsigned int objs = 0;
 	for(unsigned int i = 0; i < simplifiedStreams[0].size(); i++)
 	{
+		//if (DEBUG)
+		//	printf("simplifiedStream[0][%i] == %f;\n", i, simplifiedStreams[0][i].second);
 		if(simplifiedStreams[0][i].second >= 2)
 			objs++;
 	}
@@ -219,7 +230,7 @@ vector<pair<unsigned int, float> > BlockAnalyzer::simplifyStreams(vector<float> 
 	if (DEBUG)
 		printf("simplifyStream(stream, blocks) - stream.size() = %lu; blocks.size() = %lu;\n", stream.size(), blocks.size()); 
 
-	float floorCutoff = 0.2;
+	float highCutoff = 0.2;
 	vector<pair<unsigned int, float> > criticalPoints;
 	for(unsigned int i = 0; i < blocks.size(); i+=2)
 	{
@@ -229,15 +240,18 @@ vector<pair<unsigned int, float> > BlockAnalyzer::simplifyStreams(vector<float> 
 		vector<float> streamBlock;
 		for(unsigned int j = a; j < b; j++)
 		{
+			//printf("stream[%i] = %f;\n", j, stream[j]);
 			sum += stream[j];
 			streamBlock.push_back(stream[j]);
 		}
 		average = sum/(b-a);
+		if (DEBUG)
+			printf("simplifyStream(stream, blocks) - average = %f; sum = %f; a = %i; b = %i;\n", average, sum, a, b);
 		bool high = false;
 		bool low = false;
 		for(unsigned int j = 0; j < (b-a); j++)
 		{
-			if(streamBlock[j] > average*floorCutoff)
+			if(streamBlock[j] > average*highCutoff)
 			{
 				if(!high)
 					criticalPoints.push_back(make_pair(a+j, 2 + streamBlock[j]));

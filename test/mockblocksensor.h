@@ -8,7 +8,7 @@ namespace roomsec{
 	class MockBlockSensor : public BlockSensor
 	{
 		public:
-		MOCK_METHOD0(getSensorValue, float());
+		MOCK_METHOD0(getSensorValue, int());
 	};
 }
 
