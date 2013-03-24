@@ -14,6 +14,8 @@
 #include "display.h"
 #include "lcddisplay.h"
 
+#include "wiringPi/wiringPi.h"
+
 #define AUTHZ_ADDR "192.168.0.194"
 #define AUTHZ_PORT 9090
 
@@ -31,12 +33,13 @@ printf("went done bad");
 return -1;
 }
 
+
+printf("starting lcd\n");
 boost::shared_ptr<roomsec::IOExpander> expander (new roomsec::IOExpander());
 expander->initialize(0x20);
 roomsec::LCDDisplay disp = roomsec::LCDDisplay(expander);
 disp.initialize();
-
-
+printf("ending LCD\n");
 /* END TEMP */
 
   /* Authority Authorization information */
@@ -83,6 +86,7 @@ disp.initialize();
 
   return 0;
 }
+
 
 int init_logging() {
   // TODO: Configure Logging

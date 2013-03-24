@@ -73,6 +73,8 @@ namespace roomsec {
 
     this->gpioa = 0x00;
     this->gpiob = 0x00;
+    this->iodira = 0x00;
+    this->iodirb = 0x00;
 
     return;
   }
@@ -114,6 +116,8 @@ namespace roomsec {
       assert (1);
 
     *gpio |= pins;
+
+    printf("makeHigh: now writing %x\n",*gpio);
     wiringPiI2CWriteReg8 (this->dev, bank, *gpio);
     return;
   }
@@ -130,12 +134,14 @@ namespace roomsec {
     else
       assert (1);
 
-    *gpio &= !pins;
+    *gpio &= ~pins;
+    printf("makeLow: now writing %x\n", *gpio);
     wiringPiI2CWriteReg8 (this->dev, bank, *gpio);
     return;
   }
 
   void IOExpander::send (GPIO bank, uint8_t value) {
+
     assert (bank == GPIOA || bank == GPIOB);
     wiringPiI2CWriteReg8 (this->dev, bank, value);
     return;
