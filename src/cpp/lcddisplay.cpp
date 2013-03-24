@@ -50,29 +50,23 @@ namespace roomsec {
   void LCDDisplay::strobe() {
     /*  Strobe will send the next command, by cycling the enable pin.  The data
      *  is latched on the falling edge, according to the docs. */
-printf("swap on\n");
     this->expander->makeHigh(this->expander->GPIOA, LCD_E); delayMicroseconds (100);
-printf("swap off\n");
     this->expander->makeLow (this->expander->GPIOA, LCD_E);  delayMicroseconds (100);
   }
 
   void LCDDisplay::sendDataCmd(uint8_t data) {
-   uint8_t d4;
-   /*  We must send the 8 bit command over two 4 bit commands. d4 holds the
-    *  4bit version. */
-printf("sending command: %x\n", data);
-   d4 = (data >> 4) & 0x0F;
-printf(" part 1: %x\n", d4);
-   this->expander->makeLow (this->expander->GPIOA, 0x0F);
-   this->expander->makeHigh(this->expander->GPIOA, d4);
-   this->strobe();
-   d4 = data & 0x0F;
-printf(" part 2: %x\n", d4);
+    uint8_t d4;
+    /*  We must send the 8 bit command over two 4 bit commands. d4 holds the
+     *  4bit version. */
+    d4 = (data >> 4) & 0x0F;
+    this->expander->makeLow (this->expander->GPIOA, 0x0F);
+    this->expander->makeHigh(this->expander->GPIOA, d4);
+    this->strobe();
+    d4 = data & 0x0F;
 
-   this->expander->makeLow (this->expander->GPIOA, 0x0F);
-   this->expander->makeHigh(this->expander->GPIOA, d4);
-   this->strobe();
-printf("done\n");
+    this->expander->makeLow (this->expander->GPIOA, 0x0F);
+    this->expander->makeHigh(this->expander->GPIOA, d4);
+    this->strobe();
   }
 
   void LCDDisplay::putCommand(uint8_t data) {
@@ -97,14 +91,12 @@ printf("done\n");
 
   void LCDDisplay::initialize() {
     /*  Make sure that the expander is set up to write mode only */
-printf("setting RW to 00\n");
     this->expander->setRW(this->expander->GPIOA, 0x00);
-printf("running makeLow 0xFF\n");
     this->expander->makeLow(this->expander->GPIOA, 0xFF);
-/* for (;;) {
-this->expander->makeLow(this->expander->GPIOA, LCD_E); delay(500);
-this->expander->makeHigh(this->expander->GPIOA, LCD_E); delay(500);
-} */
+    /* for (;;) {
+       this->expander->makeLow(this->expander->GPIOA, LCD_E); delay(500);
+       this->expander->makeHigh(this->expander->GPIOA, LCD_E); delay(500);
+       } */
     /*  The device will initialize in 4 pin mode. */
     uint8_t func;
     func = LCD_FUNC | LCD_FUNC_DL;
@@ -114,37 +106,63 @@ this->expander->makeHigh(this->expander->GPIOA, LCD_E); delay(500);
     func = LCD_FUNC ;
     put4Command (func >> 4); delay(35);
 
-func |= LCD_FUNC_N;
+    func |= LCD_FUNC_N;
     putCommand(func); delay(35);
 
-//    func |= LCD_FUNC_N;
- //   putCommand(func);
- //   delay(35);
+    //    func |= LCD_FUNC_N;
+    //   putCommand(func);
+    //   delay(35);
 
     putCommand(LCD_ON_OFF | LCD_ON_OFF_D | LCD_ON_OFF_C); delay(2);
     putCommand(LCD_ENTRY | LCD_ENTRY_ID); delay(2);
-   // putCommand(LCD_CDSHIFT  | LCD_CDSHIFT_RL); delay(2);
+    // putCommand(LCD_CDSHIFT  | LCD_CDSHIFT_RL); delay(2);
     //putCommand(LCD_CLEAR); delay(5);
 
     /*  Test out the display */
     sendDataCmd(LCD_HOME); delay(5);
     sendDataCmd(LCD_CLEAR); delay (5);
-this->expander->makeHigh(this->expander->GPIOA, LCD_RS);
+    this->expander->makeHigh(this->expander->GPIOA, LCD_RS);
     sendDataCmd ('A');
-sendDataCmd('n');
-sendDataCmd('d');
-sendDataCmd('r');
-sendDataCmd('e');
-sendDataCmd('w');
+    sendDataCmd('n');
+    sendDataCmd('d');
+    sendDataCmd('r');
+    sendDataCmd('e');
+    sendDataCmd('w');
   }
 
-  void LCDDisplay::setColor(Color c){}
-  void LCDDisplay::setDisplay(int row, int col){}
-  void LCDDisplay::putChar(char character){}
-  void LCDDisplay::clear(){}
-  void LCDDisplay::home(){}
+  void LCDDisplay::setColor(Color c) {
+
+  }
+
+  void LCDDisplay::setDisplay(int row, int col) {
+
+  }
+
+  void LCDDisplay::putChar(char character){
+    this->expander->makeHigh(this->expander->GPIOA, LCD_RS);
+    sendDataCmd(character);
+    return;
+  }
+
+  void LCDDisplay::putStr(std::string stuff) {
+    std::string::iterator it;
+    for (it = stuff.begin(); it < stuff.end(); ++it) {
+      this->putChar(*it);
+    }
+  }
+
+  void LCDDisplay::clear() {
+    sendDataCmd(LCD_CLEAR);
+    return;
+  }
+
+  void LCDDisplay::home() {
+    sendDataCmd(LCD_HOME);
+    return;
+  }
+
   std::pair<int, int> LCDDisplay::size(){ return std::make_pair(0, 0);}
-  int LCDDisplay::rows(){}
-  int LCDDisplay::cols(){}
+  int LCDDisplay::rows() {return 0;}
+  int LCDDisplay::cols() {return 0;}
 }
 

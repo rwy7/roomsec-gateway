@@ -117,7 +117,6 @@ namespace roomsec {
 
     *gpio |= pins;
 
-    printf("makeHigh: now writing %x\n",*gpio);
     wiringPiI2CWriteReg8 (this->dev, bank, *gpio);
     return;
   }
@@ -135,7 +134,6 @@ namespace roomsec {
       assert (1);
 
     *gpio &= ~pins;
-    printf("makeLow: now writing %x\n", *gpio);
     wiringPiI2CWriteReg8 (this->dev, bank, *gpio);
     return;
   }
