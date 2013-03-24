@@ -51,9 +51,17 @@ namespace roomsec {
      * @param bank The GPIO bank.
      * @param pins The pin R/W setting.
      */
-    void setIO (GPIO bank, uint8_t pins);
+    void setRW (GPIO bank, uint8_t pins);
 
-    uint8_t getIO (GPIO bank);
+    /**
+     * @brief Get whether pins are READ or WRITE mode.
+     * See setIO for more iformation.
+     *
+     * @param bank The GPIO bank.
+     *
+     * @return The pin R/W setting.
+     */
+    uint8_t getRW (GPIO bank);
 
     /**
      * @brief Make the specified pins HIGH.
@@ -94,3 +102,4 @@ namespace roomsec {
 }
 
 #endif /*  _IOEXPANDER_H_ */
+
