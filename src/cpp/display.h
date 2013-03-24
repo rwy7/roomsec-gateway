@@ -7,7 +7,10 @@
 #ifndef _ROOMSEC_DISPLAY_H_
 #define _ROOMSEC_DISPLAY_H_
 
-#include "display-colors.h"
+//TODO: what is this header file here?
+//#include "display-colors.h"
+
+#include <utility>
 
 namespace roomsec {
 
@@ -26,7 +29,8 @@ namespace roomsec {
     enum class Color : unsigned char {
       green = 0, yellow = 1, red = 3};
 
-    virtual Display(const Screen& that) = delete;
+    //TODO: what is screen?
+    // virtual Display(const Screen& that) = delete;
 
     virtual ~Display();
 
@@ -34,14 +38,29 @@ namespace roomsec {
      * Set the backlight color of the display.  This call should
      * update the screen immediately.
      */
-    virtual setColor(Color c);
+    virtual void setColor(Color c);
 
     /**
-     * set the character located at [row, col].  This character is
-     * buffered, and should not be displayed untill the screen is
-     * flipped.
+     * @brief set the cursor to [row, col].
      */
-    virtual setDisplay(int row, int col, char c);
+    virtual void setDisplay(int row, int col);
+
+    /**
+     * @brief Put the character onto the lcd at the current position
+     *
+     * @param character
+     */
+    virtual void putChar(char character);
+
+    /**
+     * @brief Clear the lcd screen.
+     */
+    virtual void clear();
+
+    /**
+     * @brief Move the cursor to [0,0]
+     */
+    virtual void home();
 
     /**
      * Returns the size (rows, cols)
@@ -58,10 +77,6 @@ namespace roomsec {
      */
     virtual int cols();
 
-    /**
-     * Flip the screen buffer, dumping all characters to screen.
-     */
-    virtual refresh();
   };
 }
 
