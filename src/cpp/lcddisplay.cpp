@@ -114,5 +114,14 @@ namespace roomsec {
     putCommand (LCD_RS & 'A');
     putCommand (LCD_RS & 'b');
   }
+
+  void LCDDisplay::setColor(Color c){}
+  void LCDDisplay::setDisplay(int row, int col){}
+  void LCDDisplay::putChar(char character){}
+  void LCDDisplay::clear(){}
+  void LCDDisplay::home(){}
+  std::pair<int, int> LCDDisplay::size(){ return std::make_pair(0, 0);}
+  int LCDDisplay::rows(){}
+  int LCDDisplay::cols(){}
 }
 
