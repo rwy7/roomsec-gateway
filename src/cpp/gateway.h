@@ -1,4 +1,4 @@
-/* -*- mode: c++; fill-column: 79 -*- */
+/* -*- mode: c++ -*- */
 
 #ifndef _ROOMSEC_GATEWAY_H_
 #define _ROOMSEC_GATEWAY_H_
@@ -11,9 +11,13 @@ namespace roomsec {
   class FingerprintAuthnAdapter;
 
   /**
-   * @brief The central logic of the gateway system.  The gateway
-   * class implements the control algorithms, and high level policy of
-   * the gateway system.
+   * The central logic of the gateway system.  The gateway class
+   * implements the control algorithms, and high level policy of the
+   * gateway system.
+   *
+   * This is an abstract base class. Extending classes are responsible
+   * for implementing the "guts" of the system.  This class is in
+   * place to allow for multiple policy implementations.
    */
   class Gateway {
   public:
