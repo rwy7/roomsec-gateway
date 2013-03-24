@@ -111,25 +111,26 @@ vector<float> BlockAnalyzer::smoothStream(vector<float> raw)
 
 	for(int i = 0; i < extension; i++)
 	{
-		flooredRaw.insert(flooredRaw.begin(),0);
-		flooredRaw.push_back(0);
+		flooredRaw.insert(flooredRaw.begin(),flooredRaw.front());
+		flooredRaw.push_back(flooredRaw.back());
 	}
+
 
 	for(int i = 0; i < size; i++)
 	{
-		 int sum = 0;
+		
+		float sum = 0;
 
 		for(int j = 0; j < frameSize; j++)
 		{
-			sum += normalDistribution[i] * flooredRaw[j-extension];
+			sum += normalDistribution[j] * flooredRaw[i+j];
 		}
-
 		smoothed.push_back(sum/normalSum);
 	}
 	if (DEBUG)
 		printf("smoothStream(raw) - Complete;\n");
 	return smoothed;
-}
+}	
 
 bool BlockAnalyzer::analyze()
 {
@@ -287,15 +288,17 @@ bool BlockAnalyzer::endMonitoringSession()
 
 bool BlockAnalyzer::generateNormalDistribution()
 {
-	if (DEBUG)
-		printf("generateNormalDistribution() - frameSize = %i; u = %f; a = %f; min = %i; max = %i;\n" frameSize, u, a, min, max);
 	float u = 0;
-	float a = 1;
-	float pi = 3.1415926;
+	float a = 1.1;
 	int min = -2, max = 2;
+	float pi = 3.1415926;
+	if (DEBUG)
+		printf("generateNormalDistribution() - frameSize = %i; u = %f; a = %f; min = %i; max = %i;\n", frameSize, u, a, min, max);
+	
+	normalDistribution = new float[frameSize];
 	for(int i = 0; i < frameSize; i++)
 	{
-		int x = i*(max-min) - min;
+		float x = (float)(i*(max-min))/(frameSize-1) + min;
 		float val = exp( (-pow(x-u,2)) / (2*pow(a,2)) ) / ( a*sqrt(2*pi) );
 		normalSum += val;
 		normalDistribution[i] = val;
