@@ -93,6 +93,9 @@ AX_CXX_COMPILE_STDCXX_11([noext])
 # Thrift
 PKG_CHECK_MODULES([THRIFT], [thrift])
 
+# log4CXX
+PKG_CHECK_MODULES([LOG4CXX], [liblog4cxx])
+
 # Check for the existance of a file in the source directory.
 AC_CONFIG_SRCDIR([src/])
 

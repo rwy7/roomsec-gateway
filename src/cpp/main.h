@@ -52,5 +52,13 @@
  * transportation. 
  */
 
-#endif /* _MAIN_H_ */
+/************************************
+ * main.h function declarations
+ ************************************/
 
+  /**
+   * Initialize log4cxx logging.
+   */
+  int init_logging();
+
+#endif /* _MAIN_H_ */
