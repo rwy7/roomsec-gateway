@@ -1,7 +1,9 @@
 #ifndef TAILGATEANALYZER
 #define TAILGATEANALYZER
 
-#include 'blockanalyzer.h'
+#include "blockanalyzer.h"
+
+namespace roomsec {
 
 class TailgateAnalyzer{
 	BlockAnalyzer* blockAnalyzer;
@@ -38,7 +40,8 @@ public:
 	 *
 	 * @return bool indicating the method executed without incident
      */		
-	bool setSensors(std::vector<BlockSensor *> sensors);
+	bool setSensors(std::vector<BlockSensor*> sensors);
+
 
 	/**
 	 * @brief Primary update function to be called during each execution of the controlling classes main loop
@@ -79,7 +82,7 @@ public:
 	 */
 	PassageTriple getPassageResults();
 
+};
 }
-
 #endif
 

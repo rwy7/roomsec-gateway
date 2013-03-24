@@ -42,7 +42,7 @@ struct PassageTriple
  * getResults() will return a PassageTriple containing the identified passages from the last monitoring session. getResults() should only be called 
  * after the monitoring session has been ended with endMonitoringSession(), otherwise getResults() will report incomplete data.
  */
-class BlockAnalyzer{
+class BlockAnalyzer {
 	static const unsigned int frameSize = 5, low = 0, high = 1000, floorCutOff = 10, zeroCutOff = 100;
 	unsigned int zeroCount, streamSize, streamCount;
 	float *normalDistribution;
@@ -80,7 +80,7 @@ class BlockAnalyzer{
 	 * @brief Simplifies a sensor value stream into a series of critical values, eg. local peaks and troughs
 	 *
 	 */
-	std::vector<std::pair<unsigned int, float> > simplifyStream(std::vector<float> stream, std::vector<unsigned int> blocks);
+	std::vector<std::pair<unsigned int, float> > simplifyStreams(std::vector<float> stream, std::vector<unsigned int> blocks);
 
 	/**
 	 * @brief Performs analysis on the collected data to determine number and direction of passages through doorway
@@ -136,3 +136,4 @@ class BlockAnalyzer{
 };
 }
 #endif
+

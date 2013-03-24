@@ -1,14 +1,16 @@
-#include 'tailgateanalyzer.h'
+#include "tailgateanalyzer.h"
+
+namespace roomsec {
 
 TailgateAnalyzer::TailgateAnalyzer()
 {
 	sessionRunning = false;
 }
 
-bool TailgateAnalyzer::setSensor(std::vector<BlockSensor *> sensors)
+bool TailgateAnalyzer::setSensors(std::vector<BlockSensor *> sensors)
 {
 	newSensors.clear();
-	for (int i = 0; i < sensors.size(); i++)
+	for (unsigned int i = 0; i < sensors.size(); i++)
 	{
 		newSensors.push_back(sensors[i]);
 	}
@@ -32,6 +34,7 @@ bool TailgateAnalyzer::update()
 	{
 		blockAnalyzer->update();
 	}
+        return true;
 }
 
 bool TailgateAnalyzer::beginSession()
@@ -60,4 +63,6 @@ bool TailgateAnalyzer::analyze()
 	//else if (results.ingoing + results.unkown > 1)
 		//tailgate = possible
 	return false;
+}
+
 }

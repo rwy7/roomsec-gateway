@@ -9,9 +9,9 @@ namespace roomsec{
 	 */
 class BlockSensor{
 	protected:
-	static const iLow = 0, iHigh = 100;
+	static const int iLow = 0, iHigh = 100;
 	float mSensorValue;
-	int iSensorValue
+	int iSensorValue;
 	public:
 	
 	/**
