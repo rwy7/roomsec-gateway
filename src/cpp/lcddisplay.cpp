@@ -90,7 +90,7 @@ namespace roomsec {
 
   void LCDDisplay::initialize() {
     /*  Make sure that the expander is set up to write mode only */
-    this->expander->setRW(this->expander->GPIOA, (2<<7)-1);
+    this->expander->setRW(this->expander->GPIOA, 0x00);
 
     /*  The device will initialize in 4 pin mode. */
     uint8_t func;
