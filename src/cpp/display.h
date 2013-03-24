@@ -38,46 +38,49 @@ namespace roomsec {
      * Set the backlight color of the display.  This call should
      * update the screen immediately.
      */
-    virtual void setColor(Color c);
+    virtual void setColor(Color c) = 0;
 
     /**
      * @brief set the cursor to [row, col].
      */
-    virtual void setDisplay(int row, int col);
+    virtual void setDisplay(int row, int col) = 0;
 
     /**
      * @brief Put the character onto the lcd at the current position
      *
      * @param character
      */
-    virtual void putChar(char character);
+    virtual void putChar(char character) = 0;
 
     /**
      * @brief Clear the lcd screen.
      */
-    virtual void clear();
+    virtual void clear() = 0;
 
     /**
      * @brief Move the cursor to [0,0]
      */
-    virtual void home();
+    virtual void home() = 0;
 
     /**
      * Returns the size (rows, cols)
      */
-    virtual std::pair<int, int> size();
+    virtual std::pair<int, int> size() = 0;
 
     /**
      * Returns the height of the display in character rows.
      */
-    virtual int rows();
+    virtual int rows() = 0;
 
     /**
      * Returns the width of screen in character columns.
      */
-    virtual int cols();
+    virtual int cols() = 0;
 
   };
+
+  inline Display::~Display() {return;}
+
 }
 
 #endif /* _ROOMSEC_DISPLAY_H_ */
