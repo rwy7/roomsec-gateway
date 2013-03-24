@@ -57,7 +57,11 @@ libroomsecgateway_la_SOURCES = \
 	src/cpp/fingerprintauthnadapter.cpp \
 	src/cpp/thriftfingerprintauthnadapter.cpp \
 	src/cpp/gateway.cpp \
-	src/cpp/replgateway.cpp
+	src/cpp/replgateway.cpp \
+	src/cpp/tailgateanalyzer.cpp \
+	src/cpp/blockanalyzer.cpp \
+	src/cpp/blocksensor.cpp \
+	src/cpp/doorstatesensor.cpp
 
 libroomsecgateway_la_CPPFLAGS = \
 	$(THRIFT_CFLAGS) $(DEBUG) -Wall -W -Wwrite-strings \
