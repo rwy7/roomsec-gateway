@@ -62,7 +62,8 @@ libroomsecgateway_la_SOURCES = \
 	src/cpp/blockanalyzer.cpp \
 	src/cpp/blocksensor.cpp \
 	src/cpp/doorstatesensor.cpp \
-	src/cpp/ioexpander.cpp
+	src/cpp/ioexpander.cpp \
+	src/cpp/lcddisplay.cpp
 
 libroomsecgateway_la_CPPFLAGS = \
 	$(THRIFT_CFLAGS) $(DEBUG) -Wall -W -Wwrite-strings \
@@ -72,7 +73,8 @@ libroomsecgateway_la_CPPFLAGS = \
 libroomsecgateway_la_LDFLAGS = -version-info 1:0:0
 
 libroomsecgateway_la_LIBADD = \
-	-lstdc++ $(THRIFT_LIBS) -lboost_system -lboost_thread $(top_srcdir)/libfprint/libfprint/libfprint.la
+	-lstdc++ $(THRIFT_LIBS) -lboost_system -lboost_thread $(top_srcdir)/libfprint/libfprint/libfprint.la \
+	-lwiringPi
 
 
 ###

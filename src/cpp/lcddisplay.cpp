@@ -90,7 +90,7 @@ namespace roomsec {
 
   void LCDDisplay::initialize() {
     /*  Make sure that the expander is set up to write mode only */
-    this->expander->setRW(this->expander->GPIOA, (2<<7)-1);
+    this->expander->setRW(this->expander->GPIOA, 0x00);
 
     /*  The device will initialize in 4 pin mode. */
     uint8_t func;
@@ -114,5 +114,14 @@ namespace roomsec {
     putCommand (LCD_RS & 'A');
     putCommand (LCD_RS & 'b');
   }
+
+  void LCDDisplay::setColor(Color c){}
+  void LCDDisplay::setDisplay(int row, int col){}
+  void LCDDisplay::putChar(char character){}
+  void LCDDisplay::clear(){}
+  void LCDDisplay::home(){}
+  std::pair<int, int> LCDDisplay::size(){ return std::make_pair(0, 0);}
+  int LCDDisplay::rows(){}
+  int LCDDisplay::cols(){}
 }
 
