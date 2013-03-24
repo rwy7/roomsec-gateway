@@ -61,7 +61,8 @@ libroomsecgateway_la_SOURCES = \
 	src/cpp/tailgateanalyzer.cpp \
 	src/cpp/blockanalyzer.cpp \
 	src/cpp/blocksensor.cpp \
-	src/cpp/doorstatesensor.cpp
+	src/cpp/doorstatesensor.cpp \
+	src/cpp/ioexpander.cpp
 
 libroomsecgateway_la_CPPFLAGS = \
 	$(THRIFT_CFLAGS) $(DEBUG) -Wall -W -Wwrite-strings \
@@ -83,7 +84,7 @@ roomsecgateway_SOURCES = \
 
 roomsecgateway_CPPFLAGS = \
 	$(THRIFT_CFLAGS) $(DEBUG) -Wall -W -Wwrite-strings \
-	-std=c++11 -pedantic -DHAVE_INTTYPES_H -DHAVE_NETINET_IN_H \
+	-pedantic -DHAVE_INTTYPES_H -DHAVE_NETINET_IN_H \
 	-I$(top_srcdir)/wiringPi -I$(top_srcdir)/libfprint
 
 roomsecgateway_LDFLAGS = -static
