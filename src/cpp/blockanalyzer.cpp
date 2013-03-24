@@ -297,20 +297,12 @@ bool BlockAnalyzer::generateNormalDistribution()
 	float u = 0;
 	float a = 1.1;
 	int min = -2, max = 2;
-<<<<<<< HEAD
-
-	if (DEBUG)
-		printf("generateNormalDistribution() - frameSize = %i; u = %f; a = %f; min = %i; max = %i;\n", frameSize, u, a, min, max);
-
-	for(unsigned int i = 0; i < frameSize; i++)
-=======
 	float pi = 3.1415926;
 	if (DEBUG)
 		printf("generateNormalDistribution() - frameSize = %i; u = %f; a = %f; min = %i; max = %i;\n", frameSize, u, a, min, max);
 	
 	normalDistribution = new float[frameSize];
-	for(int i = 0; i < frameSize; i++)
->>>>>>> bf9745734720438843f81f3814e1f39c5ca15ebe
+	for(unsigned int i = 0; i < frameSize; i++)
 	{
 		float x = (float)(i*(max-min))/(frameSize-1) + min;
 		float val = exp( (-pow(x-u,2)) / (2*pow(a,2)) ) / ( a*sqrt(2*pi) );
