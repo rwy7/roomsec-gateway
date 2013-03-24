@@ -1,3 +1,5 @@
+/* -*- Mode: c++ -*- */
+
 /**
  * @file thriftauthorityadapter.h
  * Defines an adapter which defers decisions to a networked authority server.
@@ -6,13 +8,7 @@
 #ifndef _ROOMSEC_THRIFTAUTHORITYADAPTER_H_
 #define _ROOMSEC_THRIFTAUTHORITYADAPTER_H_
 
-/*
-#include <boost/shared_ptr.hpp>
-#include <transport/TSocket.h>
-#include <transport/TTransport.h>
-#include <protocol/TProtocol.h>
-*/
-
+#include "gen-cpp/Authority.h"
 #include "authorityadapter.h"
 
 /* Thrift dependencies -- forward declarations */
