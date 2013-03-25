@@ -35,6 +35,7 @@ namespace roomsec {
        */
       void putChar(char character);
 
+      void putStr(std::string stuff); 
       /**
        * @brief Clear the lcd screen.
        */
