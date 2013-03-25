@@ -15,6 +15,7 @@ AC_ARG_ENABLE([gateway],
 if test x"$roomsec_gateway" = xyes ; then
 	echo "++++++++++++ Building for the Raspberry Pi"
 	ENABLE_GATEWAY="TRUE"
+        AC_DEFINE([ENABLE_GATEWAY], [], ["Building for raspberry pi"])
 else
 	echo "------------ Not building for Raspberry Pi"
 fi
@@ -26,6 +27,7 @@ AC_ARG_ENABLE([hardware-tests],
 AM_CONDITIONAL([TEST_HARDWARE], [test x"test_hardware" = xyes])
 if test x"$hardware_tests" = xyes ; then
 	echo "++++++++++++ Enable hardware tests"
+        AC_DEFINE([ENABLE_HARDWARE_TESTS], [], ["Enable hardware tests"])
 else
 	echo "------------ Disable hardware tests"
 fi
