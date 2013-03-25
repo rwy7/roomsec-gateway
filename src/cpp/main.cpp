@@ -42,12 +42,12 @@ int main (int argc, char *argv[]) {
   
   
   // 
-
-  /* BEGIN TEMP */
+#ifdef ENABLE_GATEWAY
   if (wiringPiSetup () == -1) {
     printf("went done bad");
     return -1;
   }
+#endif
 
   printf("starting lcd\n");
   boost::shared_ptr<roomsec::IOExpander> expander (new roomsec::IOExpander());
