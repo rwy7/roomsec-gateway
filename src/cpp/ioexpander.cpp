@@ -1,7 +1,11 @@
 #include <iostream>
 #include <cassert>
+
+#ifdef ENABLE_GATEWAY
 #include "wiringPi/wiringPi.h"
 #include "wiringPi/wiringPiI2C.h"
+#endif
+
 #include "ioexpander.h"
 
 namespace roomsec {
@@ -55,21 +59,25 @@ namespace roomsec {
   }
 
   void IOExpander::initialize (int dev) {
+#ifdef ENABLE_GATEWAY
     if ((dev = wiringPiI2CSetup (dev)) == -1) {
       std::cout << "Unable to create device";
       assert (dev > 0);
       //TODO: raise an exception
       //TODO: Log something
     }
+#endif
 
     this->dev = dev;
 
+#ifdef ENABLE_GATEWAY
     /*  Initialize the device */
     wiringPiI2CWriteReg8 (dev, IOCON, IOCON_INIT);
     wiringPiI2CWriteReg8 (dev, IODIRA, 0x00);
     wiringPiI2CWriteReg8 (dev, IODIRB, 0x00);
     wiringPiI2CWriteReg8 (dev, GPIOA, 0x00);
     wiringPiI2CWriteReg8 (dev, GPIOB, 0x00);
+#endif
 
     this->gpioa = 0x00;
     this->gpiob = 0x00;
@@ -79,9 +87,11 @@ namespace roomsec {
     return;
   }
 
+#ifdef ENABLE_GATEWAY
   void IOExpander::setRW (GPIO bank, uint8_t pins) {
     assert (bank == GPIOA || bank == GPIOB);
     if (bank == GPIOA) {
+
       wiringPiI2CWriteReg8 (dev, IODIRA, pins);
       iodira = pins;
     }
@@ -90,6 +100,17 @@ namespace roomsec {
       iodirb = pins;
     }
   }
+#else
+  void IOExpander::setRW (GPIO bank, uint8_t pins) {
+    assert (bank == GPIOA || bank == GPIOB);
+    if (bank == GPIOA) {
+      iodira = pins;
+    }
+    else if (bank == GPIOB) {
+      iodirb = pins;
+    }
+  }
+#endif
 
   uint8_t IOExpander::getRW (GPIO bank) {
     assert (bank == GPIOA || bank == GPIOB);
@@ -103,6 +124,7 @@ namespace roomsec {
     return rw;
   }
 
+#ifdef ENABLE_GATEWWAY
   void IOExpander::makeHigh (GPIO bank, uint8_t pins) {
     assert (bank == GPIOA || bank == GPIOB);
     uint8_t *gpio = NULL;
@@ -120,7 +142,26 @@ namespace roomsec {
     wiringPiI2CWriteReg8 (this->dev, bank, *gpio);
     return;
   }
+#else
+  void IOExpander::makeHigh (GPIO bank, uint8_t pins) {
+    assert (bank == GPIOA || bank == GPIOB);
+    uint8_t *gpio = NULL;
+    if (bank == GPIOA) {
+      gpio = &this->gpioa;
+    }
+    else if (bank == GPIOB) {
+      gpio = &this->gpiob;
+    }
+    else
+      assert (1);
 
+    *gpio |= pins;
+    return;
+  }
+
+#endif
+
+#ifdef ENABLE_GATEWAY
   void IOExpander::makeLow (GPIO bank, uint8_t pins) {
     assert (bank == GPIOA || bank == GPIOB);
     uint8_t *gpio = NULL;
@@ -137,17 +178,41 @@ namespace roomsec {
     wiringPiI2CWriteReg8 (this->dev, bank, *gpio);
     return;
   }
+#else
+  void IOExpander::makeLow (GPIO bank, uint8_t pins) {
+    assert (bank == GPIOA || bank == GPIOB);
+    uint8_t *gpio = NULL;
+    if (bank == GPIOA) {
+      gpio = &this->gpioa;
+    }
+    else if (bank == GPIOB) {
+      gpio = &this->gpiob;
+    }
+    else
+      assert (1);
+
+    *gpio &= ~pins;
+    return;
+  }
+#endif
 
   void IOExpander::send (GPIO bank, uint8_t value) {
 
     assert (bank == GPIOA || bank == GPIOB);
+#ifdef ENABLE_GATEWAY
     wiringPiI2CWriteReg8 (this->dev, bank, value);
+#endif
     return;
   }
 
   uint8_t IOExpander::read(GPIO bank) {
     assert (bank == GPIOA || bank == GPIOB);
+#ifdef ENABLE_GATEWAY
     return wiringPiI2CReadReg8 (dev, bank);
+#else
+    assert(0);
+    return 0;
+#endif
   }
 
 } /*  namespace roomsec */
