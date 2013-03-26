@@ -31,12 +31,41 @@
 
 namespace po = ::boost::program_options;
 
-int init_logging();
 log4cxx::LoggerPtr logger(log4cxx::Logger::getLogger("roomsec.main"));
 
+/**
+ * Define program options and parse the option sources.  Program
+ * options can be processed from a configuration file, or parsed from
+ * the command line. Options are processed here, and their values are
+ * stored in a returned boost::variable_map.
+ */
+int storeOptions(int argc, char* argv[], po::variables_map & vm);
+
+/**
+ * Initialize the logging subsystem. 
+ */
+int initLogging(po::variables_map& vm);
+
+/**
+ * Initialize hardware systems and libraries. These are
+ * initializations which must occur before specific hardware classes
+ * are instantiated.
+ */
+int initHardware(po::variables_map& vm);
+
+
 int main (int argc, char *argv[]) {
+  int retVal = 0;
 
+  po::variables_map vm;
+  if (storeOptions(argc, argv, vm) == 0 &&
+      initLogging(vm) == 0) {
 
+#ifdef ENABLE_GATEWAY
+    LOG4CXX_DEBUG(logger, "ENABLE_GATEWAY is defined");
+#else
+    LOG4CXX_DEBUG(logger, "ENABLE_GATEWAY is NOT defined");
+#endif /* ENABLE_GATEWAY */
 
   /* Authority Authorization information */
   int authzPort = AUTHZ_PORT;
@@ -45,61 +74,34 @@ int main (int argc, char *argv[]) {
   /*  Fingerprint Authentication information */
   int authnPort = AUTHN_PORT;
   std::string authnAddr = AUTHN_ADDR;
-
-  /*  Handle Program Options */
-  po::options_description desc("Allowed Options");
-
-  desc.add_options()
-    ("logconf", po::value<std::string>(), "log4cxx configuration file")
-    ("help", "produce help message")
-    ("fpauthn",  po::value<std::string>(), "Set the fingerprint authority server address");
-
-  po::variables_map vm;
-  po::store(po::parse_command_line(argc, argv, desc), vm);
-  po::notify(vm);
   
-  if(vm.count("logconf")) {
-    log4cxx::PropertyConfigurator::configure (vm["logconf"].as<std::string>());
-    LOG4CXX_DEBUG(logger, "Initialized Logging with property configurator");
-  }
-  else {
-    log4cxx::BasicConfigurator::configure();
-    LOG4CXX_INFO(logger, "Initialized Logging with basic configurator");
-  }
-
-  if(vm.count("help")) {
-    std::cout << desc << "\n";
-    return 1;
-  }
-
   if (vm.count("fpauthn")) {
-
+    // Do something?
   }
 
-    // Test the net logger
+  initHardware(vm);
+  //  initGateway(vm);
+
+  // Test the net logger
   log4cxx::LoggerPtr netLogger(log4cxx::Logger::getLogger("roomsec.net"));
   LOG4CXX_INFO(netLogger, "Hello, world!");
+
 
   /* Set up the authority and authentication adapters. Main is
      configuring to use networked processes communicating over a
      thrift connection. */
 
-#ifdef ENABLE_GATEWAY
-  if (wiringPiSetup () == -1) {
-    printf("went done bad");
-    return -1;
-  }
-#endif
+  /* Initialize the screen hardware system
+   */
+  LOG4CXX_DEBUG(logger, "Starting LCD");
 
-  /* BEGIN TEMP {{{ */
-
-  printf("starting lcd\n");
   boost::shared_ptr<roomsec::IOExpander> expander (new roomsec::IOExpander());
   expander->initialize(0x20);
-  roomsec::LCDDisplay disp = roomsec::LCDDisplay(expander);
-  disp.initialize();
 
-  disp.putStr("AY > RY");
+  boost::shared_ptr<roomsec::LCDDisplay> disp(new roomsec::LCDDisplay(expander));
+  disp->initialize();
+
+  disp->putStr("AY > RY");
   printf("ending LCD\n");
 
   /*  }}} END TEMP */
@@ -118,17 +120,58 @@ int main (int argc, char *argv[]) {
     .build()
     ->start();
 
-  return 0;
+  }
+
+  return retVal;
 }
 
 
-int init_logging() {
-  int result = EXIT_SUCCESS;
-  try {
-    
+int storeOptions(int argc, char* argv[], po::variables_map & vm) {
+  int retVal = 0;
+  po::options_description desc("Allowed Options");
+
+  desc.add_options()
+    ("logconf", po::value<std::string>(), "log4cxx configuration file")
+    ("help", "produce help message")
+    ("fpauthn",  po::value<std::string>(), "Set the fingerprint authority server address");
+
+  po::store(po::parse_command_line(argc, argv, desc), vm);
+  po::notify(vm);
+
+  if(vm.count("help")) {
+    std::cout << desc << "\n";
+    retVal = -2;
   }
-  catch (std::exception& e) {
-    result = EXIT_FAILURE;
+
+  return retVal;
+}
+
+
+int initLogging(po::variables_map& vm) {
+  int retVal = 0;
+
+  if(vm.count("logconf")) {
+    log4cxx::PropertyConfigurator::configure (vm["logconf"].as<std::string>());
+    LOG4CXX_DEBUG(logger, "Initialized Logging with property configurator");
   }
-  return result;
+  else {
+    log4cxx::BasicConfigurator::configure();
+    LOG4CXX_DEBUG(logger, "Initialized Logging with basic configurator");
+  }
+  
+  return retVal;
+}
+
+
+int initHardware(po::variables_map& vm) {
+  int retVal = 0;
+
+#ifdef ENABLE_GATEWAY
+  if (wiringPiSetup() == -1) {
+    LOG4CXX_ERROR(logger, "Wiring PI initialization failed");
+    retVal =  -1;
+  }
+#endif /* ENABLE_GATEWAY */
+
+  return retVal;
 }
