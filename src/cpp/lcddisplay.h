@@ -3,7 +3,6 @@
 #define _LCDDISPLAY_H_
 
 #include "boost/shared_ptr.hpp"
-//#include "ioexpander.h"
 #include "display.h"
 
 namespace roomsec {
@@ -17,7 +16,7 @@ namespace roomsec {
    */
   class LCDDisplay : public Display {
   public:
-    LCDDisplay(boost::shared_ptr<IOExpander> expander, uint bank);
+    LCDDisplay(boost::shared_ptr<IOExpander> expander);
     ~LCDDisplay();
     void initialize();
 

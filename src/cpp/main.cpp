@@ -31,17 +31,16 @@
 namespace po = ::boost::program_options;
 
 int init_logging();
-
 log4cxx::LoggerPtr logger(log4cxx::Logger::getLogger("roomsec.main"));
 
 int main (int argc, char *argv[]) {
   /* Initialize logging subsystem.
-   * This is required by every class in gateway.so.
-   */
-  //  init_logging();
-  
-  
-  // 
+   * This is required by every class in gateway.so. */
+
+  // Test the net logger
+  log4cxx::LoggerPtr netLogger(log4cxx::Logger::getLogger("roomsec.net"));
+  LOG4CXX_INFO(netLogger, "Hello, world!");
+
 
   /* BEGIN TEMP */
   if (wiringPiSetup () == -1) {

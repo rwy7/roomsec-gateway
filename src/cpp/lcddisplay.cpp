@@ -1,7 +1,9 @@
-#include "lcddisplay.h"
+#include "config.h"
+#include <boost/shared_ptr.hpp>
+#include <wiringPi/wiringPi.h>
+#include "ioexpander.h"
 #include "display.h"
-#include "boost/shared_ptr.hpp"
-#include "wiringPi/wiringPi.h"
+#include "lcddisplay.h"
 
 namespace roomsec {
 

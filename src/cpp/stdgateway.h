@@ -1,5 +1,6 @@
+/* -*- Mode: c++ -*- */
 #ifndef _ROOMSEC_STDGATEWAY_H_
-#define _ROOMSECSTDGATEWAY_H_
+#define _ROOMSEC_STDGATEWAY_H_
 
 namespace roomsec {
   /*
@@ -20,7 +21,12 @@ namespace roomsec {
     };
 
     friend class Builder;
+
+
   };
+  
+
+  
 }
 
-#endif /* _ROOMSECSTDGATEWAY_H_ */
+#endif /* _ROOMSEC_STDGATEWAY_H_ */

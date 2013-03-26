@@ -1,7 +1,7 @@
 #include <iostream>
 #include <cassert>
-#include "wiringPi/wiringPi.h"
-#include "wiringPi/wiringPiI2C.h"
+#include <wiringPi/wiringPi.h>
+#include <wiringPi/wiringPiI2C.h>
 #include "ioexpander.h"
 
 namespace roomsec {
