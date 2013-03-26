@@ -26,11 +26,8 @@ namespace roomsec {
      * Display backlight colors.  These values are accepted by the
      * display, when setting the display backlight value.
      */
-    enum class Color : unsigned char {
-      green = 0, yellow = 1, red = 3};
 
-    //TODO: what is screen?
-    // virtual Display(const Screen& that) = delete;
+    enum Color {red = 0, green = 1, blue = 2};
 
     virtual ~Display();
 
@@ -38,7 +35,7 @@ namespace roomsec {
      * Set the backlight color of the display.  This call should
      * update the screen immediately.
      */
-    virtual void setColor(Color c) = 0;
+    virtual void setBacklightColor(Color color) = 0; 
 
     /**
      * @brief set the cursor to [row, col].

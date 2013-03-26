@@ -95,10 +95,7 @@ namespace roomsec {
     /*  Make sure that the expander is set up to write mode only */
     this->expander->setRW(this->expander->GPIOA, 0x00);
     this->expander->makeLow(this->expander->GPIOA, 0xFF);
-    /* for (;;) {
-       this->expander->makeLow(this->expander->GPIOA, LCD_E); delay(500);
-       this->expander->makeHigh(this->expander->GPIOA, LCD_E); delay(500);
-       } */
+
     /*  The device will initialize in 4 pin mode. */
     uint8_t func;
     func = LCD_FUNC | LCD_FUNC_DL;
@@ -111,10 +108,6 @@ namespace roomsec {
     func |= LCD_FUNC_N;
     putCommand(func); delay(35);
 
-    //    func |= LCD_FUNC_N;
-    //   putCommand(func);
-    //   delay(35);
-
     putCommand(LCD_ON_OFF | LCD_ON_OFF_D | LCD_ON_OFF_C); delay(2);
     putCommand(LCD_ENTRY | LCD_ENTRY_ID); delay(2);
     // putCommand(LCD_CDSHIFT  | LCD_CDSHIFT_RL); delay(2);
@@ -124,20 +117,31 @@ namespace roomsec {
     sendDataCmd(LCD_HOME); delay(5);
     sendDataCmd(LCD_CLEAR); delay (5);
     this->expander->makeHigh(this->expander->GPIOA, LCD_RS);
-    sendDataCmd ('A');
-    sendDataCmd('n');
-    sendDataCmd('d');
-    sendDataCmd('r');
-    sendDataCmd('e');
-    sendDataCmd('w');
   }
 
-  void LCDDisplay::setColor(Color c) {
+  void LCDDisplay::setBacklightPins(IOExpander::GPIO gpio, uint8_t red, uint8_t green, uint8_t blue) {
+    this->colorGPIO = gpio;
+    this->color[this->red] = red;
+    this->color[this->red] = green;
+    this->color[this->blue] = blue;
+    return;
+  }
 
+  void LCDDisplay::setBacklightColor(Color color) {
+    this->expander->makeLow(this->colorGPIO, this->color[red] | this->color[blue] | this->color[green]);
+    this->expander->makeHigh(this->colorGPIO, this->color[color]);
+    return;
   }
 
   void LCDDisplay::setDisplay(int row, int col) {
-
+    // These are the offset addresses of the 4 possible rows of an LCD display
+    // Row addresses are not contiguous
+    const static uint8_t rowOff [4] = {
+      0x00, 0x40, 0x14, 0x54
+    };
+    assert(row < 4 && row > 0);
+    assert(col < 16 && col > 0);
+    this->putCommand(col + (LCD_DGRAM | rowOff[row]));
   }
 
   void LCDDisplay::putChar(char character){
