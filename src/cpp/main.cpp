@@ -1,3 +1,4 @@
+#include "config.h"
 #include <iostream>
 #include <string>
 #include <exception>
@@ -35,29 +36,7 @@ log4cxx::LoggerPtr logger(log4cxx::Logger::getLogger("roomsec.main"));
 
 int main (int argc, char *argv[]) {
 
-  // Test the net logger
-  log4cxx::LoggerPtr netLogger(log4cxx::Logger::getLogger("roomsec.net"));
-  LOG4CXX_INFO(netLogger, "Hello, world!");
 
-#ifdef ENABLE_GATEWAY
-  if (wiringPiSetup () == -1) {
-    printf("went done bad");
-    return -1;
-  }
-#endif
-
-  /* BEGIN TEMP {{{ */
-
-  printf("starting lcd\n");
-  boost::shared_ptr<roomsec::IOExpander> expander (new roomsec::IOExpander());
-  expander->initialize(0x20);
-  roomsec::LCDDisplay disp = roomsec::LCDDisplay(expander);
-  disp.initialize();
-
-  disp.putStr("AY > RY");
-  printf("ending LCD\n");
-
-  /*  }}} END TEMP */
 
   /* Authority Authorization information */
   int authzPort = AUTHZ_PORT;
@@ -96,6 +75,34 @@ int main (int argc, char *argv[]) {
   if (vm.count("fpauthn")) {
 
   }
+
+    // Test the net logger
+  log4cxx::LoggerPtr netLogger(log4cxx::Logger::getLogger("roomsec.net"));
+  LOG4CXX_INFO(netLogger, "Hello, world!");
+
+  /* Set up the authority and authentication adapters. Main is
+     configuring to use networked processes communicating over a
+     thrift connection. */
+
+#ifdef ENABLE_GATEWAY
+  if (wiringPiSetup () == -1) {
+    printf("went done bad");
+    return -1;
+  }
+#endif
+
+  /* BEGIN TEMP {{{ */
+
+  printf("starting lcd\n");
+  boost::shared_ptr<roomsec::IOExpander> expander (new roomsec::IOExpander());
+  expander->initialize(0x20);
+  roomsec::LCDDisplay disp = roomsec::LCDDisplay(expander);
+  disp.initialize();
+
+  disp.putStr("AY > RY");
+  printf("ending LCD\n");
+
+  /*  }}} END TEMP */
 
   boost::shared_ptr<roomsec::ThriftAuthorityAdapter>
     authzAdapter(new roomsec::ThriftAuthorityAdapter(authzAddr, authzPort));
