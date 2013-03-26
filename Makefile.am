@@ -162,7 +162,9 @@ test_roomsecgateway_test_LDADD = \
 	$(top_builddir)/lib/gmock/libgmock_main.la \
 	$(top_builddir)/lib/gmock/libgmock.la
 
-test_roomsecgateway_test_SOURCES = test/authorityadaptertest.cpp
+test_roomsecgateway_test_SOURCES = \
+    test/authorityadaptertest.cpp\
+    test/blockanalyzertest.cpp
 
 TESTS += $(UNIT_TESTS)
 

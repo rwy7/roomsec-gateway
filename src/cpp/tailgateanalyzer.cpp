@@ -2,13 +2,15 @@
 
 namespace roomsec {
 
-TailgateAnalyzer::TailgateAnalyzer()
+TailgateAnalyzer::TailgateAnalyzer(bool debug)
 {
+	DEBUG = debug;
 	sessionRunning = false;
 }
 
 bool TailgateAnalyzer::setSensors(std::vector<BlockSensor *> sensors)
 {
+	
 	newSensors.clear();
 	for (unsigned int i = 0; i < sensors.size(); i++)
 	{
@@ -21,9 +23,15 @@ bool TailgateAnalyzer::setSensors(std::vector<BlockSensor *> sensors)
 bool TailgateAnalyzer::constructBlockAnalyzer()
 {
 	if (sessionRunning || newSensors.size() == 0)
+	{
+		if (DEBUG)
+			printf("TailgateAnalyzer::constructBlockAnalyzer() - called prematurely; Either session already running or no sensors have been set;\n");
 		return false;
-	blockAnalyzer = new BlockAnalyzer(newSensors);
+	}
+	blockAnalyzer = new BlockAnalyzer(newSensors, DEBUG);
 	newSensors.clear();
+	if (DEBUG)
+		printf("TailgateAnalyzer::constructBlockAnalyzer() - blockAnalyzer initialized;\n");
 	return true;
 }
 
@@ -34,7 +42,7 @@ bool TailgateAnalyzer::update()
 	{
 		blockAnalyzer->update();
 	}
-        return true;
+	return true;
 }
 
 bool TailgateAnalyzer::beginSession()
@@ -43,6 +51,8 @@ bool TailgateAnalyzer::beginSession()
 		return false;
 	sessionRunning = true;
 	blockAnalyzer->beginMonitoringSession();
+	if (DEBUG)
+		printf("TailgateAnalyzer::beginSession() - monitoring session started;\n");
 	return true;
 }
 
@@ -53,6 +63,8 @@ bool TailgateAnalyzer::finishSession()
 	sessionRunning = false;
 	blockAnalyzer->endMonitoringSession();
 	results = blockAnalyzer->getResults();
+	if (DEBUG)
+		printf("TailgateAnalyzer::finishSession() - monitoring session ended; Results pulled from blockAnalyzer;\n");
 	return true;
 }
 

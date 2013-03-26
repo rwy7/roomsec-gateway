@@ -34,19 +34,19 @@ int init_logging();
 log4cxx::LoggerPtr logger(log4cxx::Logger::getLogger("roomsec.main"));
 
 int main (int argc, char *argv[]) {
-  /* Initialize logging subsystem.
-   * This is required by every class in gateway.so. */
 
   // Test the net logger
   log4cxx::LoggerPtr netLogger(log4cxx::Logger::getLogger("roomsec.net"));
   LOG4CXX_INFO(netLogger, "Hello, world!");
 
-
-  /* BEGIN TEMP */
+#ifdef ENABLE_GATEWAY
   if (wiringPiSetup () == -1) {
     printf("went done bad");
     return -1;
   }
+#endif
+
+  /* BEGIN TEMP {{{ */
 
   printf("starting lcd\n");
   boost::shared_ptr<roomsec::IOExpander> expander (new roomsec::IOExpander());
@@ -56,7 +56,8 @@ int main (int argc, char *argv[]) {
 
   disp.putStr("AY > RY");
   printf("ending LCD\n");
-  /* END TEMP */
+
+  /*  }}} END TEMP */
 
   /* Authority Authorization information */
   int authzPort = AUTHZ_PORT;

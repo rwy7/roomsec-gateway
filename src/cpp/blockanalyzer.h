@@ -24,6 +24,10 @@ struct PassageTriple
 /**
  * @brief This class analyzes the readings from the block sensors in order to monitor the number of passages through the doorway
  *
+ * Analysis assumes that the vector of sensors is ordered such that the first sensor if the outermost sensor in the gateway.
+ * That is, an object passing inward through the gateway will pass the sensors in the same order that the sensors are present
+ * in the vector.
+ *
  * The class begins creates a digital data stream for each sensor by periodically sampling their values. No analysis of the data is 
  * made until the monitoring session is complete. At the end of the monitoring session, the streams are smoothed and refined.
  *
@@ -43,13 +47,12 @@ struct PassageTriple
  * after the monitoring session has been ended with endMonitoringSession(), otherwise getResults() will report incomplete data.
  */
 class BlockAnalyzer {
-	public:
 	static const unsigned int frameSize = 5, low = 0, high = 1000, floorCutOff = 10, zeroCutOff = 100;
 	unsigned int zeroCount, streamSize, streamCount;
 	float *normalDistribution;
 	float normalSum;
 	std::vector<BlockSensor *> sensors;
-	std::vector<float> *rawStreams, *smoothedStreams;
+	std::vector<float> *rawStreams;// *smoothedStreams;
 	std::vector<PassageTriple> blockages;
 	bool monitoring, firstRun;
 	
@@ -83,6 +86,8 @@ class BlockAnalyzer {
 	 */
 	std::vector<std::pair<unsigned int, float> > simplifyStreams(std::vector<float> stream, std::vector<unsigned int> blocks);
 
+	PassageTriple analyzeStreams(std::vector<std::pair<unsigned int, float> > *simpleStreams);
+
 	/**
 	 * @brief Performs analysis on the collected data to determine number and direction of passages through doorway
 	 *
@@ -101,7 +106,7 @@ class BlockAnalyzer {
 	 */
 	bool initializeStreams();
 
-	//public:
+	public:
 	bool DEBUG;
 
 	/**
