@@ -86,7 +86,7 @@ class BlockAnalyzer {
 	 */
 	std::vector<std::pair<unsigned int, float> > simplifyStreams(std::vector<float> stream, std::vector<unsigned int> blocks);
 
-	PassageTriple analyzeStreams(std::vector<std::pair<unsigned int, float> > *simpleStreams)
+	PassageTriple analyzeStreams(std::vector<std::pair<unsigned int, float> > *simpleStreams);
 
 	/**
 	 * @brief Performs analysis on the collected data to determine number and direction of passages through doorway

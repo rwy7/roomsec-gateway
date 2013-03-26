@@ -36,7 +36,6 @@ bool BlockAnalyzer::initializeStreams()
 	streamSize = 0;
 	zeroCount = 0;
 	rawStreams = new vector<float>[sensors.size()];
-	smoothedStreams = new vector<float>[sensors.size()];
 	return 1;
 }
 
@@ -75,7 +74,7 @@ PassageTriple BlockAnalyzer::getResults()
 bool BlockAnalyzer::sensorValueUpdate()
 {
 	if (DEBUG)
-		printf("#BlockAnalyzer::sensorValueUpdate() - sensors.size() = %li;", sensors.size());
+		printf("#BlockAnalyzer::sensorValueUpdate() - sensors.size() = %3li;", sensors.size());
 	streamSize++;
 	bool zero = true;
 	for(unsigned int i = 0; i < sensors.size(); i++)
@@ -85,10 +84,10 @@ bool BlockAnalyzer::sensorValueUpdate()
 		if(val != 0)
 			zero = false;
 		if (DEBUG)
-			printf(" sensors[%i]->getSensorValue = %i;", i, val); 
+			printf(" sensors[%2i]->getSensorValue = %3i;", i, val); 
 	}
 	if (DEBUG)
-		printf("#BlockAnalyzer::sensorValueUpdate() - Complete;\n");
+		printf(" BlockAnalyzer::sensorValueUpdate() - Complete;\n");
 	if(zero)
 		zeroCount++;
 	else
@@ -188,7 +187,7 @@ bool BlockAnalyzer::analyze()
 PassageTriple BlockAnalyzer::analyzeStreams(vector<pair<unsigned int, float> > *simpleStreams)
 {
 	if (DEBUG)
-		printf("#BlockAnalyzer::analyzeStreams(simpleStreams) - begin analysis;\n");h
+		printf("#BlockAnalyzer::analyzeStreams(simpleStreams) - begin analysis;\n");
 	//simple implementation using no more than 2 streams
 	PassageTriple triple;
 	triple.ingoing = 0;
@@ -197,58 +196,66 @@ PassageTriple BlockAnalyzer::analyzeStreams(vector<pair<unsigned int, float> > *
 
 	if(streamCount >= 2)
 	{
-		int index1 = 0, index2 = 0, time = 0;
+		int index1 = -1, index2 = -1, time = 0;
 		vector<pair<unsigned int, unsigned int> > passagePairs;
 	
-		while(index1 < simpleStreams[0].size() && index2 < simpleStreams[1].size())
+		while(index1 < (int)simpleStreams[0].size() && index2 < (int)simpleStreams[1].size())
 		{
 			bool found1 = false, found2 = false;
 			
 			//find next peak in first stream
-			while (!found1 && index1 < simpleStreams[0].size())
+			while (!found1 && index1 < (int)simpleStreams[0].size())
 			{
+				index1++;
 				if(simpleStreams[0][index1].second >= 2)
 					found1 = true;
-				index1++;
 			}
 			//find next peak in second stream
-			while (!found2 && index2 < simpleStreams[1].size())
+			while (!found2 && index2 < (int)simpleStreams[1].size())
 			{
+				index2++;
 				if(simpleStreams[1][index2].second >= 2)
 					found2 = true;
-				index2++;
 			}
 
 			//add that pair of peaks to the vector
 			if(found1 && found2)
 			{
-				pair pass = make_pair(simpleStreams[0][index1].first, simpleStreams[1][index2].first);
-				time = (pass.first > pass.second) ? pass.first : pass.second;
+				pair<unsigned int, unsigned int> pass = make_pair(simpleStreams[0][index1].first, simpleStreams[1][index2].first);
 				passagePairs.push_back(pass);
+				if (DEBUG)
+					printf("#BlockAnalyzer::analyzeStreams(simpleStreams) - found pair (%3i,%3i);\n", pass.first, pass.second);
 			}
 		}
+		if (passagePairs.size() <= 0)
+			if (DEBUG)
+				printf("#BlockAnalyzer::analyzeStreams(simpleStreams) - no pairs found;\n");
 		//count each pair of peaks as either ingoing or outgoing passage
 		for(int i = 0; i < passagePairs.size(); i++)
 		{
 			int i1 = passagePairs[i].first;
 			int i2 = passagePairs[i].second;
-			if(simpleStreams[0][i1] < simpleStreams[1][i2])
+			if(i1 < i2)
+			{
 				triple.ingoing++;
-			else if(simpleStreams[0][i1] > simpleStreams[1][i2])
+			}
+			else if(i1 > i2)
+			{
 				triple.outgoing++;
+			}
 			else
 				triple.unknown++;
 		}
 		//count unpaired peaks as unknown passages
 		while(index1 < simpleStreams[0].size())
 		{
-			if(simpleStreams[0][index1] >= 2)
+			if(simpleStreams[0][index1].second >= 2)
 				triple.unknown++;
 			index1++;
 		}
 		while(index2 < simpleStreams[1].size())
 		{
-			if(simpleStreams[1][index2] >= 2)
+			if(simpleStreams[1][index2].second >= 2)
 				triple.unknown++;
 			index2++;
 		}
@@ -256,13 +263,9 @@ PassageTriple BlockAnalyzer::analyzeStreams(vector<pair<unsigned int, float> > *
 	else if(streamCount == 1)
 	{
 		for(int i = 0; i < simpleStreams[0].size(); i++)
-			if(simpleStreams[0][i] >= 2)
+			if(simpleStreams[0][i].second >= 2)
 				triple.unknown++;
 	}
-	else
-	{
-		
-	}	
 	return triple;
 }
 

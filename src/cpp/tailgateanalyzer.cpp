@@ -4,7 +4,7 @@ namespace roomsec {
 
 TailgateAnalyzer::TailgateAnalyzer(bool debug)
 {
-	Debug = debug;
+	DEBUG = debug;
 	sessionRunning = false;
 }
 
