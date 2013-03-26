@@ -162,8 +162,7 @@ bool BlockAnalyzer::analyze()
 		simplifiedStreams[i] = simplifyStreams(smoothedStreams[i], blockStreams[i]);
 	}
 
-	//TODO - turn this into a real analysis
-	//TODO - use multiple streams to determine direction
+	/*
 	unsigned int objs = 0;
 	for(unsigned int i = 0; i < simplifiedStreams[0].size(); i++)
 	{
@@ -177,7 +176,10 @@ bool BlockAnalyzer::analyze()
 	blocks.outgoing = 0;
 	blocks.unknown = objs;
 	blockages.push_back(blocks);
-	
+	*/
+
+	blockages.push_back(analyzeStreams(simplifiedStreams));
+
 	if (DEBUG)
 		printf("#BlockAnalyzer::analyze() - Complete;\n");
 	return 1;
