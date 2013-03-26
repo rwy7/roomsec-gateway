@@ -9,6 +9,18 @@
 namespace roomsec {
   using namespace ::testing;
 
+	int testIndex = -1;
+	std::vector<int> testValues = {0,0,2,5,10,30,30,10,5,2,0,0,2,5,10,30,30,10,5,2,0,0};
+	int testEndValue = 0;
+	int mockSensorValue()
+	{
+		testIndex++;
+		if(testIndex < testValues.size())
+			return testValues[testIndex];
+		else
+			return testEndValue;
+	}
+
   TEST(BlockAnalyzerTest, general) {
     MockBlockSensor blockSensor1;
 
@@ -17,7 +29,7 @@ namespace roomsec {
 
     EXPECT_CALL(blockSensor1, getSensorValue())
       .Times(AtLeast(1))
-      .WillRepeatedly(Return(25));
+      .WillRepeatedly(Return(mockSensorValue()));
 
 	blockAna.beginMonitoringSession();
 	for(int i = 0; i < 10; i++)

@@ -58,7 +58,7 @@ bool BlockAnalyzer::update()
 PassageTriple BlockAnalyzer::getResults()
 {
 	if (DEBUG && monitoring)
-		printf("getResult() - called during monitoring session; Possible incomplete results returned;\n");
+		printf("#BlockAnalyzer::getResult() - called during monitoring session; Possible incomplete results returned;\n");
 	PassageTriple totals;
 	totals.ingoing = 0;
 	totals.outgoing = 0;
@@ -75,7 +75,7 @@ PassageTriple BlockAnalyzer::getResults()
 bool BlockAnalyzer::sensorValueUpdate()
 {
 	if (DEBUG)
-		printf("sensorValueUpdate() - sensors.size() = %li;", sensors.size());
+		printf("#BlockAnalyzer::sensorValueUpdate() - sensors.size() = %li;", sensors.size());
 	streamSize++;
 	bool zero = true;
 	for(unsigned int i = 0; i < sensors.size(); i++)
@@ -88,7 +88,7 @@ bool BlockAnalyzer::sensorValueUpdate()
 			printf(" sensors[%i]->getSensorValue = %i;", i, val); 
 	}
 	if (DEBUG)
-		printf(" sensorValueUpdate() - Complete;\n");
+		printf("#BlockAnalyzer::sensorValueUpdate() - Complete;\n");
 	if(zero)
 		zeroCount++;
 	else
@@ -104,7 +104,7 @@ vector<float> BlockAnalyzer::smoothStream(vector<float> raw)
 	vector<float> flooredRaw;
 
 	if (DEBUG)
-		printf("smoothStream(raw) - stream.size() = %i; extension = %i;\n", size, extension);
+		printf("#BlockAnalyzer::smoothStream(raw) - stream.size() = %i; extension = %i;\n", size, extension);
 
 	for(unsigned int i = 0; i < size; i++)
 	{
@@ -132,18 +132,18 @@ vector<float> BlockAnalyzer::smoothStream(vector<float> raw)
 		smoothed.push_back(sum/normalSum);
 	}
 	if (DEBUG)
-		printf("smoothStream(raw) - Complete;\n");
+		printf("#BlockAnalyzer::smoothStream(raw) - Complete;\n");
 	return smoothed;
 }	
 
 bool BlockAnalyzer::analyze()
 {
 	if (DEBUG)
-		printf("analyze() - streamSize = %i; streamCount = %i;\n", streamSize, streamCount);
+		printf("#BlockAnalyzer::analyze() - streamSize = %i; streamCount = %i;\n", streamSize, streamCount);
 	if(streamSize < 1 || streamCount < 1)
 	{
 		if (DEBUG)
-			printf("analyze() - premature termination; streamSize < 1 || streamCount < 1;\n");
+			printf("#BlockAnalyzer::analyze() - premature termination; streamSize < 1 || streamCount < 1;\n");
 		return 0;
 	}
 	
@@ -168,7 +168,7 @@ bool BlockAnalyzer::analyze()
 	for(unsigned int i = 0; i < simplifiedStreams[0].size(); i++)
 	{
 		//if (DEBUG)
-		//	printf("simplifiedStream[0][%i] == %f;\n", i, simplifiedStreams[0][i].second);
+		//		printf("simplifiedStream[0][%i] == %f;\n", i, simplifiedStreams[0][i].second);
 		if(simplifiedStreams[0][i].second >= 2)
 			objs++;
 	}
@@ -179,15 +179,96 @@ bool BlockAnalyzer::analyze()
 	blockages.push_back(blocks);
 	
 	if (DEBUG)
-		printf("analyze() - Complete;\n");
+		printf("#BlockAnalyzer::analyze() - Complete;\n");
 	return 1;
+}
+
+PassageTriple BlockAnalyzer::analyzeStreams(vector<pair<unsigned int, float> > *simpleStreams)
+{
+	if (DEBUG)
+		printf("#BlockAnalyzer::analyzeStreams(simpleStreams) - begin analysis;\n");h
+	//simple implementation using no more than 2 streams
+	PassageTriple triple;
+	triple.ingoing = 0;
+	triple.outgoing = 0;
+	triple.unknown = 0;
+
+	if(streamCount >= 2)
+	{
+		int index1 = 0, index2 = 0, time = 0;
+		vector<pair<unsigned int, unsigned int> > passagePairs;
+	
+		while(index1 < simpleStreams[0].size() && index2 < simpleStreams[1].size())
+		{
+			bool found1 = false, found2 = false;
+			
+			//find next peak in first stream
+			while (!found1 && index1 < simpleStreams[0].size())
+			{
+				if(simpleStreams[0][index1].second >= 2)
+					found1 = true;
+				index1++;
+			}
+			//find next peak in second stream
+			while (!found2 && index2 < simpleStreams[1].size())
+			{
+				if(simpleStreams[1][index2].second >= 2)
+					found2 = true;
+				index2++;
+			}
+
+			//add that pair of peaks to the vector
+			if(found1 && found2)
+			{
+				pair pass = make_pair(simpleStreams[0][index1].first, simpleStreams[1][index2].first);
+				time = (pass.first > pass.second) ? pass.first : pass.second;
+				passagePairs.push_back(pass);
+			}
+		}
+		//count each pair of peaks as either ingoing or outgoing passage
+		for(int i = 0; i < passagePairs.size(); i++)
+		{
+			int i1 = passagePairs[i].first;
+			int i2 = passagePairs[i].second;
+			if(simpleStreams[0][i1] < simpleStreams[1][i2])
+				triple.ingoing++;
+			else if(simpleStreams[0][i1] > simpleStreams[1][i2])
+				triple.outgoing++;
+			else
+				triple.unknown++;
+		}
+		//count unpaired peaks as unknown passages
+		while(index1 < simpleStreams[0].size())
+		{
+			if(simpleStreams[0][index1] >= 2)
+				triple.unknown++;
+			index1++;
+		}
+		while(index2 < simpleStreams[1].size())
+		{
+			if(simpleStreams[1][index2] >= 2)
+				triple.unknown++;
+			index2++;
+		}
+	}
+	else if(streamCount == 1)
+	{
+		for(int i = 0; i < simpleStreams[0].size(); i++)
+			if(simpleStreams[0][i] >= 2)
+				triple.unknown++;
+	}
+	else
+	{
+		
+	}	
+	return triple;
 }
 
 
 std::vector<unsigned int> BlockAnalyzer::isolateBlocks(std::vector<float> stream)
 {
 	if (DEBUG)
-		printf("isolateBlocks(stream) - stream.size() = %lu;\n", stream.size());
+		printf("#BlockAnalyzer::isolateBlocks(stream) - stream.size() = %lu;\n", stream.size());
 	vector<unsigned int> blockEdges;
 
 	bool high = false;
@@ -220,7 +301,7 @@ std::vector<unsigned int> BlockAnalyzer::isolateBlocks(std::vector<float> stream
 		blockEdges.push_back(stream.size());
 
 	if (DEBUG)
-		printf("isolateBlocks(stream) - Complete; blockEdges.size() = %lu;\n", blockEdges.size());
+		printf("#BlockAnalyzer::isolateBlocks(stream) - Complete; blockEdges.size() = %lu;\n", blockEdges.size());
 
 	return blockEdges;
 }
@@ -228,7 +309,7 @@ std::vector<unsigned int> BlockAnalyzer::isolateBlocks(std::vector<float> stream
 vector<pair<unsigned int, float> > BlockAnalyzer::simplifyStreams(vector<float> stream, vector<unsigned int> blocks)
 {
 	if (DEBUG)
-		printf("simplifyStream(stream, blocks) - stream.size() = %lu; blocks.size() = %lu;\n", stream.size(), blocks.size()); 
+		printf("#BlockAnalyzer::simplifyStream(stream, blocks) - stream.size() = %lu; blocks.size() = %lu;\n", stream.size(), blocks.size()); 
 
 	float highCutoff = 0.2;
 	vector<pair<unsigned int, float> > criticalPoints;
@@ -246,7 +327,7 @@ vector<pair<unsigned int, float> > BlockAnalyzer::simplifyStreams(vector<float> 
 		}
 		average = sum/(b-a);
 		if (DEBUG)
-			printf("simplifyStream(stream, blocks) - average = %f; sum = %f; a = %i; b = %i;\n", average, sum, a, b);
+			printf("#BlockAnalyzer::simplifyStream(stream, blocks) - average = %f; sum = %f; a = %i; b = %i;\n", average, sum, a, b);
 		bool high = false;
 		bool low = false;
 		for(unsigned int j = 0; j < (b-a); j++)
@@ -270,7 +351,7 @@ vector<pair<unsigned int, float> > BlockAnalyzer::simplifyStreams(vector<float> 
 	}
 	if (DEBUG)
 	{
-		printf("simplifyStream(stream, blocks) - Complete; criticalPoints.size() = %lu;\n", criticalPoints.size());
+		printf("#BlockAnalyzer::simplifyStream(stream, blocks) - Complete; criticalPoints.size() = %lu;\n", criticalPoints.size());
 	}
 
 	return criticalPoints;
@@ -281,11 +362,11 @@ bool BlockAnalyzer::beginMonitoringSession()
 	if (monitoring)
 	{
 		if (DEBUG)
-			printf("beginMonitoringSession() called improperly; monitoring = true;\n");
+			printf("#BlockAnalyzer::beginMonitoringSession() called improperly; monitoring = true;\n");
 		return false;
 	}
 	if (DEBUG)
-		printf("beginMonitoringSession() - monitoring session started;\n");
+		printf("#BlockAnalyzer::beginMonitoringSession() - monitoring session started;\n");
 	monitoring = true;
 	initialize();
 	return true;
@@ -296,11 +377,11 @@ bool BlockAnalyzer::endMonitoringSession()
 	if (!monitoring)
 	{
 		if (DEBUG)
-			printf("endMonitoringSession() called improperly; monitoring = false;\n");
+			printf("#BlockAnalyzer::endMonitoringSession() called improperly; monitoring = false;\n");
 		return false;
 	}
 	if (DEBUG)
-		printf("endMonitoringSession() - monitoring session ended;\n");
+		printf("#BlockAnalyzer::endMonitoringSession() - monitoring session ended;\n");
 	monitoring = false;
 	this->initializeStreams();
 	return true;
@@ -313,7 +394,7 @@ bool BlockAnalyzer::generateNormalDistribution()
 	int min = -2, max = 2;
 	float pi = 3.1415926;
 	if (DEBUG)
-		printf("generateNormalDistribution() - frameSize = %i; u = %f; a = %f; min = %i; max = %i;\n", frameSize, u, a, min, max);
+		printf("#BlockAnalyzer::generateNormalDistribution() - frameSize = %i; u = %f; a = %f; min = %i; max = %i;\n", frameSize, u, a, min, max);
 	
 	normalDistribution = new float[frameSize];
 	for(unsigned int i = 0; i < frameSize; i++)
@@ -325,7 +406,7 @@ bool BlockAnalyzer::generateNormalDistribution()
 	}
 	if (DEBUG)
 	{
-		printf("generateNormalDistribution() - Complete; normalDistribution =");
+		printf("#BlockAnalyzer::generateNormalDistribution() - Complete; normalDistribution =");
 		for(unsigned int i = 0; i < frameSize; i++)
 		{
 				printf(" %f;", normalDistribution[i]);

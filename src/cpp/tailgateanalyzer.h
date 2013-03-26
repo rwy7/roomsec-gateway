@@ -24,10 +24,12 @@ class TailgateAnalyzer{
 
 
 public:
+	bool DEBUG;
+
 	/**
 	 * @brief 
 	 */
-	TailgateAnalyzer();
+	TailgateAnalyzer(bool debug = false);
 
 	/**
 	 * @brief Specifies the block sensor instances to be monitored
