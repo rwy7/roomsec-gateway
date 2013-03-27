@@ -152,8 +152,8 @@ namespace roomsec {
     return;
   }
 
-  void LCDDisplay::putStr(std::string stuff) {
-    std::string::iterator it;
+  void LCDDisplay::putStr(std::string const& stuff) {
+    std::string::const_iterator it;
     for (it = stuff.begin(); it < stuff.end(); ++it) {
       this->putChar(*it);
     }
