@@ -107,27 +107,20 @@ namespace roomsec {
   ReplGateway::ReplGateway() {
   }
 
+
   ReplGateway::~ReplGateway() {
   }
+
 
   void ReplGateway::init() {
 
   }
 
+
   void ReplGateway::run() {
     this->start_repl();
   }
 
-  void
-  ReplGateway::setAuthorityAdapter(boost::shared_ptr<AuthorityAdapter> authzAdapter){
-    this->authzAdapter = authzAdapter;
-  }
-
-  void
-  ReplGateway::setFingerprintAuthnAdapter
-  (boost::shared_ptr<FingerprintAuthnAdapter> authnAdapter) {
-    this->authnAdapter = authnAdapter;
-  }
 
   void
   ReplGateway::start_repl() {

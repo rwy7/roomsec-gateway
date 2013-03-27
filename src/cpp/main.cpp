@@ -24,7 +24,7 @@
 
 #include "main.h"
 
-namespace po = ::boost::program_options;
+
 
 log4cxx::LoggerPtr logger(log4cxx::Logger::getLogger("roomsec.main"));
 
