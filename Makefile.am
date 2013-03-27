@@ -66,7 +66,9 @@ libroomsecgateway_la_SOURCES = \
 	src/cpp/ioexpander.cpp \
 	src/cpp/lcddisplay.cpp \
 	src/cpp/buzzer.cpp \
-	src/cpp/ui.cpp
+	src/cpp/ui.cpp \
+	src/cpp/doorstatesensor.cpp
+
 
 libroomsecgateway_la_CPPFLAGS = \
 	$(THRIFT_CFLAGS) $(LOG4CXX_CFLAGS) \
@@ -146,10 +148,10 @@ UNIT_TESTS=
 check_PROGRAMS=
 
 # Raspberry Pi specific hardware tests
-if TEST_HARDWARE
+if ENABLE_HARDWARE_TESTS
 # Define unit tests with gtest
 check_PROGRAMS += test/roomsecgateway_hardware_test
-test_roomsecgateway_hardware_test_CPPFLAGS = -I$(top_srcdir)/test -I$(top_srcdir)/src/cpp $(GTEST_CPPFLAGS)
+test_roomsecgateway_hardware_test_CPPFLAGS = -I$(top_srcdir)/wiringPi -I$(top_srcdir)/test -I$(top_srcdir)/src/cpp $(GTEST_CPPFLAGS)
 test_roomsecgateway_hardware_test_CXXFLAGS = $(GTEST_CXXFLAGS)
 test_roomsecgateway_hardware_test_LDFLAGS = $(GTEST_LDFLAGS)
 
@@ -161,7 +163,8 @@ test_roomsecgateway_hardware_test_LDADD = \
 
 test_roomsecgateway_hardware_test_SOURCES = \
 	test/lcddisplaytest.cpp \
-	test/buzzertest.cpp
+	test/buzzertest.cpp \
+	test/doorstatesensortest.cpp
 endif
 
 # Define unit tests with gtest

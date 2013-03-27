@@ -32,6 +32,8 @@ else
 	echo "------------ Disable hardware tests"
 fi
 
+AM_CONDITIONAL([ENABLE_HARDWARE_TESTS], [test x"$hardware_tests" = xyes])
+
 # Checks for programs.
 AC_PROG_CC
 AC_PROG_CXX

@@ -9,12 +9,22 @@ namespace roomsec {
   class DoorStateSensor {
 
     public:
-      virtual ~DoorStateSensor();
+
+      /**
+       * @brief Setup a door sensor.
+       * This will try to set the pin to READ mode.  If not running with
+       * the correct priviledges, make sure thhat the pin is already in
+       * this mode.
+       * @param pin The GPIO pin which the switch is connected to.
+       */
+      DoorStateSensor(int pin);
+
+      ~DoorStateSensor();
 
       /**
        * @brief Whether the door is open or closed.
        */
-      enum State {open, closed};
+      enum class State {open, closed};
 
       /**
        * @brief Get the current door state.
@@ -24,10 +34,19 @@ namespace roomsec {
        *
        * @return The current door state.
        */
-      virtual State getDoorState();
+      State getDoorState();
 
+      /**
+       * @brief Sleep until the state changes.
+       * This will put the thread to sleep until there is a hardware interrupt
+       * indicating a change in state.
+       * @return The new (current) state.
+       */
+      int waitForChange(void (*callback)(void)); 
     private:
-
+      State state;
+      int pin;
+      void update();
   };
 }
 
