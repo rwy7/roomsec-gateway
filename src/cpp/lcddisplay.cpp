@@ -141,9 +141,9 @@ namespace roomsec {
     const static uint8_t rowOff [4] = {
       0x00, 0x40, 0x14, 0x54
     };
-    assert(row < 4 && row > 0);
-    assert(col < 16 && col > 0);
-    this->putCommand(col + (LCD_DGRAM | rowOff[row]));
+    assert(row <= 4 && row >= 0);
+    assert(col <= 16 && col >= 0);
+    this->putCommand(LCD_DGRAM | rowOff[row] | col);
   }
 
   void LCDDisplay::putChar(char character){
