@@ -61,7 +61,9 @@ int main (int argc, char *argv[]) {
     boost::shared_ptr<roomsec::LCDDisplay> disp(new roomsec::LCDDisplay(expander));
     disp->initialize();
 
-    disp->putStr("     RoomSec");
+    disp->putStr("    RoomSec");
+    disp->setDisp(2, 0);
+    disp->putStr("initializing...");
     disp->setBacklightPins(expander->GPIOB, 0x01, 0x02, 0x04);
     disp->setBacklightColor(disp->blue);
 
