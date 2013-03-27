@@ -132,7 +132,7 @@ int initHardware(po::variables_map& vm) {
   LOG4CXX_DEBUG(logger, "Initializing Hardware");
 
 #ifdef ENABLE_GATEWAY
-  if (wiringPiSetup() == -1) {
+  if (wiringPiSetupGpio() == -1) {
     LOG4CXX_ERROR(logger, "Wiring PI initialization failed");
     retVal =  -1;
   }
