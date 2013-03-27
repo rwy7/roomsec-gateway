@@ -50,6 +50,11 @@ namespace roomsec {
     virtual void putChar(char character) = 0;
 
     /**
+     * @brief put a string onto the lcd, from the current position.
+     */
+    virtual void putStr(std::string const& str) = 0;
+    
+    /**
      * @brief Clear the lcd screen.
      */
     virtual void clear() = 0;
