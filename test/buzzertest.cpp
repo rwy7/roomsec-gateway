@@ -5,8 +5,8 @@
 #include "buzzer.h"
 
 
-/*  Thde pin the buzzer is connected to (for broadcom numbering */
-int buzzerPin = 25;
+/*  Thde pin the buzzer is connected to (for broadcom numbering, corresponds to pin 11 */
+int buzzerPin = 17;
 
 class BuzzerEnvironment : public ::testing::Environment {
   public:
