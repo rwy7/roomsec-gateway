@@ -66,17 +66,22 @@ int main (int argc, char *argv[]) {
     disp->setBacklightPins(expander->GPIOB, 0x01, 0x02, 0x04);
     LOG4CXX_DEBUG(logger, "Setting backlight color");
     disp->setBacklightColor(disp->blue);
+    
+    LOG4CXX_DEBUG(logger, "Initializing Buzzer");
+    boost::shared_ptr<roomsec::Buzzer> buzzer(new roomsec::Buzzer(17));
 
-    // boost::shared_ptr<roomsec::Buzzer> buzzer(new roomsec::Buzzer(17));
-    // boost::shared_ptr<roomsec::Ui> ui(new roomsec::Ui(disp, buzzer));
+    LOG4CXX_DEBUG(logger, "Initializing UI System");
+    boost::shared_ptr<roomsec::Ui> ui(new roomsec::Ui(disp, buzzer));
 
     LOG4CXX_DEBUG(logger, "Printing to Display");
     disp->putStr("    RoomSec");
     disp->setDisplay(1, 0);
     disp->putStr("initializing...");
 
+    LOG4CXX_DEBUG(logger, "Writing test UI message");
+    ui->message(roomsec::UiMessage::Type::error, "Hello, world!");
+
     LOG4CXX_DEBUG(logger, "Building Gateway");
-    //ui->message(roomsec::UiMessage::Type::error, "Hello, world!");
     buildReplGateway(vm)->start();
   }
 
