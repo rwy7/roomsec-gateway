@@ -63,7 +63,8 @@ libroomsecgateway_la_SOURCES = \
 	src/cpp/blocksensor.cpp \
 	src/cpp/doorstatesensor.cpp \
 	src/cpp/ioexpander.cpp \
-	src/cpp/lcddisplay.cpp
+	src/cpp/lcddisplay.cpp \
+	src/cpp/buzzer.cpp
 
 libroomsecgateway_la_CPPFLAGS = \
 	$(THRIFT_CFLAGS) $(LOG4CXX_CFLAGS) \
