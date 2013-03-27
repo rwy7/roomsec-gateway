@@ -161,7 +161,8 @@ test_roomsecgateway_hardware_test_LDADD = \
 
 test_roomsecgateway_hardware_test_SOURCES = \
 	test/lcddisplaytest.cpp \
-	test/buzzertest.cpp
+	test/buzzertest.cpp \
+	test/doorstatesensortest.cpp
 endif
 
 # Define unit tests with gtest
