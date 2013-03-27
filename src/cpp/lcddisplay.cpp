@@ -88,7 +88,10 @@ namespace roomsec {
     }
 
   LCDDisplay::~LCDDisplay () {
-
+    this->setBacklightColor(Color::none);
+    this->clear();
+    this->home();
+    return;
   }
 
   void LCDDisplay::initialize() {
@@ -124,14 +127,16 @@ namespace roomsec {
     this->expander->setRW(this->colorGPIO, ~(this->color[red] | this->color[blue] | this->color[green]));
 
     this->color[this->red] = red;
-    this->color[this->red] = green;
+    this->color[this->green] = green;
     this->color[this->blue] = blue;
+    this->setBacklightColor (Color::none);
     return;
   }
 
   void LCDDisplay::setBacklightColor(Color color) {
     this->expander->makeLow(this->colorGPIO, this->color[red] | this->color[blue] | this->color[green]);
-    this->expander->makeHigh(this->colorGPIO, this->color[color]);
+    if (color != -1)
+      this->expander->makeHigh(this->colorGPIO, this->color[color]);
     return;
   }
 

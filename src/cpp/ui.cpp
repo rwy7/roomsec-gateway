@@ -19,7 +19,7 @@ namespace roomsec {
   }
 
   UiMessage::UiMessage(const UiMessage & that) :
-    UiMessage(that.type, that.message)
+    type(that.getType()), message(that.getMessage())
   {
   }
 

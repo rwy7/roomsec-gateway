@@ -27,7 +27,7 @@ namespace roomsec {
      * display, when setting the display backlight value.
      */
 
-    enum Color {red = 0, green = 1, blue = 2};
+    enum Color {red = 0, green = 1, blue = 2, none = -1};
 
     virtual ~Display();
 

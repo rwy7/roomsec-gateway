@@ -83,15 +83,39 @@ namespace roomsec {
     int cols();
 
   protected:
+    /**
+     * Strobe the 'enable' pin on the LCD screen.  This will force the LCD to
+     * process the current instruction.*/
     void strobe();
+    
+    /**
+     * @brief Send an 8 bit data command.
+     * This will send the command in two 4-bit bursts. The RS pin is not
+     * touched when using this command.
+     *
+     * @param data The 8 bit data command.
+     */
     void sendDataCmd(uint8_t data);
+   
+    /**
+     * @brief Send an 8 bit command.
+     * This sets the RS pin to LOW, making it a command instead of a character.
+     *
+     * @param data The 8 bit command.
+     */
     void putCommand(uint8_t data);
+
+    /**
+     * @brief Send a 4 bit command.
+     * This will send the lower 4 bits of data to the device.  The RS pin is
+     * set to LOW. This command is only usefull when reset'ing the device.
+     * @param data The lower 4 bits are the command.
+     */
     void put4Command(uint8_t data);
 
   private:
     IOExpander::GPIO colorGPIO;
     uint8_t color[3];
-
     boost::shared_ptr<IOExpander> expander;
   };
 }
