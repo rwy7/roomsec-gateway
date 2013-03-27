@@ -1,13 +1,17 @@
 #+TITLE: Roomsec Gateway TODO List
+TODO: TODO WORK | DONE
+TAGS: andrew robert
 
-
-* Repair main
-- Currently, main is really fucked up
-- Andrew is adding cli options, and cleaning it up
-
-** Cleanup the repl
-- [ ] Move the repl to it's own compilation unit.
-- [ ] Clean up the cli source
-- [ ] Document (comments)
-- [ ] Make the repl stateful, storing 
-
+* TODO Program Gateway
+* TODO FingerprintScanner Class
+* TODO Speaker
+* TODO Message System
+* TODO Main [/]
+** TODO Program Options
+- [ ] Authz host, port
+- [ ] Authn host, port
+- [ ] Interactive or Std gateway
+- [ ] Configuration file?
+- [ ] Log Configuration file
+* 
+** TODO 

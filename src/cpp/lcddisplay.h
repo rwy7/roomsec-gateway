@@ -2,7 +2,7 @@
 #ifndef _LCDDISPLAY_H_
 #define _LCDDISPLAY_H_
 
-#include "boost/shared_ptr.hpp"
+#include <boost/shared_ptr.hpp>
 #include "ioexpander.h"
 #include "display.h"
 
