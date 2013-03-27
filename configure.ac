@@ -22,7 +22,7 @@ fi
 
 AC_ARG_ENABLE([hardware-tests],
 	[AS_HELP_STRING([--enable-hardware-tests], [enable gateway hardware tests (default is no)])],
-	[test_hardware=$enableval])
+	[hardeware_tests=$enableval])
 
 AM_CONDITIONAL([TEST_HARDWARE], [test x"test_hardware" = xyes])
 if test x"$hardware_tests" = xyes ; then
