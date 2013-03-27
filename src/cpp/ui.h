@@ -32,7 +32,7 @@ namespace roomsec {
      * screen.
      */
     UiMessage(Type type, boost::shared_ptr<const std::string> message);
-    UiMessage(const UiMessage & that);
+    UiMessage(UiMessage const& that);
 
     Type getType() const;
     boost::shared_ptr<const std::string> getMessage() const;
@@ -44,10 +44,11 @@ namespace roomsec {
     boost::shared_ptr<const std::string> message;
   };
 
+
   class Ui {
   public:
-    Ui(boost::shared_ptr<Display> d, boost::shared_ptr<Buzzer> b);
-    virtual ~Ui();
+    Ui(boost::shared_ptr<Display> display, boost::shared_ptr<Buzzer> buzzer);
+    virtual ~Ui() {};
 
     int message(UiMessage const& that);
     int message(UiMessage::Type t, std::string const& str);
@@ -57,8 +58,9 @@ namespace roomsec {
 
   private:
     static log4cxx::LoggerPtr logger;
-    boost::shared_ptr<Buzzer> buzzer;
+
     boost::shared_ptr<Display> display;
+    boost::shared_ptr<Buzzer> buzzer;
   };
 }
 

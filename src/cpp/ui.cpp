@@ -37,7 +37,14 @@ namespace roomsec {
    * Ui
    ********************/
 
+  namespace b = ::boost;
+
   log4cxx::LoggerPtr Ui::logger(log4cxx::Logger::getLogger("roomsec.ui"));
+
+  Ui::Ui(b::shared_ptr<Display> display, b::shared_ptr<Buzzer> buzzer) :
+    display(display), buzzer(buzzer)
+  {
+  }
 
   int
   Ui::message(UiMessage const& that) {
