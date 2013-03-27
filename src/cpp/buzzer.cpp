@@ -1,3 +1,4 @@
+#include "config.h"
 #include <wiringPi/wiringPi.h>
 #include "buzzer.h"
 
