@@ -10,8 +10,8 @@ int buzzerPin = 17;
 
 class BuzzerEnvironment : public ::testing::Environment {
   public:
-    BuzzerEnvironment();
-    ~BuzzerEnvironment();
+    BuzzerEnvironment() {}
+    ~BuzzerEnvironment() {}
     void SetUp() {
       ASSERT_NE(wiringPiSetupGpio(), -1);
     }
@@ -28,7 +28,7 @@ namespace roomsec {
   using namespace ::testing;
 
   TEST(BuzzerTest, SoundTest) {
-    Buzzer buzz (pin);
+    Buzzer buzz (::buzzerPin);
     buzz.on();
     delay(200);
     buzz.off();
