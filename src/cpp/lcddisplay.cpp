@@ -165,12 +165,12 @@ namespace roomsec {
   }
 
   void LCDDisplay::clear() {
-    sendDataCmd(LCD_CLEAR);
+    putCommand(LCD_CLEAR);
     return;
   }
 
   void LCDDisplay::home() {
-    sendDataCmd(LCD_HOME);
+    putCommand(LCD_HOME);
     return;
   }
 
