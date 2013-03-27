@@ -145,10 +145,10 @@ UNIT_TESTS=
 check_PROGRAMS=
 
 # Raspberry Pi specific hardware tests
-if TEST_HARDWARE
+if ENABLE_HARDWARE_TESTS
 # Define unit tests with gtest
 check_PROGRAMS += test/roomsecgateway_hardware_test
-test_roomsecgateway_hardware_test_CPPFLAGS = -I$(top_srcdir)/test -I$(top_srcdir)/src/cpp $(GTEST_CPPFLAGS)
+test_roomsecgateway_hardware_test_CPPFLAGS = -I$(top_srcdir)/wiringPi -I$(top_srcdir)/test -I$(top_srcdir)/src/cpp $(GTEST_CPPFLAGS)
 test_roomsecgateway_hardware_test_CXXFLAGS = $(GTEST_CXXFLAGS)
 test_roomsecgateway_hardware_test_LDFLAGS = $(GTEST_LDFLAGS)
 
