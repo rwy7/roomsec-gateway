@@ -66,7 +66,7 @@ libroomsecgateway_la_SOURCES = \
 	src/cpp/ioexpander.cpp \
 	src/cpp/lcddisplay.cpp \
 	src/cpp/buzzer.cpp \
-	src/cpp/lock.cpp
+	src/cpp/lock.cpp \
 	src/cpp/ui.cpp \
 	src/cpp/doorstatesensor.cpp
 
