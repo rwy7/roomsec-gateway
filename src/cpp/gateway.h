@@ -88,6 +88,14 @@ namespace roomsec {
 
     template<typename B, typename G> friend class Gateway::Builder;
     
+  protected:
+
+    boost::shared_ptr<AuthorityAdapter> authzAdapter;
+    boost::shared_ptr<FingerprintAuthnAdapter> authnAdapter;
+
+    virtual void setAuthorityAdapter(boost::shared_ptr<AuthorityAdapter> authzAdapter);
+    virtual void setFingerprintAuthnAdapter(boost::shared_ptr<FingerprintAuthnAdapter> authnAdapter);
+
   private:
 
     /**

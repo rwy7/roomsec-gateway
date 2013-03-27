@@ -50,10 +50,6 @@ namespace roomsec {
      */
     ReplGateway();
 
-    void setAuthorityAdapter(boost::shared_ptr<AuthorityAdapter> authzAdapter);
-
-    void setFingerprintAuthnAdapter(boost::shared_ptr<FingerprintAuthnAdapter> authnAdapter);
-
   private:
 
     virtual void init();
@@ -61,9 +57,6 @@ namespace roomsec {
     virtual void run();
 
     void start_repl();
-
-    boost::shared_ptr<AuthorityAdapter> authzAdapter;
-    boost::shared_ptr<FingerprintAuthnAdapter> authnAdapter;
 
   };
 }
