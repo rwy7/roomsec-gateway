@@ -1,4 +1,5 @@
 #include "config.h"
+
 #include <iostream>
 #include <string>
 #include <exception>
@@ -11,86 +12,22 @@
 #include <log4cxx/propertyconfigurator.h>
 #include <log4cxx/helpers/exception.h>
 
+#include <wiringPi/wiringPi.h>
+
 #include "authorityadapter.h"
 #include "thriftauthorityadapter.h"
 #include "fingerprintauthnadapter.h"
 #include "thriftfingerprintauthnadapter.h"
-
 #include "replgateway.h"
 #include "ioexpander.h"
 #include "display.h"
 #include "lcddisplay.h"
 
-#include "wiringPi/wiringPi.h"
-
-#define AUTHZ_ADDR "192.168.0.194"
-#define AUTHZ_PORT 9090
-
-#define AUTHN_ADDR "172.17.144.152"
-#define AUTHN_PORT 8080
+#include "main.h"
 
 namespace po = ::boost::program_options;
 
 log4cxx::LoggerPtr logger(log4cxx::Logger::getLogger("roomsec.main"));
-
-/**
- * Define program options and parse the option sources.  Program
- * options can be processed from a configuration file, or parsed from
- * the command line. Options are processed here, and their values are
- * stored in a returned boost::variable_map.
- */
-int storeOptions(int argc, char* argv[], po::variables_map & vm);
-
-/**
- * Initialize the logging subsystem. 
- */
-int initLogging(po::variables_map& vm);
-
-/**
- * Initialize hardware systems and libraries. These are
- * initializations which must occur before specific hardware classes
- * are instantiated.
- */
-int initHardware(po::variables_map& vm);
-
-boost::shared_ptr<roomsec::Gateway>
-buildStdGateway(po::variables_map& vm) {
-  LOG4CXX_ERROR(logger, "Not yet implemented");
-  return boost::shared_ptr<roomsec::Gateway>();
-}
-
-boost::shared_ptr<roomsec::Gateway>
-buildReplGateway(po::variables_map& vm) {
-  LOG4CXX_TRACE(logger, "Building ReplGateway");
-
-  /* Authority Authorization information */
-  int authzPort = AUTHZ_PORT;
-  std::string authzAddr = AUTHZ_ADDR;
-
-  /*  Fingerprint Authentication information */
-  int authnPort = AUTHN_PORT;
-  std::string authnAddr = AUTHN_ADDR;
-  
-  if (vm.count("fpauthn")) {
-    // Do something?
-  }
-
-  boost::shared_ptr<roomsec::ThriftAuthorityAdapter>
-    authzAdapter(new roomsec::ThriftAuthorityAdapter(authzAddr, authzPort));
-
-  boost::shared_ptr<roomsec::ThriftFingerprintAuthnAdapter>
-    authnAdapter(new roomsec::ThriftFingerprintAuthnAdapter(authnAddr, authnPort));
-
-  roomsec::ReplGateway::Builder builder;
-  
-  boost::shared_ptr<roomsec::ReplGateway> gateway = 
-    builder
-    .authorityAdapter(authzAdapter)
-    .fingerprintAuthnAdapter(authnAdapter)
-    .build();
-
-  return gateway;
-}
 
 int main (int argc, char *argv[]) {
   int retVal = 0;
@@ -187,3 +124,41 @@ int initHardware(po::variables_map& vm) {
   return retVal;
 }
 
+boost::shared_ptr<roomsec::Gateway>
+buildStdGateway(po::variables_map& vm) {
+  LOG4CXX_ERROR(logger, "Not yet implemented");
+  return boost::shared_ptr<roomsec::Gateway>();
+}
+
+boost::shared_ptr<roomsec::Gateway>
+buildReplGateway(po::variables_map& vm) {
+  LOG4CXX_TRACE(logger, "Building ReplGateway");
+
+  /* Authority Authorization information */
+  int authzPort = AUTHZ_PORT;
+  std::string authzAddr = AUTHZ_ADDR;
+
+  /*  Fingerprint Authentication information */
+  int authnPort = AUTHN_PORT;
+  std::string authnAddr = AUTHN_ADDR;
+  
+  if (vm.count("fpauthn")) {
+    // Do something?
+  }
+
+  boost::shared_ptr<roomsec::ThriftAuthorityAdapter>
+    authzAdapter(new roomsec::ThriftAuthorityAdapter(authzAddr, authzPort));
+
+  boost::shared_ptr<roomsec::ThriftFingerprintAuthnAdapter>
+    authnAdapter(new roomsec::ThriftFingerprintAuthnAdapter(authnAddr, authnPort));
+
+  roomsec::ReplGateway::Builder builder;
+  
+  boost::shared_ptr<roomsec::ReplGateway> gateway = 
+    builder
+    .authorityAdapter(authzAdapter)
+    .fingerprintAuthnAdapter(authnAdapter)
+    .build();
+
+  return gateway;
+}

@@ -1,5 +1,6 @@
-/*  Main Header File */
+/* -*- Mode: c++ -*- */
 
+/*  Main Header File */
 #ifndef _MAIN_H_
 #define _MAIN_H_
 
@@ -56,9 +57,45 @@
  * main.h function declarations
  ************************************/
 
-  /**
-   * Initialize log4cxx logging.
-   */
-  int init_logging();
+#include <boost/shared_ptr.hpp>
+#include <boost/program_options.hpp>
+
+#define AUTHZ_ADDR "192.168.0.194"
+#define AUTHZ_PORT 9090
+
+#define AUTHN_ADDR "172.17.144.152"
+#define AUTHN_PORT 8080
+
+namespace po = ::boost::program_options;
+
+namespace roomsec {
+  class Gateway;
+}
+
+/**
+ * Define program options and parse the option sources.  Program
+ * options can be processed from a configuration file, or parsed from
+ * the command line. Options are processed here, and their values are
+ * stored in a returned boost::variable_map.
+ */
+int storeOptions(int argc, char* argv[], po::variables_map & vm);
+
+/**
+ * Initialize the logging subsystem. 
+ */
+int initLogging(po::variables_map& vm);
+
+/**
+ * Initialize hardware systems and libraries. These are
+ * initializations which must occur before specific hardware classes
+ * are instantiated.
+ */
+int initHardware(po::variables_map& vm);
+
+boost::shared_ptr<roomsec::Gateway>
+buildStdGateway(po::variables_map& vm);
+
+boost::shared_ptr<roomsec::Gateway>
+buildReplGateway(po::variables_map& vm);
 
 #endif /* _MAIN_H_ */
