@@ -7,6 +7,23 @@
 *.rej
 *.ori
 
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+.elc
+auto-save-list
+tramp
+.\#*
+
+
+# Org-mode
+.org-id-locations
+*_archive
+
+
 # Build chain generated files
 .deps
 *.a
