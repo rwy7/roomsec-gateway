@@ -21,7 +21,8 @@
 #include "ioexpander.h"
 #include "display.h"
 #include "lcddisplay.h"
-
+#include "buzzer.h"
+#include "ui.h"
 #include "main.h"
 
 
@@ -61,13 +62,17 @@ int main (int argc, char *argv[]) {
     boost::shared_ptr<roomsec::LCDDisplay> disp(new roomsec::LCDDisplay(expander));
     disp->initialize();
 
+    boost::shared_ptr<roomsec::Buzzer> buzzer(new roomsec::Buzzer(17));
+
+    boost::shared_ptr<roomsec::Ui> ui(new roomsec::Ui(disp, buzzer));
+
     disp->putStr("    RoomSec");
     disp->setDisplay(1, 0);
     disp->putStr("initializing...");
     disp->setBacklightPins(expander->GPIOB, 0x01, 0x02, 0x04);
     disp->setBacklightColor(disp->blue);
 
-    /*  }}} END TEMP */
+    ui->message(roomsec::UiMessage::Type::error, "Hello, world!");
 
     buildReplGateway(vm)->start();
   }
