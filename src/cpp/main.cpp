@@ -53,19 +53,15 @@ int initLogging(po::variables_map& vm);
  */
 int initHardware(po::variables_map& vm);
 
+boost::shared_ptr<roomsec::Gateway>
+buildStdGateway(po::variables_map& vm) {
+  LOG4CXX_ERROR(logger, "Not yet implemented");
+  return boost::shared_ptr<roomsec::Gateway>();
+}
 
-int main (int argc, char *argv[]) {
-  int retVal = 0;
-
-  po::variables_map vm;
-  if (storeOptions(argc, argv, vm) == 0 &&
-      initLogging(vm) == 0) {
-
-#ifdef ENABLE_GATEWAY
-    LOG4CXX_DEBUG(logger, "ENABLE_GATEWAY is defined");
-#else
-    LOG4CXX_DEBUG(logger, "ENABLE_GATEWAY is NOT defined");
-#endif /* ENABLE_GATEWAY */
+boost::shared_ptr<roomsec::Gateway>
+buildReplGateway(po::variables_map& vm) {
+  LOG4CXX_TRACE(logger, "Building ReplGateway");
 
   /* Authority Authorization information */
   int authzPort = AUTHZ_PORT;
@@ -79,33 +75,6 @@ int main (int argc, char *argv[]) {
     // Do something?
   }
 
-  initHardware(vm);
-  //  initGateway(vm);
-
-  // Test the net logger
-  log4cxx::LoggerPtr netLogger(log4cxx::Logger::getLogger("roomsec.net"));
-  LOG4CXX_INFO(netLogger, "Hello, world!");
-
-
-  /* Set up the authority and authentication adapters. Main is
-     configuring to use networked processes communicating over a
-     thrift connection. */
-
-  /* Initialize the screen hardware system
-   */
-  LOG4CXX_DEBUG(logger, "Starting LCD");
-
-  boost::shared_ptr<roomsec::IOExpander> expander (new roomsec::IOExpander());
-  expander->initialize(0x20);
-
-  boost::shared_ptr<roomsec::LCDDisplay> disp(new roomsec::LCDDisplay(expander));
-  disp->initialize();
-
-  disp->putStr("AY > RY");
-  printf("ending LCD\n");
-
-  /*  }}} END TEMP */
-
   boost::shared_ptr<roomsec::ThriftAuthorityAdapter>
     authzAdapter(new roomsec::ThriftAuthorityAdapter(authzAddr, authzPort));
 
@@ -113,13 +82,55 @@ int main (int argc, char *argv[]) {
     authnAdapter(new roomsec::ThriftFingerprintAuthnAdapter(authnAddr, authnPort));
 
   roomsec::ReplGateway::Builder builder;
-
-  builder
+  
+  boost::shared_ptr<roomsec::ReplGateway> gateway = 
+    builder
     .authorityAdapter(authzAdapter)
     .fingerprintAuthnAdapter(authnAdapter)
-    .build()
-    ->start();
+    .build();
 
+  return gateway;
+}
+
+int main (int argc, char *argv[]) {
+  int retVal = 0;
+
+  po::variables_map vm;
+  if (storeOptions(argc, argv, vm) == 0 && initLogging(vm) == 0) {
+
+#ifdef ENABLE_GATEWAY
+    LOG4CXX_DEBUG(logger, "ENABLE_GATEWAY is defined");
+#else
+    LOG4CXX_DEBUG(logger, "ENABLE_GATEWAY is NOT defined");
+#endif /* ENABLE_GATEWAY */
+
+    initHardware(vm);
+
+    // Test the net logger
+    log4cxx::LoggerPtr netLogger(log4cxx::Logger::getLogger("roomsec.net"));
+    LOG4CXX_INFO(netLogger, "Hello, world!");
+
+
+    /* Set up the authority and authentication adapters. Main is
+       configuring to use networked processes communicating over a
+       thrift connection. */
+
+    /* Initialize the screen hardware system
+     */
+    LOG4CXX_DEBUG(logger, "Starting LCD");
+
+    boost::shared_ptr<roomsec::IOExpander> expander (new roomsec::IOExpander());
+    expander->initialize(0x20);
+
+    boost::shared_ptr<roomsec::LCDDisplay> disp(new roomsec::LCDDisplay(expander));
+    disp->initialize();
+
+    disp->putStr("AY > RY");
+    printf("ending LCD\n");
+
+    /*  }}} END TEMP */
+
+    buildReplGateway(vm)->start();
   }
 
   return retVal;
@@ -175,3 +186,4 @@ int initHardware(po::variables_map& vm) {
 
   return retVal;
 }
+
