@@ -2,6 +2,7 @@
 #define _IOEXPANDER_H_
 
 #include <cstdint>
+#include <log4cxx/logger.h>
 
 namespace roomsec {
 
@@ -102,6 +103,10 @@ namespace roomsec {
     protected:
       int dev;
       uint8_t gpioa, gpiob, iodira, iodirb;
+
+    private:
+      log4cxx::LoggerPtr logger;
+
   };
 }
 

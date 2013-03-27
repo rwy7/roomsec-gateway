@@ -72,8 +72,7 @@ libroomsecgateway_la_CPPFLAGS = \
 	-pedantic -DHAVE_INTTYPES_H -DHAVE_NETINET_IN_H \
 	-I. -I$(top_srcdir)/wiringPi -I$(top_srcdir)/libfprint
 
-libroomsecgateway_la_LDFLAGS = -version-info 1:0:0
-
+libroomsecgateway_la_LDFLAGS = 
 libroomsecgateway_la_LIBADD = \
 	-lstdc++ $(THRIFT_LIBS) $(LOG4CXX_LIBS) \
 	-lboost_system -lboost_thread \
@@ -95,8 +94,8 @@ roomsecgateway_CPPFLAGS = \
 
 roomsecgateway_LDFLAGS = -static
 
-roomsecgateway_LDADD = \
-	-lstdc++ $(THRIFT_LIBS) -lboost_system -lboost_thread -lroomsecgateway \
+roomsecgateway_LDADD = libroomsecgateway.la \
+	-lstdc++ $(THRIFT_LIBS) -lboost_system -lboost_thread \
 	$(top_srcdir)/libfprint/libfprint/libfprint.la -lboost_program_options
 
 ###

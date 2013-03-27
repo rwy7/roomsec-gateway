@@ -108,7 +108,7 @@ namespace roomsec {
     func |= LCD_FUNC_N;
     putCommand(func); delay(35);
 
-    putCommand(LCD_ON_OFF | LCD_ON_OFF_D | LCD_ON_OFF_C); delay(2);
+    putCommand(LCD_ON_OFF | LCD_ON_OFF_D); delay(2);
     putCommand(LCD_ENTRY | LCD_ENTRY_ID); delay(2);
     // putCommand(LCD_CDSHIFT  | LCD_CDSHIFT_RL); delay(2);
     //putCommand(LCD_CLEAR); delay(5);
@@ -121,6 +121,8 @@ namespace roomsec {
 
   void LCDDisplay::setBacklightPins(IOExpander::GPIO gpio, uint8_t red, uint8_t green, uint8_t blue) {
     this->colorGPIO = gpio;
+    this->expander->setRW(this->colorGPIO, ~(this->color[red] | this->color[blue] | this->color[green]));
+
     this->color[this->red] = red;
     this->color[this->red] = green;
     this->color[this->blue] = blue;
@@ -139,9 +141,9 @@ namespace roomsec {
     const static uint8_t rowOff [4] = {
       0x00, 0x40, 0x14, 0x54
     };
-    assert(row < 4 && row > 0);
-    assert(col < 16 && col > 0);
-    this->putCommand(col + (LCD_DGRAM | rowOff[row]));
+    assert(row <= 4 && row >= 0);
+    assert(col <= 16 && col >= 0);
+    this->putCommand(LCD_DGRAM | rowOff[row] | col);
   }
 
   void LCDDisplay::putChar(char character){
