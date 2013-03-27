@@ -2,6 +2,9 @@
 #ifndef _ROOMSEC_STDGATEWAY_H_
 #define _ROOMSEC_STDGATEWAY_H_
 
+#include <boost/shared_ptr.hpp>
+#include <log4cxx/logger.h>
+
 namespace roomsec {
   /*
    * Todo: complete this interface!
@@ -14,19 +17,30 @@ namespace roomsec {
    * logic to ensure that all subsystem compose a secure and effective
    * gateway system.
    */
-  class StdGateway {
+  class StdGateway : public Gateway {
   public:
 
-    class Builder : Gateway::Builder<StdGateway::Builder> {
+    class Builder : public Gateway::Builder<StdGateway::Builder, StdGateway> {
+    public:
+
+      virtual boost::shared_ptr<StdGateway> build();
+
     };
 
-    friend class Builder;
+    friend class StdGateway::Builder;
 
+  protected:
 
+    StdGateway();
+
+  private:
+
+    virtual void init();
+    virtual void run();
+
+    static log4cxx::LoggerPtr logger;
+    static log4cxx::LoggerPtr netLogger;
   };
-  
-
-  
 }
 
 #endif /* _ROOMSEC_STDGATEWAY_H_ */
