@@ -1,3 +1,5 @@
+#include "config.h"
+
 #include <iostream>
 #include <cassert>
 
@@ -61,11 +63,11 @@ namespace roomsec {
   void IOExpander::initialize (int dev) {
 #ifdef ENABLE_GATEWAY
     if ((dev = wiringPiI2CSetup (dev)) == -1) {
-      std::cout << "Unable to create device";
       assert (dev > 0);
-      //TODO: raise an exception
-      //TODO: Log something
+      LOG4CXX_ERROR(logger, "Unable to create I2C IOExpander on " << dev);
     }
+    else
+      LOG4CXX_INFO(logger, "Created I2C IOExpander on " << dev);
 #endif
 
     this->dev = dev;
