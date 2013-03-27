@@ -64,7 +64,7 @@ namespace roomsec {
 
   void IOExpander::initialize (int dev) {
 #ifdef ENABLE_GATEWAY
-    if ((dev = wiringPiI2CSetup (dev)) == -1) {
+    if ((this->dev = wiringPiI2CSetup (dev)) == -1) {
       assert (dev > 0);
       LOG4CXX_ERROR(logger, "Unable to create I2C IOExpander on " << dev);
     }
@@ -73,8 +73,6 @@ namespace roomsec {
 #else
     LOG4CXX_ERROR(logger, "IOExpander support not available on this platform");
 #endif
-
-    this->dev = dev;
 
 #ifdef ENABLE_GATEWAY
     /*  Initialize the device */
