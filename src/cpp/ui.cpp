@@ -74,6 +74,7 @@ namespace roomsec {
   Ui::message(boost::shared_ptr<const UiMessage> message) {
     /* Queue the message object for printing */
     LOG4CXX_WARN(logger, "Not yet implemented");
+    LOG4CXX_DEBUG(logger, "Writing message: " << *message->getMessage());
     
     switch(message->getType()) {
     default:
