@@ -108,7 +108,7 @@ namespace roomsec {
     func |= LCD_FUNC_N;
     putCommand(func); delay(35);
 
-    putCommand(LCD_ON_OFF | LCD_ON_OFF_D | LCD_ON_OFF_C); delay(2);
+    putCommand(LCD_ON_OFF | LCD_ON_OFF_D); delay(2);
     putCommand(LCD_ENTRY | LCD_ENTRY_ID); delay(2);
     // putCommand(LCD_CDSHIFT  | LCD_CDSHIFT_RL); delay(2);
     //putCommand(LCD_CLEAR); delay(5);
