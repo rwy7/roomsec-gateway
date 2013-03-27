@@ -48,7 +48,11 @@ bool TailgateAnalyzer::update()
 bool TailgateAnalyzer::beginSession()
 {
 	if (sessionRunning || !blockAnalyzer)
+	{
+		if (DEBUG)
+			printf("#TailgateAnalyzer::beginSession() called improperly, no changes performed; sessionRunning = true || blockAnalyzer uninitialized;\n");
 		return false;
+	}
 	sessionRunning = true;
 	blockAnalyzer->beginMonitoringSession();
 	if (DEBUG)
@@ -58,8 +62,12 @@ bool TailgateAnalyzer::beginSession()
 
 bool TailgateAnalyzer::finishSession()
 {
-	if (!sessionRunning || !blockAnalyzer)
+	if (!sessionRunning)
+	{
+		if (DEBUG)
+			printf("#TailgateAnalyzer::endSession() called improperly, no changes performed; sessionRunning = false;\n");
 		return false;
+	}
 	sessionRunning = false;
 	blockAnalyzer->endMonitoringSession();
 	results = blockAnalyzer->getResults();
