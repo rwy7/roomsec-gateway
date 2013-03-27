@@ -121,6 +121,8 @@ namespace roomsec {
 
   void LCDDisplay::setBacklightPins(IOExpander::GPIO gpio, uint8_t red, uint8_t green, uint8_t blue) {
     this->colorGPIO = gpio;
+    this->expander->setRW(this->colorGPIO, ~(this->color[red] | this->color[blue] | this->color[green]));
+
     this->color[this->red] = red;
     this->color[this->red] = green;
     this->color[this->blue] = blue;
