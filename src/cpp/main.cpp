@@ -1,5 +1,4 @@
 #include "config.h"
-
 #include <iostream>
 #include <string>
 #include <exception>
@@ -64,7 +63,7 @@ int main (int argc, char *argv[]) {
 
     disp->putStr("     RoomSec");
     disp->setBacklightPins(expander->GPIOB, 0x01, 0x02, 0x04);
-    disp->setBacklightColor(disp->red);
+    disp->setBacklightColor(disp->blue);
 
     /*  }}} END TEMP */
 
