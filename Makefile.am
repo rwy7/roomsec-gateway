@@ -66,9 +66,9 @@ libroomsecgateway_la_SOURCES = \
 	src/cpp/ioexpander.cpp \
 	src/cpp/lcddisplay.cpp \
 	src/cpp/buzzer.cpp \
+	src/cpp/lock.cpp
 	src/cpp/ui.cpp \
 	src/cpp/doorstatesensor.cpp
-
 
 libroomsecgateway_la_CPPFLAGS = \
 	$(THRIFT_CFLAGS) $(LOG4CXX_CFLAGS) \
@@ -164,7 +164,8 @@ test_roomsecgateway_hardware_test_LDADD = \
 test_roomsecgateway_hardware_test_SOURCES = \
 	test/lcddisplaytest.cpp \
 	test/buzzertest.cpp \
-	test/doorstatesensortest.cpp
+	test/doorstatesensortest.cpp \
+	test/locktest.cpp
 endif
 
 # Define unit tests with gtest
