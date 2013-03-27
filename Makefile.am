@@ -145,8 +145,22 @@ UNIT_TESTS=
 check_PROGRAMS=
 
 # Raspberry Pi specific hardware tests
-if TEST_HARDWARE 
+if TEST_HARDWARE
+# Define unit tests with gtest
+check_PROGRAMS += test/roomsecgateway_hardware_test
+test_roomsecgateway_hardware_test_CPPFLAGS = -I$(top_srcdir)/test -I$(top_srcdir)/src/cpp $(GTEST_CPPFLAGS)
+test_roomsecgateway_hardware_test_CXXFLAGS = $(GTEST_CXXFLAGS)
+test_roomsecgateway_hardware_test_LDFLAGS = $(GTEST_LDFLAGS)
 
+test_roomsecgateway_hardware_test_LDADD = \
+	$(top_builddir)/libroomsecgateway.la \
+	$(GTEST_LIBS) \
+	$(top_builddir)/lib/gmock/libgmock_main.la \
+	$(top_builddir)/lib/gmock/libgmock.la
+
+test_roomsecgateway_hardware_test_SOURCES = \
+	test/lcddisplaytest.cpp \
+	test/buzzertest.cpp
 endif
 
 # Define unit tests with gtest
