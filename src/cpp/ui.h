@@ -1,9 +1,15 @@
+/* -*- Mode: c++ -*- */
+
 #ifndef _ROOMSEC_UI_H_
 #define _ROOMSEC_UI_H_
 
+#include <boost/shared_ptr.hpp>
+#include <log4cxx/logger.h>
+
 namespace roomsec {
 
-  enum UiMessageType : unsigned char;
+  class Display;
+  class Buzzer;
 
   /**
    * An object which may be output for the user.  Messages are
@@ -13,10 +19,46 @@ namespace roomsec {
 
   public:
     /**
+     * Represents the type of message.  Different message types
+     * translate to different Ui events (IE sounds, animations), when a
+     * message is output with a Ui object.
+     */
+    enum class Type : unsigned char {
+      alert = 0, warning, request, error
+    };
+
+    /**
      * Construct a message object, which may then be output to the
      * screen.
      */
-    UiMessage(UiMessageType t = 0, std::string & message = 0);
+    UiMessage(Type type, boost::shared_ptr<const std::string> message);
+    UiMessage(const UiMessage & that);
+
+    Type getType() const;
+    boost::shared_ptr<const std::string> getMessage() const;
+
+  private:
+    static log4cxx::LoggerPtr logger;
+
+    Type type;
+    boost::shared_ptr<const std::string> message;
+  };
+
+  class Ui {
+  public:
+    Ui(boost::shared_ptr<Display> d, boost::shared_ptr<Buzzer> b);
+    virtual ~Ui();
+
+    int message(UiMessage const& that);
+    int message(UiMessage::Type t, std::string const& str);
+    int message(boost::shared_ptr<const UiMessage> message);
+    int message(UiMessage::Type t);
+    int message(std::string const& str);
+
+  private:
+    static log4cxx::LoggerPtr logger;
+    boost::shared_ptr<Buzzer> buzzer;
+    boost::shared_ptr<Display> display;
   };
 }
 
