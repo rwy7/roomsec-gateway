@@ -128,7 +128,7 @@ namespace roomsec {
     return rw;
   }
 
-#ifdef ENABLE_GATEWWAY
+#ifdef ENABLE_GATEWAY
   void IOExpander::makeHigh (GPIO bank, uint8_t pins) {
     assert (bank == GPIOA || bank == GPIOB);
     uint8_t *gpio = NULL;
