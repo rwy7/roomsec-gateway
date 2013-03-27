@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <cassert>
+#include <log4cxx/logger.h>
 
 #ifdef ENABLE_GATEWAY
 #include <wiringPi/wiringPi.h>
@@ -53,7 +54,8 @@ namespace roomsec {
     IOCON_INIT      = (IOCON_SEQOP)
   };
 
-  IOExpander::IOExpander () : gpioa(0), gpiob(0), iodira(0), iodirb(0) {
+  IOExpander::IOExpander () : gpioa(0), gpiob(0), iodira(0), iodirb(0),
+  logger(log4cxx::Logger::getLogger("roomsec.ioexpander")) {
   }
 
   IOExpander::~IOExpander () {
@@ -68,6 +70,8 @@ namespace roomsec {
     }
     else
       LOG4CXX_INFO(logger, "Created I2C IOExpander on " << dev);
+#else
+    LOG4CXX_ERROR(logger, "IOExpander support not available on this platform");
 #endif
 
     this->dev = dev;
