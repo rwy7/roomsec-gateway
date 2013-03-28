@@ -12,6 +12,7 @@
 #include <log4cxx/helpers/exception.h>
 
 #include <wiringPi/wiringPi.h>
+#include <wiringPi/wiringPiSPI.h>
 
 #include "authorityadapter.h"
 #include "thriftauthorityadapter.h"

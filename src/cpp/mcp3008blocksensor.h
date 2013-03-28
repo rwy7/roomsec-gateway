@@ -2,7 +2,7 @@
 #define MCP3008BLOCKSENSOR
 
 #include "BlockSensor.h"
-#include <wiringPiSPI.h>
+#include <wiringPi/wiringPiSPI.h>
 
 #define ADC_CHANNEL 0
 
