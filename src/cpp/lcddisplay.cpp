@@ -52,8 +52,10 @@ namespace roomsec {
   void LCDDisplay::strobe() {
     /*  Strobe will send the next command, by cycling the enable pin.  The data
      *  is latched on the falling edge, according to the docs. */
-    this->expander->makeHigh(this->expander->GPIOA, LCD_E); delayMicroseconds (100);
-    this->expander->makeLow (this->expander->GPIOA, LCD_E);  delayMicroseconds (100);
+    this->expander->makeHigh(this->expander->GPIOA, LCD_E); delayMicroseconds
+      (100);
+    this->expander->makeLow (this->expander->GPIOA, LCD_E);  delayMicroseconds
+      (100);
   }
 
   void LCDDisplay::sendDataCmd(uint8_t data) {
@@ -122,9 +124,11 @@ namespace roomsec {
     this->expander->makeHigh(this->expander->GPIOA, LCD_RS);
   }
 
-  void LCDDisplay::setBacklightPins(IOExpander::GPIO gpio, uint8_t red, uint8_t green, uint8_t blue) {
+  void LCDDisplay::setBacklightPins(IOExpander::GPIO gpio, uint8_t red, uint8_t
+      green, uint8_t blue) {
     this->colorGPIO = gpio;
-    this->expander->setRW(this->colorGPIO, ~(this->color[red] | this->color[blue] | this->color[green]));
+    this->expander->setRW(this->colorGPIO, ~(this->color[red] |
+          this->color[blue] | this->color[green]));
 
     this->color[this->red] = red;
     this->color[this->green] = green;
@@ -134,7 +138,8 @@ namespace roomsec {
   }
 
   void LCDDisplay::setBacklightColor(Color color) {
-    this->expander->makeLow(this->colorGPIO, this->color[red] | this->color[blue] | this->color[green]);
+    this->expander->makeLow(this->colorGPIO, this->color[red] |
+        this->color[blue] | this->color[green]);
     if (color != -1)
       this->expander->makeHigh(this->colorGPIO, this->color[color]);
     return;
