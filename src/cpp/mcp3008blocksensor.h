@@ -11,8 +11,8 @@
 #define ADC_HIGH_DATA 1023
 #define MONITORED_CLOSE_VOLTAGE 3.0
 #define MONITORED_FAR_VOLTAGE 0.4
-#define INPUT_CLOSE_VALUE 0
-#define INPUT_FAR_VALUE 100
+#define INPUT_CLOSE_VALUE 100
+#define INPUT_FAR_VALUE 0
 
 namespace roomsec{
 
@@ -23,7 +23,7 @@ protected:
 	bool DEBUG;
 
 public:
-	MCP3008BlockSensor(unsigned int pin, bool debug):MCPPin(pin),mValue(0),iValue(0),DEBUG(debug){}
+	MCP3008BlockSensor(unsigned int pin, bool debug = false):MCPPin(pin),mValue(0),iValue(0),DEBUG(debug){}
 
 	int getSensorValue();
 }
