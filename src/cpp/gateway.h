@@ -93,18 +93,31 @@ namespace roomsec {
 	this->doorStateSensor = doorStateSensor;
 	return *static_cast<BuilderT*>(this);
       }
+
+      BuilderT&
+      setDisplay(boost::shared_ptr<Display> display) {
+	this->display = display;
+	return *static_cast<BuilderT*>(this);
+      }
       
+      BuilderT&
+      setBuzzer(boost::shared_ptr<Buzzer> buzzer) {
+	this->buzzer = buzzer;
+	return *static_cast<BuilderT*>(this);
+      }
+
     protected:
 
       boost::shared_ptr<AuthorityAdapter> authorityAdapter;
       boost::shared_ptr<FingerprintAuthnAdapter> fingerprintAuthnAdapter;
       boost::shared_ptr<FingerprintScanner> fingerprintScanner;
       boost::shared_ptr<DoorStateSensor> doorStateSensor;
-      
+      boost::shared_ptr<Display> display;
+      boost::shared_ptr<Buzzer> buzzer;
     };
 
     template<typename B, typename G> friend class Gateway::Builder;
-    
+
 
   protected:
 
