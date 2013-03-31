@@ -3,8 +3,12 @@
 #ifndef _ROOMSEC_UI_H_
 #define _ROOMSEC_UI_H_
 
+#include <boost/thread.hpp>
 #include <boost/shared_ptr.hpp>
 #include <log4cxx/logger.h>
+
+#include "actor.h"
+#include "queue.h"
 
 namespace roomsec {
 
@@ -33,7 +37,6 @@ namespace roomsec {
      */
     UiMessage(Type type, boost::shared_ptr<const std::string> message);
     UiMessage(UiMessage const& that);
-
     Type getType() const;
     boost::shared_ptr<const std::string> getMessage() const;
 
@@ -45,10 +48,11 @@ namespace roomsec {
   };
 
 
-  class Ui {
+  class Ui : public Actor {
   public:
     Ui(boost::shared_ptr<Display> display, boost::shared_ptr<Buzzer> buzzer);
     virtual ~Ui() {};
+    virtual void run();
 
     int message(UiMessage const& that);
     int message(UiMessage::Type t, std::string const& str);
@@ -61,6 +65,7 @@ namespace roomsec {
 
     boost::shared_ptr<Display> display;
     boost::shared_ptr<Buzzer> buzzer;
+    Queue<boost::shared_ptr<const UiMessage>> messageQueue;
   };
 }
 

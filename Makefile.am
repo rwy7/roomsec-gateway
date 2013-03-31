@@ -68,6 +68,7 @@ libroomsecgateway_la_SOURCES = \
 	src/cpp/buzzer.cpp \
 	src/cpp/lock.cpp \
 	src/cpp/ui.cpp \
+	src/cpp/actor.cpp \
 	src/cpp/doorstatesensor.cpp \
 	src/cpp/fingerprintscanner.cpp
 
@@ -80,7 +81,7 @@ libroomsecgateway_la_CPPFLAGS = \
 libroomsecgateway_la_LDFLAGS = 
 libroomsecgateway_la_LIBADD = \
 	-lstdc++ $(THRIFT_LIBS) $(LOG4CXX_LIBS) \
-	-lboost_system -lboost_thread \
+	-lboost_system -lboost_thread -lboost_chrono \
 	$(top_srcdir)/libfprint/libfprint/libfprint.la \
 	-lwiringPi
 
@@ -100,7 +101,7 @@ roomsecgateway_CPPFLAGS = \
 roomsecgateway_LDFLAGS = -static
 
 roomsecgateway_LDADD = libroomsecgateway.la \
-	-lstdc++ $(THRIFT_LIBS) -lboost_system -lboost_thread \
+	-lstdc++ $(THRIFT_LIBS) -lboost_system -lboost_thread -lboost_chrono \
 	$(top_srcdir)/libfprint/libfprint/libfprint.la -lboost_program_options
 
 ###

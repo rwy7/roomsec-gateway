@@ -1,5 +1,6 @@
 #include "config.h"
 #include <boost/shared_ptr.hpp>
+
 #include "buzzer.h"
 #include "display.h"
 #include "ui.h"
@@ -46,6 +47,28 @@ namespace roomsec {
   {
   }
 
+  void
+  Ui::run() {
+    boost::shared_ptr<const UiMessage> message(this->messageQueue.front_pop());
+
+    switch(message->getType()) {
+    default:
+      display->clear();
+      display->home();
+      display->putStr(*message->getMessage());
+
+      display->setBacklightColor(Display::red);
+      buzzer->on();
+      usleep(50000);
+      buzzer->off();
+      display->setBacklightColor(Display::blue);
+    }
+    LOG4CXX_DEBUG(logger, "Exiting Ui run");
+    return;
+  }
+
+  /** Messaging Functions */
+
   int
   Ui::message(UiMessage const& that) {
     /* Copy the UiMessage, and queue the copy for display.
@@ -66,29 +89,14 @@ namespace roomsec {
     boost::shared_ptr<const std::string> messageString(new std::string(str));
     boost::shared_ptr<const UiMessage> message(new UiMessage(type, messageString));
     retVal = Ui::message(message);
-    LOG4CXX_WARN(logger, "Not yet implemented");
     return retVal;
   }
 
   int
   Ui::message(boost::shared_ptr<const UiMessage> message) {
     /* Queue the message object for printing */
-    LOG4CXX_WARN(logger, "Not yet implemented");
-    LOG4CXX_DEBUG(logger, "Writing message: " << *message->getMessage());
-    
-    switch(message->getType()) {
-    default:
-      display->clear();
-      display->home();
-      display->putStr(*message->getMessage());
-
-      display->setBacklightColor(Display::red);
-      buzzer->on();
-      usleep(50000);
-      buzzer->off();
-      display->setBacklightColor(Display::blue);
-    }
-
+    LOG4CXX_DEBUG(logger, "Queueing message: " << *message->getMessage());
+    messageQueue.push(message);
     return 0;
   }
 
