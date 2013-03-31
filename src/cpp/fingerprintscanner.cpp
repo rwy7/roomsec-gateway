@@ -104,12 +104,74 @@ namespace roomsec {
     boost::shared_ptr<Fingerprint> fprint (new Fingerprint(enrolled_print));
 
     return fprint;
-
   }
+
+  void FingerprintScanner::setResult(int result) {
+    this->result = result;
+    if (result < 0) {
+      LOG4CXX_INFO(logger, "Async enroll failed. Device disconnected?");
+    }
+    return;
+  }
+
+  void FingerprintScanner::setFinished(bool result) {
+    this->result = result;
+    return;
+  }
+
+  void FingerprintScanner::setAsyncFP(struct fp_print_data *data) {
+    this->asyncFP = boost::shared_ptr<Fingerprint> (new Fingerprint(data));
+    return;
+  }
+
+  struct fp_dev *FingerprintScanner::getFPDev () {
+    return this->fpDev;
+  }
+
+  extern "C" {
+    void enrollCB(struct fp_dev *dev, int result,
+        struct fp_print_data *print, struct fp_img *img, void *userData) {
+
+
+      FingerprintScanner *fpscan = (FingerprintScanner *)userData;
+      fpscan->setFinished(true);
+      fpscan->setResult(result);
+      fpscan->setAsyncFP(print);
+      return;
+    }
+
+    void enrollStopCB(struct fp_dev *dev, void *userData) {
+      FingerprintScanner *fpscan = (FingerprintScanner *)userData;
+      fpscan->setFinished(true);
+      fpscan->setResult(-1);
+      fpscan->setAsyncFP(NULL);
+      return;
+    }
+  }
+
+  int FingerprintScanner::startAsyncScan() {
+    LOG4CXX_INFO(logger, "Async. Scanning for fingerprint in " <<
+        fp_dev_get_nr_enroll_stages(this->fpDev) << "stages.");
+
+    struct fp_dev *dev = this->getFPDev();
+    int r = fp_async_enroll_start(dev, &::roomsec::enrollCB, (void *)this);
+    return r;
+  } 
+
+
+  int FingerprintScanner::stopAsyncScan() {
+    LOG4CXX_INFO(logger, "Async. Scanning for fingerprint in " <<
+        fp_dev_get_nr_enroll_stages(this->fpDev) << "stages.");
+
+    struct fp_dev *dev = this->getFPDev();
+    int r = fp_async_enroll_stop(dev, &::roomsec::enrollStopCB, (void *)this);
+    return r;
+  }
+
 
   Fingerprint::Fingerprint(struct fp_print_data *fpData) :
     fpData(fpData) {
-  }
+    }
 
   Fingerprint::~Fingerprint() {
     fp_print_data_free(this->fpData);
