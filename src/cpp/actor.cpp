@@ -3,12 +3,16 @@
 #include <boost/thread.hpp>
 #include "actor.h"
 
-Actor::Actor() {
-}
+namespace roomsec {
 
-Actor::~Actor() {
-}
+  Actor::Actor() {
+  }
 
-boost::thread Actor::start() {
-  return boost::thread(boost::bind(&Actor::run, this));
+  Actor::~Actor() {
+  }
+
+  boost::thread Actor::start() {
+    return boost::thread(boost::bind(&Actor::run, this));
+  }
+
 }

@@ -5,12 +5,14 @@
 
 #include <boost/thread.hpp>
 
-class Actor {
-public:
-  Actor();
-  virtual ~Actor();
-  virtual void run() = 0;
-  boost::thread start();
-};
+namespace roomsec {
+  class Actor {
+  public:
+    Actor();
+    virtual ~Actor();
+    virtual void run() = 0;
+    boost::thread start();
+  };
+}
 
 #endif /* _ROOMSEC_ACTOR_H_ */
