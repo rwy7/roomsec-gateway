@@ -17,7 +17,7 @@ class LockEnvironment : public ::testing::Environment {
     LockEnvironment() {}
     ~LockEnvironment() {}
     void SetUp() {
-      ASSERT_NE(wiringPiSetup(), -1);
+      ASSERT_NE(wiringPiSetupGpio(), -1);
       expander->initialize(0x20);
     }
 
@@ -35,7 +35,7 @@ namespace roomsec {
   TEST(LockTest, LockTest) {
     Lock lock(expander, gpio, pin);
     lock.setState(Lock::LockState::locked);
-    delay(100);
+    delay(800);
     lock.setState(Lock::LockState::unlocked);
   }
 }
