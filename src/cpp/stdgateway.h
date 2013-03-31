@@ -4,11 +4,12 @@
 
 #include <boost/shared_ptr.hpp>
 #include <log4cxx/logger.h>
+#include "gateway.h"
 
 namespace roomsec {
-  /*
-   * Todo: complete this interface!
-   */
+  class DoorStateController;
+  class Ui;
+
 
   /**
    * The standard operations gateway controller.  This controller
@@ -31,15 +32,20 @@ namespace roomsec {
 
   protected:
 
-    StdGateway();
+    StdGateway(boost::shared_ptr<Ui> ui,
+	       boost::shared_ptr<DoorStateController> doorStateController);
 
   private:
 
     virtual void init();
-    virtual void run();
+    virtual void begin();
 
     static log4cxx::LoggerPtr logger;
     static log4cxx::LoggerPtr netLogger;
+
+    boost::shared_ptr<Ui> ui;
+    boost::shared_ptr<DoorStateController> doorStateController;
+
   };
 }
 

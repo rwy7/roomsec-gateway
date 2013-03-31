@@ -91,6 +91,7 @@ int initLogging(po::variables_map& vm);
  * are instantiated.
  */
 int initHardware(po::variables_map& vm);
+int cleanupHardware(po::variables_map const& vm);
 
 boost::shared_ptr<roomsec::Gateway>
 buildStdGateway(po::variables_map& vm);

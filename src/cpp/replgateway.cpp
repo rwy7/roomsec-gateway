@@ -1,5 +1,6 @@
 #include "config.h"
 
+#include <boost/thread.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/assert.hpp>
 
@@ -24,8 +25,8 @@ extern "C" {
 }
 
 namespace roomsec {
-  /* 
-   *****************************************
+
+  /*****************************************
    * ReplGateway code starts here.
    */
 
@@ -37,12 +38,14 @@ namespace roomsec {
   }
 
 
-  void ReplGateway::init() {
+  void
+  ReplGateway::init() {
 
   }
 
 
-  void ReplGateway::run() {
+  void
+  ReplGateway::begin() {
     this->start_repl();
   }
 
@@ -69,75 +72,67 @@ namespace roomsec {
       if (!input.compare("authn")) {
 	std::cout << "Authenticating\n";
 
-	int r = fp_init();
-	if (r < 0) {
-	  fprintf(stderr, "Failed to initialize libfprint\n");
+	FingerprintScannerFactory fpScannerFact;
+
+	if (fpScannerFact.getDeviceCount() < 1) {
+	  fprintf(stderr, "No devices detected");
 	}
-	else {
-	  fp_set_debug(3);
 
-          FingerprintScannerFactory fpScannerFact;
-          if (fpScannerFact.getDeviceCount() < 1) {
-            fprintf(stderr, "No devices detected");
-          }
+	boost::shared_ptr< FingerprintScanner > fpScanner =
+	  fpScannerFact.getFingerprintScanner(1);
 
-          boost::shared_ptr< FingerprintScanner > fpScanner =
-            fpScannerFact.getFingerprintScanner(1);
+	boost::shared_ptr< Fingerprint > fp = fpScanner->scanFingerprint();
 
-          boost::shared_ptr< Fingerprint > fp = fpScanner->scanFingerprint();
+	authnAdapter
+	  ->authenticate(credential, 
+			 fp->serialize());
 
-          authnAdapter
-            ->authenticate(credential, 
-                fp->serialize());
-
-          std::cout << "Recieved: " << credential.token 
-            << " User: " << credential.userid << "\n";
-
-          fp_exit();
-        }
-      }
-
-      if(!input.compare("authz")) {
-	std::cout << "Not yet implemented\n";
-      }
-
-      if(!input.compare("check"))  {
-	std::string resource;
-	std::cout << "resource: ";
-	std::cin >> resource;
-	
-	std::cout << "checking\n";
-	std::vector<iface::CredentialSpec> requiredCreds;
-	authzAdapter->checkRequirements(requiredCreds, resource);
-	
-	std::cout << "requires credentials:\n";
-	for(std::vector<iface::CredentialSpec>::iterator it =  requiredCreds.begin(); 
-	    it != requiredCreds.end(); ++it) {
-	  std::cout << "  " << "provider: " << it->provider
-		    <<" mechanism: " << it->mechanism << "\n";
-	}
-      }
-
-      if(!input.compare("help")) {
-	std::cout << "check     - check credential requirements for resource\n"
-		  << "authn     - authenticate with fingerprint\n"
-		  << "authz     - authorize \n";
+	std::cout << "Recieved: " << credential.token 
+		  << " User: " << credential.userid << "\n";
       }
     }
+
+    if(!input.compare("authz")) {
+      std::cout << "Not yet implemented\n";
+    }
+
+    if(!input.compare("check"))  {
+      std::string resource;
+      std::cout << "resource: ";
+      std::cin >> resource;
+	
+      std::cout << "checking\n";
+      std::vector<iface::CredentialSpec> requiredCreds;
+      authzAdapter->checkRequirements(requiredCreds, resource);
+	
+      std::cout << "requires credentials:\n";
+      for(std::vector<iface::CredentialSpec>::iterator it =  requiredCreds.begin(); 
+	  it != requiredCreds.end(); ++it) {
+	std::cout << "  " << "provider: " << it->provider
+		  <<" mechanism: " << it->mechanism << "\n";
+      }
+    }
+
+    if(!input.compare("help")) {
+      std::cout << "check     - check credential requirements for resource\n"
+		<< "authn     - authenticate with fingerprint\n"
+		<< "authz     - authorize \n";
+    }
   }
+
 
   /*
    * ReplGateway Builder
    */
 
-  boost::shared_ptr<ReplGateway>
+  boost::shared_ptr<ReplGateway >
   ReplGateway::Builder::build() {
-    BOOST_ASSERT(this->authzAdapter != NULL);
-    BOOST_ASSERT(this->authnAdapter != NULL);
+    BOOST_ASSERT(this->authorityAdapter != NULL);
+    BOOST_ASSERT(this->fingerprintAuthnAdapter != NULL);
 
     boost::shared_ptr<ReplGateway> replGateway(new ReplGateway);
-    replGateway->setAuthorityAdapter(this->authzAdapter);
-    replGateway->setFingerprintAuthnAdapter(this->authnAdapter);
+    replGateway->setAuthorityAdapter(this->authorityAdapter);
+    replGateway->setFingerprintAuthnAdapter(this->fingerprintAuthnAdapter);
     
     return replGateway;
   }

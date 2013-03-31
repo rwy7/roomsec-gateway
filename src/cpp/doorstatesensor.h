@@ -42,7 +42,7 @@ namespace roomsec {
        * indicating a change in state.
        * @return The new (current) state.
        */
-      int waitForChange(void (*callback)(void)); 
+      int waitForChange(void (*callback)(void));
     private:
       State state;
       int pin;

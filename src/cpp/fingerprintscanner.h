@@ -1,3 +1,4 @@
+/* -*- Mode: c++ -*- */
 #ifndef _FINGERPRINTSCANNER_H_
 #define _FINGERPRINTSCANNER_H_
 
@@ -73,6 +74,41 @@ namespace roomsec {
        */
       boost::shared_ptr<Fingerprint> scanFingerprint();
 
+      /**
+       * @brief Asynchronously get a fingerprint.
+       * This function will return imiediatly.  If there was a problem setting
+       * up the device, it will be in the error code.  The scanned fingerprint
+       * will be stored, and can be accessed with getFingerprint(). You will
+       * know when the last async operation completed by asking isFinished().
+       *
+       * If the scan is finished, it does not mean that the scan completed
+       * successfully.  You should check the result with getResult().
+       *
+       * @return error code.
+       */
+      int startAsyncScan();
+
+      /**
+       * @brief Stop a started async command.
+       * This will not block until the command has stopped.
+       *
+       * @return error code.
+       */
+      int stopAsyncScan();
+
+      bool isFinished();
+
+      int getResult();
+
+      boost::shared_ptr<Fingerprint> getFingerprint();
+
+
+      /* DO NOT USE ANYTHING BELOW */
+      void setResult(int result);
+      void setFinished(bool result);
+      void setAsyncFP(struct fp_print_data *data);
+      struct fp_dev *getFPDev ();
+
     protected:
 
       /**
@@ -82,7 +118,22 @@ namespace roomsec {
        */
       FingerprintScanner(struct fp_dev *fpDev);
 
+      /**
+       * @brief A callback for when the async command completes.
+       *
+       * @param dev
+       * @param result
+       * @param print
+       * @param img
+       * @param userData
+       */
+      void enrollCB(struct fp *dev, int result,
+          struct fp_print_data *print, struct fp_img *img, void *userData);
+
     private:
+      bool asyncComplete; /** If the last async command finished */
+      int result; /** The result of the last scan */
+      boost::shared_ptr<Fingerprint> asyncFP; /** The last async fingerprint collected */
       struct fp_dev *fpDev;
       static log4cxx::LoggerPtr logger;
   };
@@ -141,4 +192,3 @@ namespace roomsec {
 }
 
 #endif /*  _FINGERPRINTSCANNER_H_ */
-
