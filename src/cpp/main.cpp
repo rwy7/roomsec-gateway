@@ -143,7 +143,7 @@ int initHardware(po::variables_map& vm) {
     retVal = -1;
   }
 
-  if (wiringPiSPISetup(0, 500000) == -1){
+  if (wiringPiSPISetup(0, 1000000) == -1){
     LOG4CXX_ERROR(logger, "WiringPi SPI initialization failed");
 	retVal = -1;
   }
