@@ -1,5 +1,6 @@
 #include "config.h"
 
+#include <boost/thread.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/assert.hpp>
 
@@ -37,12 +38,14 @@ namespace roomsec {
   }
 
 
-  void ReplGateway::init() {
+  void
+  ReplGateway::init() {
 
   }
 
 
-  void ReplGateway::run() {
+  void
+  ReplGateway::begin() {
     this->start_repl();
   }
 
@@ -124,12 +127,12 @@ namespace roomsec {
 
   boost::shared_ptr<ReplGateway >
   ReplGateway::Builder::build() {
-    BOOST_ASSERT(this->authzAdapter != NULL);
-    BOOST_ASSERT(this->authnAdapter != NULL);
+    BOOST_ASSERT(this->authorityAdapter != NULL);
+    BOOST_ASSERT(this->fingerprintAuthnAdapter != NULL);
 
     boost::shared_ptr<ReplGateway> replGateway(new ReplGateway);
-    replGateway->setAuthorityAdapter(this->authzAdapter);
-    replGateway->setFingerprintAuthnAdapter(this->authnAdapter);
+    replGateway->setAuthorityAdapter(this->authorityAdapter);
+    replGateway->setFingerprintAuthnAdapter(this->fingerprintAuthnAdapter);
     
     return replGateway;
   }

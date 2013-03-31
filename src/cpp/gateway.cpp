@@ -5,9 +5,9 @@ namespace roomsec {
   Gateway::~Gateway() {
   }
 
-  void Gateway::start() {
+  void Gateway::run() {
     this->init();
-    this->run();
+    this->begin();
   }
   
   void

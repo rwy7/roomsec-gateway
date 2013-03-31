@@ -4,6 +4,7 @@
 #define _ROOMSEC_GATEWAY_H_
 
 #include <boost/shared_ptr.hpp>
+#include "actor.h"
 
 namespace roomsec {
 
@@ -21,7 +22,7 @@ namespace roomsec {
    * for implementing the "guts" of the system.  This class is in
    * place to allow for multiple policy implementations.
    */
-  class Gateway {
+  class Gateway : public Actor {
   public:
 
     virtual ~Gateway();
@@ -29,11 +30,8 @@ namespace roomsec {
     /**
      * Start the gateway, and begin standard operation. This is a
      * blocking operation, that may not return.
-     *
-     * This function is an algorithm template, and is responsible for
-     * calling init and run in derived classes.
      */    
-    void start();
+    virtual void run();
 
     /**
      * @class Builder
@@ -68,7 +66,7 @@ namespace roomsec {
        */
       BuilderT&
       setAuthorityAdapter(boost::shared_ptr<AuthorityAdapter> authzAdapter) {
-	this->authzAdapter = authzAdapter;
+	this->authorityAdapter = authzAdapter;
 	return *static_cast<BuilderT*>(this);
       }
 
@@ -77,10 +75,13 @@ namespace roomsec {
        */
       BuilderT&
       setFingerprintAuthnAdapter(boost::shared_ptr<FingerprintAuthnAdapter> authnAdapter) {
-	this->authnAdapter = authnAdapter;
+	this->fingerprintAuthnAdapter = authnAdapter;
 	return *static_cast<BuilderT*>(this);
       }
 
+      /**
+       * Set the fingerprint scanner device.
+       */
       BuilderT&
       setFingerprintScanner(boost::shared_ptr<FingerprintScanner> fingerprintScanner) {
 	this->fingerprintScanner = fingerprintScanner;
@@ -95,8 +96,8 @@ namespace roomsec {
       
     protected:
 
-      boost::shared_ptr<AuthorityAdapter> authzAdapter;
-      boost::shared_ptr<FingerprintAuthnAdapter> authnAdapter;
+      boost::shared_ptr<AuthorityAdapter> authorityAdapter;
+      boost::shared_ptr<FingerprintAuthnAdapter> fingerprintAuthnAdapter;
       boost::shared_ptr<FingerprintScanner> fingerprintScanner;
       boost::shared_ptr<DoorStateSensor> doorStateSensor;
       
@@ -104,6 +105,7 @@ namespace roomsec {
 
     template<typename B, typename G> friend class Gateway::Builder;
     
+
   protected:
 
     boost::shared_ptr<AuthorityAdapter> authzAdapter;
@@ -120,7 +122,7 @@ namespace roomsec {
      * called.  This method is called from the start function
      * implemented in this Gateway base class.
      */
-    virtual void init () = 0;
+    virtual void init() = 0;
 
     /**
      * Run the gatway control module.  Begin continuous standard
@@ -130,7 +132,7 @@ namespace roomsec {
      * Derived classes implement the policy of the system.  Differing
      * managers may be implemented.
      */
-    virtual void run() = 0;
+    virtual void begin() = 0;
   };
 }
 

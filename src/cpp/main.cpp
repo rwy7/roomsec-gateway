@@ -91,8 +91,8 @@ int main (int argc, char *argv[]) {
       */
 
       LOG4CXX_DEBUG(logger, "Building Gateway");
-      buildReplGateway(vm)->start();
-
+      boost::thread gatewayThread = buildReplGateway(vm)->start();
+      gatewayThread.join();
       cleanupHardware(vm);
     }
   }

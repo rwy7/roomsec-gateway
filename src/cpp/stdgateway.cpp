@@ -24,6 +24,7 @@ namespace roomsec {
    */
   boost::shared_ptr<StdGateway>
   StdGateway::Builder::build() {
+
     boost::shared_ptr<StdGateway> gateway(new StdGateway());
 
     // assert(this->fingerpintScanner != NULL);
@@ -55,7 +56,7 @@ namespace roomsec {
   }
 
   void
-  StdGateway::run() {
+  StdGateway::begin() {
     LOG4CXX_INFO(netLogger, "Gateway Up");
     // Ui ui();
     // ui.message(UiMessage::Type::warn, "Hello, World!");

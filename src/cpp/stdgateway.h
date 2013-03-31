@@ -36,7 +36,7 @@ namespace roomsec {
   private:
 
     virtual void init();
-    virtual void run();
+    virtual void begin();
 
     static log4cxx::LoggerPtr logger;
     static log4cxx::LoggerPtr netLogger;
