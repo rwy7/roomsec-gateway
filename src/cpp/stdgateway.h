@@ -4,11 +4,9 @@
 
 #include <boost/shared_ptr.hpp>
 #include <log4cxx/logger.h>
+#include "gateway.h"
 
 namespace roomsec {
-  /*
-   * Todo: complete this interface!
-   */
 
   /**
    * The standard operations gateway controller.  This controller

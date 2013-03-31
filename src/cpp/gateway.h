@@ -12,6 +12,8 @@ namespace roomsec {
   class FingerprintAuthnAdapter;
   class DoorStateSensor;
   class FingerprintScanner;
+  class Display;
+  class Buzzer;
 
   /**
    * The central logic of the gateway system.  The gateway class
