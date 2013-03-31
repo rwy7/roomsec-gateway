@@ -9,6 +9,8 @@ namespace roomsec {
 
   class AuthorityAdapter;
   class FingerprintAuthnAdapter;
+  class DoorStateSensor;
+  class FingerprintScanner;
 
   /**
    * The central logic of the gateway system.  The gateway class
@@ -65,7 +67,7 @@ namespace roomsec {
        * Set the authority adapter used by the built Gateway.
        */
       BuilderT&
-      authorityAdapter(boost::shared_ptr<AuthorityAdapter> authzAdapter) {
+      setAuthorityAdapter(boost::shared_ptr<AuthorityAdapter> authzAdapter) {
 	this->authzAdapter = authzAdapter;
 	return *static_cast<BuilderT*>(this);
       }
@@ -74,8 +76,20 @@ namespace roomsec {
        * Set the fingerprintauthn adapter used by the built Gateway.
        */
       BuilderT&
-      fingerprintAuthnAdapter(boost::shared_ptr<FingerprintAuthnAdapter> authnAdapter) {
+      setFingerprintAuthnAdapter(boost::shared_ptr<FingerprintAuthnAdapter> authnAdapter) {
 	this->authnAdapter = authnAdapter;
+	return *static_cast<BuilderT*>(this);
+      }
+
+      BuilderT&
+      setFingerprintScanner(boost::shared_ptr<FingerprintScanner> fingerprintScanner) {
+	this->fingerprintScanner = fingerprintScanner;
+	return *static_cast<BuilderT*>(this);
+      }
+
+      BuilderT&
+      setDoorStateSensor(boost::shared_ptr<DoorStateSensor> doorStateSensor) {
+	this->doorStateSensor = doorStateSensor;
 	return *static_cast<BuilderT*>(this);
       }
       
@@ -83,6 +97,8 @@ namespace roomsec {
 
       boost::shared_ptr<AuthorityAdapter> authzAdapter;
       boost::shared_ptr<FingerprintAuthnAdapter> authnAdapter;
+      boost::shared_ptr<FingerprintScanner> fingerprintScanner;
+      boost::shared_ptr<DoorStateSensor> doorStateSensor;
       
     };
 

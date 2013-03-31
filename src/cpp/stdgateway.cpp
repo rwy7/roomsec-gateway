@@ -5,6 +5,7 @@
 #include "actor.h"
 #include "ui.h"
 #include "gateway.h"
+#include "fingerprintcontroller.h"
 #include "stdgateway.h"
 
 namespace roomsec {
@@ -17,6 +18,24 @@ namespace roomsec {
 
   log4cxx::LoggerPtr
   StdGateway::netLogger(log4cxx::Logger::getLogger("roomsec.authority"));
+
+  /*
+   * Builder
+   */
+  boost::shared_ptr<StdGateway>
+  StdGateway::Builder::build() {
+    boost::shared_ptr<StdGateway> gateway(new StdGateway());
+
+    // assert(this->fingerpintScanner != NULL);
+    // boost::shared_ptr<FingerprintController> fingerprintController(this->fingerprintScanner);
+    // gateway->setFingerprintController(fingerprintController);
+
+    // missing asserts
+    // boost::shared_ptr<Ui> ui(this->display, this->buzzer);
+    // gateway->setUi(ui);
+
+    return gateway;
+  }
 
   /*
    * Ctor / Dtor

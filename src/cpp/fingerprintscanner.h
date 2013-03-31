@@ -1,3 +1,4 @@
+/* -*- Mode: c++ -*- */
 #ifndef _FINGERPRINTSCANNER_H_
 #define _FINGERPRINTSCANNER_H_
 
@@ -191,4 +192,3 @@ namespace roomsec {
 }
 
 #endif /*  _FINGERPRINTSCANNER_H_ */
-

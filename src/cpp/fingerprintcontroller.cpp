@@ -11,6 +11,7 @@ namespace roomsec {
   log4cxx::LoggerPtr
   FingerprintController::logger = log4cxx::Logger::getLogger("roomsec.fingerprint");
 
+
   FingerprintController::FingerprintController(boost::shared_ptr<FingerprintScanner> const& scanner)
     : stop(false), scanner(scanner)
   {

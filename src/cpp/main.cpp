@@ -15,6 +15,8 @@
 #include <wiringPi/wiringPi.h>
 #include <wiringPi/wiringPiSPI.h>
 
+#include "libfprint/fprint.h"
+
 #include "authorityadapter.h"
 #include "thriftauthorityadapter.h"
 #include "fingerprintauthnadapter.h"
@@ -35,7 +37,8 @@ int main (int argc, char *argv[]) {
   int retVal = 0;
 
   po::variables_map vm;
-  if (storeOptions(argc, argv, vm) == 0 && initLogging(vm) == 0) {
+  if (storeOptions(argc, argv, vm) == 0 &&
+      initLogging(vm) == 0) {
 
 #ifdef ENABLE_GATEWAY
     LOG4CXX_DEBUG(logger, "ENABLE_GATEWAY is defined");
@@ -43,52 +46,55 @@ int main (int argc, char *argv[]) {
     LOG4CXX_DEBUG(logger, "ENABLE_GATEWAY is NOT defined");
 #endif /* ENABLE_GATEWAY */
 
-    initHardware(vm);
+    if(initHardware(vm)) {
 
-    // Test the net logger
-    log4cxx::LoggerPtr netLogger(log4cxx::Logger::getLogger("roomsec.net"));
-    LOG4CXX_INFO(netLogger, "Hello, world!");
+      // Test the net logger
+      log4cxx::LoggerPtr netLogger(log4cxx::Logger::getLogger("roomsec.net"));
+      LOG4CXX_INFO(netLogger, "Hello, world!");
 
 
-    /* Set up the authority and authentication adapters. Main is
-       configuring to use networked processes communicating over a
-       thrift connection. */
+      /* Set up the authority and authentication adapters. Main is
+	 configuring to use networked processes communicating over a
+	 thrift connection. */
 
-    /* Initialize the screen hardware system
-     */
-    LOG4CXX_DEBUG(logger, "Starting LCD");
-    LOG4CXX_DEBUG(logger, "IOExpander");
-    boost::shared_ptr<roomsec::IOExpander> expander (new roomsec::IOExpander());
-    expander->initialize(0x20);
+      /* Initialize the screen hardware system
+       */
+      LOG4CXX_DEBUG(logger, "Starting LCD");
+      LOG4CXX_DEBUG(logger, "IOExpander");
+      boost::shared_ptr<roomsec::IOExpander> expander (new roomsec::IOExpander());
+      expander->initialize(0x20);
 
-    LOG4CXX_DEBUG(logger, "LCDDisplay");
-    boost::shared_ptr<roomsec::LCDDisplay> disp(new roomsec::LCDDisplay(expander));
-    disp->initialize();
-    LOG4CXX_DEBUG(logger, "Setting backlight pins");
-    disp->setBacklightPins(expander->GPIOB, 0x01, 0x02, 0x04);
-    LOG4CXX_DEBUG(logger, "Setting backlight color");
-    disp->setBacklightColor(disp->blue);
+      LOG4CXX_DEBUG(logger, "LCDDisplay");
+      boost::shared_ptr<roomsec::LCDDisplay> disp(new roomsec::LCDDisplay(expander));
+      disp->initialize();
+      LOG4CXX_DEBUG(logger, "Setting backlight pins");
+      disp->setBacklightPins(expander->GPIOB, 0x01, 0x02, 0x04);
+      LOG4CXX_DEBUG(logger, "Setting backlight color");
+      disp->setBacklightColor(disp->blue);
     
-    LOG4CXX_DEBUG(logger, "Initializing Buzzer");
-    boost::shared_ptr<roomsec::Buzzer> buzzer(new roomsec::Buzzer(17));
+      LOG4CXX_DEBUG(logger, "Initializing Buzzer");
+      boost::shared_ptr<roomsec::Buzzer> buzzer(new roomsec::Buzzer(17));
 
-    LOG4CXX_DEBUG(logger, "Initializing UI System");
-    boost::shared_ptr<roomsec::Ui> ui(new roomsec::Ui(disp, buzzer));
+      LOG4CXX_DEBUG(logger, "Initializing UI System");
+      boost::shared_ptr<roomsec::Ui> ui(new roomsec::Ui(disp, buzzer));
 
-    LOG4CXX_DEBUG(logger, "Printing to Display");
-    disp->putStr("    RoomSec");
-    disp->setDisplay(1, 0);
-    disp->putStr("initializing...");
+      LOG4CXX_DEBUG(logger, "Printing to Display");
+      disp->putStr("    RoomSec");
+      disp->setDisplay(1, 0);
+      disp->putStr("initializing...");
 
-    /*
-    LOG4CXX_DEBUG(logger, "Writing test UI message");
-    ui->message(roomsec::UiMessage::Type::error, "Hello, world!");
-    boost::thread thread = ui->start();
-    thread.join();
-    */
+      /*
+	LOG4CXX_DEBUG(logger, "Writing test UI message");
+	ui->message(roomsec::UiMessage::Type::error, "Hello, world!");
+	boost::thread thread = ui->start();
+	thread.join();
+      */
 
-    LOG4CXX_DEBUG(logger, "Building Gateway");
-    buildReplGateway(vm)->start();
+      LOG4CXX_DEBUG(logger, "Building Gateway");
+      buildReplGateway(vm)->start();
+
+      cleanupHardware(vm);
+    }
   }
 
   return retVal;
@@ -137,6 +143,19 @@ int initHardware(po::variables_map& vm) {
 
   LOG4CXX_DEBUG(logger, "Initializing Hardware");
 
+  /* Initialize libfprint for fingerprint scanning */
+
+  retVal = fp_init();
+  if (retVal < 0) {
+    LOG4CXX_ERROR(logger, "Failed to initialize libfprint");
+  }
+  else {
+    fp_set_debug(3);
+  }
+
+
+  /* Initialize GPIO, SPI, and I2C Subsystems */
+
 #ifdef ENABLE_GATEWAY
   if (wiringPiSetupGpio() == -1) {
     LOG4CXX_ERROR(logger, "WiringPi initialization failed");
@@ -150,6 +169,12 @@ int initHardware(po::variables_map& vm) {
 #endif /* ENABLE_GATEWAY */
 
   return retVal;
+}
+
+int cleanupHardware(po::variables_map const& vm) {
+  int error = 0;
+  fp_exit();
+  return error;
 }
 
 boost::shared_ptr<roomsec::Gateway>
@@ -182,10 +207,10 @@ buildReplGateway(po::variables_map& vm) {
 
   roomsec::ReplGateway::Builder builder;
   
-  boost::shared_ptr<roomsec::ReplGateway> gateway = 
+  boost::shared_ptr<roomsec::ReplGateway> gateway =
     builder
-    .authorityAdapter(authzAdapter)
-    .fingerprintAuthnAdapter(authnAdapter)
+    .setAuthorityAdapter(authzAdapter)
+    .setFingerprintAuthnAdapter(authnAdapter)
     .build();
 
   return gateway;
