@@ -6,10 +6,11 @@ int MCP3008BlockSensor::getSensorValue()
 		
 		//read from sensor value to mVal using wiringPi SPI library
 		
-		unsigned char *data;
+		unsigned char* data = [1, (8+MCPPIN)<<4, 0];
 
-		mVal = wiringPiSPIDataRW(ADC_CHANNEL, data, 0);
-				
+		wiringPiSPIDataRW(ADC_CHANNEL, data, 3);
+		
+		mVal = ((data[1]&3) << 8) + data[2];		
 
 		if(mVal != mValue)
 		{	
