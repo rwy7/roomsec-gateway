@@ -7,6 +7,9 @@
 #include "gateway.h"
 
 namespace roomsec {
+  class DoorStateController;
+  class Ui;
+
 
   /**
    * The standard operations gateway controller.  This controller
@@ -29,7 +32,8 @@ namespace roomsec {
 
   protected:
 
-    StdGateway();
+    StdGateway(boost::shared_ptr<Ui> ui,
+	       boost::shared_ptr<DoorStateController> doorStateController);
 
   private:
 
@@ -38,6 +42,10 @@ namespace roomsec {
 
     static log4cxx::LoggerPtr logger;
     static log4cxx::LoggerPtr netLogger;
+
+    boost::shared_ptr<Ui> ui;
+    boost::shared_ptr<DoorStateController> doorStateController;
+
   };
 }
 

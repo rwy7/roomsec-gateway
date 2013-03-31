@@ -1,11 +1,13 @@
 #include "config.h"
 #include <boost/shared_ptr.hpp>
+#include <boost/signals2.hpp>
 #include <log4cxx/logger.h>
 
 #include "actor.h"
 #include "ui.h"
 #include "gateway.h"
 #include "fingerprintcontroller.h"
+#include "doorstatecontroller.h"
 #include "stdgateway.h"
 
 namespace roomsec {
@@ -25,7 +27,25 @@ namespace roomsec {
   boost::shared_ptr<StdGateway>
   StdGateway::Builder::build() {
 
-    boost::shared_ptr<StdGateway> gateway(new StdGateway());
+    /* UI System */
+
+    assert(this->display != NULL);
+    assert(this->buzzer != NULL);
+    boost::shared_ptr<Ui> ui(new Ui(this->display, this->buzzer));
+
+    /* Door State Monitor and Controller */
+
+    assert(this->doorStateSensor != NULL);
+    boost::shared_ptr<DoorStateController>
+      doorStateController(new DoorStateController(this->doorStateSensor));
+
+    /* Fingerprint Scanner Monitor and Controller */
+
+    /* TODO: */
+
+    /* Tailgate Detection System */
+
+    /* TODO: */
 
     // assert(this->fingerpintScanner != NULL);
     // boost::shared_ptr<FingerprintController> fingerprintController(this->fingerprintScanner);
@@ -35,6 +55,9 @@ namespace roomsec {
     // boost::shared_ptr<Ui> ui(this->display, this->buzzer);
     // gateway->setUi(ui);
 
+    boost::shared_ptr<StdGateway>
+      gateway(new StdGateway(ui, doorStateController));
+
     return gateway;
   }
 
@@ -42,7 +65,19 @@ namespace roomsec {
    * Ctor / Dtor
    */
 
-  StdGateway::StdGateway() {
+  StdGateway::StdGateway(boost::shared_ptr<Ui> ui,
+			 boost::shared_ptr<DoorStateController> doorStateController)
+    : ui(ui), doorStateController(doorStateController)
+  {
+    doorStateController->sigDoorStateChange.connect([&] (DoorStateSensor::State state) {
+	if (state == DoorStateSensor::State::open) {
+	  ui->message(UiMessage::Type::error, "Door Opened");
+	}
+
+	if (state == DoorStateSensor::State::closed) {
+	  ui->message(UiMessage::Type::error, "Door Closed");
+	}
+      });
   }
 
   /*

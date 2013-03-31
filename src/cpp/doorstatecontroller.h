@@ -4,7 +4,7 @@
 
 #include <boost/shared_ptr.hpp>
 #include <boost/bind.hpp>
-#include <boost/signal.hpp>
+#include <boost/signals2.hpp>
 #include "actor.h"
 #include "doorstatesensor.h"
 
@@ -14,7 +14,7 @@ namespace roomsec {
     DoorStateController(boost::shared_ptr<DoorStateSensor> sensor);
     virtual void run();
 
-    boost::signal<void (DoorStateSensor::State)> sigDoorStateChange;
+    boost::signals2::signal<void (DoorStateSensor::State)> sigDoorStateChange;
     
   private:
     boost::shared_ptr<DoorStateSensor> sensor;
