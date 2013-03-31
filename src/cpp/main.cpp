@@ -82,6 +82,8 @@ int main (int argc, char *argv[]) {
 
     LOG4CXX_DEBUG(logger, "Writing test UI message");
     ui->message(roomsec::UiMessage::Type::error, "Hello, world!");
+    boost::thread thread = ui->start();
+    thread.join();
 
     LOG4CXX_DEBUG(logger, "Building Gateway");
     buildReplGateway(vm)->start();
