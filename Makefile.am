@@ -58,6 +58,7 @@ libroomsecgateway_la_SOURCES = \
 	src/cpp/thriftfingerprintauthnadapter.cpp \
 	src/cpp/gateway.cpp \
 	src/cpp/stdgateway.cpp \
+	src/cpp/fingerprintcontroller.cpp \
 	src/cpp/replgateway.cpp \
 	src/cpp/tailgateanalyzer.cpp \
 	src/cpp/blockanalyzer.cpp \
