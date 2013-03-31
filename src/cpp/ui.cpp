@@ -50,7 +50,7 @@ namespace roomsec {
   void
   Ui::run() {
     boost::shared_ptr<const UiMessage> message(this->messageQueue.front_pop());
-
+    LOG4CXX_DEBUG(logger, "Writing Message: " << *message->getMessage());
     switch(message->getType()) {
     default:
       display->clear();
@@ -59,7 +59,7 @@ namespace roomsec {
 
       display->setBacklightColor(Display::red);
       buzzer->on();
-      usleep(50000);
+      usleep(1000000);
       buzzer->off();
       display->setBacklightColor(Display::blue);
     }
