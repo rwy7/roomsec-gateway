@@ -53,14 +53,16 @@ namespace roomsec {
 
   void
   Ui::run() {
+    LOG4CXX_DEBUG(logger, "Ui running");
 
     const int messageTime = 5000; // milliseconds;
 
     while(!this->stop) {
+
+      LOG4CXX_DEBUG(logger, "Waiting for message");
       boost::shared_ptr<const UiMessage> message(this->messageQueue.front_pop());
 
       LOG4CXX_DEBUG(logger, "Writing Message: " << *message->getMessage());
-
       display->clear();
       display->home();
 
@@ -86,11 +88,12 @@ namespace roomsec {
 	buzzer->on();
 	boost::this_thread::sleep_for(boost::chrono::milliseconds(messageTime));
 	buzzer->off();
-	
 	break;
 
-      default: ;
-	/* Do Nothing */
+      default:
+	buzzer->on();
+	boost::this_thread::sleep_for(boost::chrono::milliseconds(messageTime));
+	buzzer->off();
       }
 
       /* Return to default, wait 0.5 seconds before processing next
@@ -102,7 +105,7 @@ namespace roomsec {
       boost::this_thread::sleep_for(boost::chrono::milliseconds(500));
     }
 
-    LOG4CXX_DEBUG(logger, "Exiting Ui run");
+    LOG4CXX_DEBUG(logger, "Ui stopping");
     return;
   }
 
