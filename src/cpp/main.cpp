@@ -81,8 +81,7 @@ int main (int argc, char *argv[]) {
       */
 
       LOG4CXX_DEBUG(logger, "Building Gateway");
-      boost::thread gatewayThread = buildStdGateway(vm)->start();
-      gatewayThread.join();
+      buildStdGateway(vm)->run();
       cleanupHardware(vm);
     }
   }
