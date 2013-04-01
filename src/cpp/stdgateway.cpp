@@ -99,6 +99,12 @@ namespace roomsec {
     doorStateController
       ->sigDoorStateChange
       .connect(boost::bind(&StdGateway::sigDoorStateChange, this, _1));
+
+    fingerprintController
+      ->fingerprintScanned
+      .connect([&] (boost::shared_ptr<Fingerprint> fingerprint) {
+	  LOG4CXX_DEBUG(logger, "Fingerprint Scanned");
+	});
   }
 
   /*
