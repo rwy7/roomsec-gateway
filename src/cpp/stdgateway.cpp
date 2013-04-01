@@ -22,6 +22,8 @@
 
 namespace roomsec {
 
+  const std::string gatewayId = "gateway1";
+
   /*
    * Loggers
    */
@@ -78,11 +80,13 @@ namespace roomsec {
     LOG4CXX_DEBUG(logger, "sigDoorStateChange called");
 
     if (state == DoorStateSensor::State::open) {
-      ui->message(UiMessage::Type::error, "Door Opened");
+      ui->message(UiMessage::Type::warning, "Door Opened");
+      LOG4CXX_INFO(netLogger, "roomsec." << gatewayId << ".door.open");
     }
 
     else if (state == DoorStateSensor::State::closed) {
-      ui->message(UiMessage::Type::error, "Door Closed");
+      ui->message(UiMessage::Type::warning, "Door Closed");
+      LOG4CXX_INFO(netLogger, "roomsec." << gatewayId << ".door.open");
     }
     return;
   }
@@ -93,16 +97,17 @@ namespace roomsec {
     LOG4CXX_DEBUG(logger, "Fingerprint Scanned");
     ui->message(UiMessage::Type::info, "Fingerprint Scanned");
 
-    ui->message(UiMessage::Type::info, "Authenticating");
     iface::Credential credential;
     fingerprintAuthnAdapter->authenticate(credential, fingerprint->serialize());
 
     if (credential.token == "" &&
 	credential.userid == "") {
-      ui->message(UiMessage::Type::error, "Unrecognized Fingerprint");
+      ui->message(UiMessage::Type::error, "User Unrecognized");
+      LOG4CXX_INFO(netLogger, "roomsec." << gatewayId << ".userauth.fail");
     }
     else {
       ui->message(UiMessage::Type::warning, "User: "+ credential.userid);
+      LOG4CXX_INFO(netLogger, "roomsec." << gatewayId << ".userauth.pass." << credential.userid);
     }
     return;
   }
@@ -142,7 +147,7 @@ namespace roomsec {
 
   void
   StdGateway::begin() {
-    LOG4CXX_INFO(netLogger, "Gateway Up");
+    LOG4CXX_INFO(netLogger, "roomsec." << gatewayId << ".online");
 
     LOG4CXX_DEBUG(logger, "Starting Ui Actor");
     //boost::thread uiThread = ui->start();
@@ -166,6 +171,7 @@ namespace roomsec {
     doorStateControllerThread.join();
     fingerprintControllerThread.join();
 
-    LOG4CXX_INFO(netLogger, "Gateway Down");
+    LOG4CXX_INFO(netLogger, "roomsec." << gatewayId << ".online");
+    return;
   }
 }

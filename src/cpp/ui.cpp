@@ -55,7 +55,7 @@ namespace roomsec {
   Ui::run() {
     LOG4CXX_DEBUG(logger, "Ui running");
 
-    const int messageTime = 5000; // milliseconds;
+    const int messageTime = 2000; // milliseconds;
 
     while(!stop) {
 
