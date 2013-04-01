@@ -2,10 +2,11 @@
 
 namespace roomsec {
 
-TailgateAnalyzer::TailgateAnalyzer(bool debug)
+TailgateAnalyzer::TailgateAnalyzer(std::vector<BlockSensor*> sensors, bool debug)
 {
 	DEBUG = debug;
 	sessionRunning = false;
+	setSensors(sensors);
 }
 
 bool TailgateAnalyzer::setSensors(std::vector<BlockSensor *> sensors)
@@ -16,8 +17,7 @@ bool TailgateAnalyzer::setSensors(std::vector<BlockSensor *> sensors)
 	{
 		newSensors.push_back(sensors[i]);
 	}
-	constructBlockAnalyzer();
-	return true;
+	return constructBlockAnalyzer();
 }
 
 bool TailgateAnalyzer::constructBlockAnalyzer()
@@ -76,13 +76,9 @@ bool TailgateAnalyzer::finishSession()
 	return true;
 }
 
-bool TailgateAnalyzer::analyze()
+PassageTriple TailgateAnalyzer::getResults()
 {
-	//if results.ingoing > 1
-		//tailgate = true
-	//else if (results.ingoing + results.unkown > 1)
-		//tailgate = possible
-	return false;
+	return results;
 }
 
 }
