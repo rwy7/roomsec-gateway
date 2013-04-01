@@ -4,6 +4,7 @@
 #include <boost/thread.hpp>
 #include <boost/chrono.hpp>
 #include <boost/signal.hpp>
+#include <boost/bind.hpp>
 
 #include <log4cxx/logger.h>
 
@@ -104,14 +105,16 @@ namespace roomsec {
     LOG4CXX_INFO(netLogger, "Gateway Up");
 
     LOG4CXX_DEBUG(logger, "Starting Ui Actor");
-    boost::thread uiThread = ui->start();
+    //boost::thread uiThread = ui->start();
+    boost::thread uiThread(boost::bind(&Ui::run, ui));
 
     ui->message(UiMessage::Type::warning, "Initializing1");
     ui->message(UiMessage::Type::warning, "Initializing2");
     ui->message(UiMessage::Type::warning, "Initializing3");
 
     LOG4CXX_DEBUG(logger, "Starting DoorStateController Actor");
-    boost::thread doorStateControllerThread = doorStateController->start();
+    boost::thread doorStateControllerThread(boost::bind(&DoorStateController::run,
+							doorStateController));
     
     LOG4CXX_DEBUG(logger, "Sleeping");
     boost::this_thread::sleep_for(boost::chrono::milliseconds(100000));
