@@ -32,7 +32,7 @@ namespace roomsec {
 
       DoorStateSensor::State nextState = sensor->getDoorState();
       if (nextState != oldState) {
-	LOG4CXX_DEBUG(logger, "Door State changed to " << nextstate);
+	LOG4CXX_DEBUG(logger, "Door State changed.");
 	this->sigDoorStateChange(nextState);
 	oldState = nextState;
       }
