@@ -1,6 +1,8 @@
 #include "config.h"
 #include <log4cxx/logger.h>
+#include <boost/thread/mutex.hpp>
 #include <boost/shared_ptr.hpp>
+
 #include "libfprint/fprint.h"
 #include "fingerprintscanner.h"
 
@@ -53,11 +55,14 @@ namespace roomsec {
 
       boost::shared_ptr< FingerprintScanner > fpScanner (new FingerprintScanner(fpDev));
       return fpScanner;
-
     }
 
+  /* ******************
+   * FingerprintScanner
+   * ******************/
+
   FingerprintScanner::FingerprintScanner(struct fp_dev *fpDev) :
-    fpDev(fpDev) {
+    asyncComplete(true), result(0),fpDev(fpDev) {
 
     }
 
@@ -115,7 +120,7 @@ namespace roomsec {
   }
 
   void FingerprintScanner::setFinished(bool result) {
-    this->result = result;
+    this->asyncComplete = result;
     return;
   }
 
@@ -125,15 +130,25 @@ namespace roomsec {
   }
 
   struct fp_dev *FingerprintScanner::getFPDev () {
+      boost::unique_lock< boost::mutex > lock (this->mutex);
     return this->fpDev;
+  }
+
+  bool FingerprintScanner::isFinished() {
+      boost::unique_lock< boost::mutex > lock (this->mutex);
+      return this->asyncComplete;
+  }
+
+  int FingerprintScanner::getResult() {
+      boost::unique_lock< boost::mutex > lock (this->mutex);
+      return this->asyncComplete;
   }
 
   extern "C" {
     void enrollCB(struct fp_dev *dev, int result,
         struct fp_print_data *print, struct fp_img *img, void *userData) {
-
-
       FingerprintScanner *fpscan = (FingerprintScanner *)userData;
+      boost::unique_lock< boost::mutex > lock (fpscan->mutex);
       fpscan->setFinished(true);
       fpscan->setResult(result);
       fpscan->setAsyncFP(print);
@@ -142,6 +157,7 @@ namespace roomsec {
 
     void enrollStopCB(struct fp_dev *dev, void *userData) {
       FingerprintScanner *fpscan = (FingerprintScanner *)userData;
+      boost::unique_lock< boost::mutex > lock (fpscan->mutex);
       fpscan->setFinished(true);
       fpscan->setResult(-1);
       fpscan->setAsyncFP(NULL);

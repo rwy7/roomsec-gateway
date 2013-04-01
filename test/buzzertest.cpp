@@ -3,10 +3,11 @@
 
 #include "wiringPi/wiringPi.h"
 #include "buzzer.h"
+#include <iostream>
 
 /*  The pin the buzzer is connected to (for broadcom numbering, corresponds to
  *  pin 11 */
-int buzzerPin = 17;
+static int buzzerPin = 17;
 
 class BuzzerEnvironment : public ::testing::Environment {
   public:
@@ -28,6 +29,7 @@ namespace roomsec {
   using namespace ::testing;
 
   TEST(BuzzerTest, SoundTest) {
+cout << "Setting up on pin: " << ::buzzerPin;
     Buzzer buzz (::buzzerPin);
     buzz.on();
     delay(200);
