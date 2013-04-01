@@ -1,9 +1,10 @@
 #include "config.h"
 
 #include <boost/shared_ptr.hpp>
-#include <boost/signals2.hpp>
 #include <boost/thread.hpp>
 #include <boost/chrono.hpp>
+#include <boost/signal.hpp>
+
 #include <log4cxx/logger.h>
 
 #include "actor.h"
