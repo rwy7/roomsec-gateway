@@ -98,6 +98,8 @@ namespace roomsec {
   }
 
   void StdGateway::signalDoorAlarm() {
+    LOG4CXX_DEBUG(logger, "Starting DoorStateController Actor");
+    LOG4CXX_INFO(netLogger, "roomsec." << gatewayId << ".alarm.door");
     ui->startAlarm("Close Door");
   }
 
@@ -133,7 +135,7 @@ namespace roomsec {
       fingerprintController(fingerprintController),
       authorityAdapter(authorityAdapter),
       fingerprintAuthnAdapter(fingerprintAuthnAdapter),
-      doorAlarmCountDown(boost::chrono::milliseconds(100000))
+      doorAlarmCountDown(boost::chrono::milliseconds(10000))
   {
 
     /* Callbacks */
