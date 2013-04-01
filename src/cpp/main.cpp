@@ -212,7 +212,7 @@ buildStdGateway(po::variables_map& vm) {
   LOG4CXX_DEBUG(logger, "LCDDisplay");
   boost::shared_ptr<roomsec::LCDDisplay> display(new roomsec::LCDDisplay(expander));
   display->initialize();
-  disp->setBacklightPins(expander->GPIOB, 0x01, 0x02, 0x04);
+  display->setBacklightPins(expander->GPIOB, 0x01, 0x02, 0x04);
 
   /* Initialize the buzzer */
   LOG4CXX_DEBUG(logger, "Initializing Buzzer");
