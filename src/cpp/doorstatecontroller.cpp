@@ -1,11 +1,11 @@
 #include "config.h"
 
 #include <boost/shared_ptr.hpp>
-//#include <boost/bind.hpp>
 #include <boost/signal.hpp>
 #include <boost/thread.hpp>
 #include <boost/chrono.hpp>
 #include <log4cxx/logger.h>
+
 #include "actor.h"
 #include "doorstatesensor.h"
 #include "doorstatecontroller.h"
@@ -25,11 +25,11 @@ namespace roomsec {
   DoorStateController::run()
   {
     LOG4CXX_DEBUG(logger, "DoorStateController running");
-
+    LOG4CXX_TRACE(logger, "Getting Old State");
     DoorStateSensor::State oldState = sensor->getDoorState();
+    LOG4CXX_TRACE(logger, "Got Old State");
 
     while(!this->stop) {
-
       DoorStateSensor::State nextState = sensor->getDoorState();
       if (nextState != oldState) {
 	LOG4CXX_DEBUG(logger, "Door State changed");
@@ -37,10 +37,9 @@ namespace roomsec {
 	oldState = nextState;
       }
       LOG4CXX_TRACE(logger, "Looping");
-
       boost::this_thread::sleep_for(boost::chrono::milliseconds(50));
     }
+
     LOG4CXX_DEBUG(logger, "DoorStateController stopping");
   }
-
 }

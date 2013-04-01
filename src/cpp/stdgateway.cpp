@@ -81,6 +81,7 @@ namespace roomsec {
 	else if (state == DoorStateSensor::State::closed) {
 	  ui->message(UiMessage::Type::error, "Door Closed");
 	}
+	return;
       });
   }
 
