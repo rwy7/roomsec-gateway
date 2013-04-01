@@ -4,6 +4,7 @@
 
 #include <boost/shared_ptr.hpp>
 #include <log4cxx/logger.h>
+#include "doorstatesensor.h"
 #include "gateway.h"
 
 namespace roomsec {
@@ -30,6 +31,9 @@ namespace roomsec {
     };
 
     friend class StdGateway::Builder;
+
+
+    void sigDoorStateChange(DoorStateSensor::State state);
 
   protected:
 

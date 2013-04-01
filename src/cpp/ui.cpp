@@ -16,25 +16,25 @@ namespace roomsec {
   
   log4cxx::LoggerPtr UiMessage::logger(log4cxx::Logger::getLogger("roomsec.ui"));
 
-  UiMessage::UiMessage(Type type, boost::shared_ptr<const std::string> message) :
-    type(type), message(message) 
+  UiMessage::UiMessage(Type type, std::string message)
+    : type(type), message(message) 
   {
-    LOG4CXX_TRACE(logger, "UiMessage created: " << *this->message);
+    LOG4CXX_TRACE(logger, "UiMessage created: " << message);
   }
 
-  UiMessage::UiMessage(const UiMessage & that) :
+  UiMessage::UiMessage(UiMessage const& that) :
     type(that.getType()), message(that.getMessage())
   {
   }
 
   UiMessage::Type
   UiMessage::getType() const {
-    return this->type;
+    return type;
   }
 
-  boost::shared_ptr<const std::string>
+  std::string
   UiMessage::getMessage() const {
-    return this->message;
+    return message;
   }
 
   /********************
@@ -57,26 +57,26 @@ namespace roomsec {
 
     const int messageTime = 5000; // milliseconds;
 
-    while(!this->stop) {
+    while(!stop) {
 
       LOG4CXX_DEBUG(logger, "Waiting for message");
-      boost::shared_ptr<const UiMessage> message(this->messageQueue.front_pop());
+      UiMessage message = messageQueue.front_pop();
 
-      LOG4CXX_DEBUG(logger, "Writing Message: " << *message->getMessage());
+      LOG4CXX_DEBUG(logger, "Writing Message: " << message.getMessage());
       display->clear();
       display->home();
 
-      switch(message->getType()) {
+      switch(message.getType()) {
 
       case UiMessage::Type::info:
 	display->setBacklightColor(Display::blue);
-	display->putStr(*message->getMessage());
+	display->putStr(message.getMessage());
 	boost::this_thread::sleep_for(boost::chrono::milliseconds(messageTime));
 	break;
 
       case UiMessage::Type::error:
 	display->setBacklightColor(Display::red);
-	display->putStr(*message->getMessage());
+	display->putStr(message.getMessage());
 	buzzer->on();
 	boost::this_thread::sleep_for(boost::chrono::milliseconds(500));
 	buzzer->off();
@@ -86,7 +86,7 @@ namespace roomsec {
       case UiMessage::Type::prompt:
       case UiMessage::Type::warning:
 	display->setBacklightColor(Display::green);
-	display->putStr(*message->getMessage());
+	display->putStr(message.getMessage());
 	buzzer->on();
 	boost::this_thread::sleep_for(boost::chrono::milliseconds(500));
 	buzzer->off();
@@ -116,46 +116,16 @@ namespace roomsec {
   /** Messaging Functions */
 
   int
-  Ui::message(UiMessage const& that) {
-    /* Copy the UiMessage, and queue the copy for display.
-     */
-    boost::shared_ptr<const UiMessage> copy(new UiMessage(that));
-    int retVal = message(copy);
+  Ui::message(UiMessage const& msg) {
+    LOG4CXX_DEBUG(logger, "Queueing message: " << msg.getMessage());
+    int retVal = 0;
+    messageQueue.push(msg);
     return retVal;
   }
 
   int
   Ui::message(UiMessage::Type type, std::string const& str) {
-    /* Dynamically copy the message string.  If no copy is desired,
-     * pass in a shared pointer or message object.  Construct and
-     * queue the new message.  If the queue is full or allocation
-     * fails, return -1.
-     */
-    int retVal = 0;
-    boost::shared_ptr<const std::string> messageString(new std::string(str));
-    boost::shared_ptr<const UiMessage> message(new UiMessage(type, messageString));
-    retVal = Ui::message(message);
-    return retVal;
-  }
-
-  int
-  Ui::message(boost::shared_ptr<const UiMessage> message) {
-    /* Queue the message object for printing */
-    LOG4CXX_DEBUG(logger, "Queueing message: " << *message->getMessage());
-    messageQueue.push(message);
-    return 0;
-  }
-
-  /** TODO: Implement */
-  int
-  Ui::message(UiMessage::Type t) {
-    LOG4CXX_WARN(logger, "Not yet implemented");
-    return -1;
-  }
-
-  int
-  Ui::message(std::string const & str) {
-    LOG4CXX_WARN(logger, "Not yet implemented");
-    return -1;
+    UiMessage msg(type, str);
+    return message(msg);
   }
 }
