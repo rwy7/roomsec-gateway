@@ -12,6 +12,7 @@ namespace roomsec {
   class DoorStateController;
   class Ui;
   class FingerprintController;
+  class Fingerprint;
 
   /**
    * The standard operations gateway controller.  This controller
@@ -33,8 +34,9 @@ namespace roomsec {
 
     friend class StdGateway::Builder;
 
-
     void sigDoorStateChange(DoorStateSensor::State state);
+    void fingerprintScanned(boost::shared_ptr<Fingerprint> fingerprint);
+  
 
   protected:
 

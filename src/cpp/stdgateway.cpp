@@ -103,6 +103,25 @@ namespace roomsec {
     return;
   }
 
+  void
+  StdGateway::fingerprintScanned(boost::shared_ptr<Fingerprint> fingerprint) {
+
+    LOG4CXX_DEBUG(logger, "Fingerprint Scanned");
+    ui->message(UiMessage::Type::info, "Fingerprint Scanned");
+
+    ui->message(UiMessage::Type::info, "Authenticating");
+    iface::Credential credential;
+    authnAdapter->authenticate(credential, fingerprint->serialize());
+
+    if (credential.token == "" &&
+	credential.userid == "") {
+      ui->message(UiMessage::Type::error, "Unrecognized Fingerprint");
+    }
+    else {
+      ui->message(UiMessage::Type::warning, "User: "+ credential.userid);
+    }
+  }
+
   StdGateway::StdGateway(boost::shared_ptr<Ui> ui,
 			 boost::shared_ptr<DoorStateController> doorStateController,
 			 boost::shared_ptr<FingerprintController> fingerprintController,
@@ -123,28 +142,12 @@ namespace roomsec {
 
     fingerprintController
       ->fingerprintScanned
-      .connect([&] (boost::shared_ptr<Fingerprint> fingerprint) {
-	  LOG4CXX_DEBUG(logger, "Fingerprint Scanned");
-	  ui->message(UiMessage::Type::info, "Fingerprint Scanned");
+      .connect(boost::bind(&StdGateway::fingerprintScanned, this, _1));
 
-	  ui->message(UiMessage::Type::info, "Authenticating");
-	  iface::Credential credential;
-	  authnAdapter->authenticate(credential, fingerprint->serialize());
-
-	  if (credential.token == "" &&
-	      credential.userid == "") {
-	    ui->message(UiMessage::Type::error, "Unrecognized Fingerprint");
-	  }
-	  else {
-	    ui->message(UiMessage::Type::warning, "User: "+ credential.userid);
-	  }
-
-	});
+    /*
+     * Threading
+     */
   }
-
-  /*
-   * Threading
-   */
 
   void
   StdGateway::init() {
