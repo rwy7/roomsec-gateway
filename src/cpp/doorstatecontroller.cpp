@@ -32,14 +32,14 @@ namespace roomsec {
 
       DoorStateSensor::State nextState = sensor->getDoorState();
       if (nextState != oldState) {
-	LOG4CXX_DEBUG(logger, "Door State changed.");
+	LOG4CXX_DEBUG(logger, "Door State changed");
 	this->sigDoorStateChange(nextState);
 	oldState = nextState;
       }
+      LOG4CXX_TRACE(logger, "Looping");
 
       boost::this_thread::sleep_for(boost::chrono::milliseconds(50));
     }
-
     LOG4CXX_DEBUG(logger, "DoorStateController stopping");
   }
 
