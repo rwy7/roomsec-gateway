@@ -73,7 +73,8 @@ libroomsecgateway_la_SOURCES = \
 	src/cpp/ui.cpp \
 	src/cpp/actor.cpp \
 	src/cpp/doorstatesensor.cpp \
-	src/cpp/fingerprintscanner.cpp
+	src/cpp/fingerprintscanner.cpp \
+	src/cpp/alarm.cpp
 
 libroomsecgateway_la_CPPFLAGS = \
 	$(THRIFT_CFLAGS) $(LOG4CXX_CFLAGS) \
