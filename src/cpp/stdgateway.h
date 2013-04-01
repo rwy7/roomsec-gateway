@@ -7,9 +7,9 @@
 #include "gateway.h"
 
 namespace roomsec {
+
   class DoorStateController;
   class Ui;
-
 
   /**
    * The standard operations gateway controller.  This controller
@@ -19,6 +19,7 @@ namespace roomsec {
    * gateway system.
    */
   class StdGateway : public Gateway {
+
   public:
 
     class Builder : public Gateway::Builder<StdGateway::Builder, StdGateway> {
