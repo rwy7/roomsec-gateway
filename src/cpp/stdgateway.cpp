@@ -83,6 +83,7 @@ namespace roomsec {
     if (state == DoorStateSensor::State::open) {
       ui->message(UiMessage::Type::warning, "Door Opened");
       LOG4CXX_INFO(netLogger, "roomsec." << gatewayId << ".door.open");
+      doorAlarmCountDown.cancelCountDown();
       doorAlarmThread.interrupt();
       doorAlarmThread = doorAlarmCountDown.start();
     }
@@ -90,7 +91,8 @@ namespace roomsec {
     else if (state == DoorStateSensor::State::closed) {
       ui->message(UiMessage::Type::warning, "Door Closed");
       LOG4CXX_INFO(netLogger, "roomsec." << gatewayId << ".door.close");
-      
+
+      doorAlarmCountDown.cancelCountDown();
       doorAlarmThread.interrupt();
       ui->stopAlarm();
     }

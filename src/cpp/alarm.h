@@ -3,6 +3,8 @@
 #ifndef _ROOMSEC_ALARM_H_
 #define _ROOMSEC_ALARM_H_
 
+
+#include <atomic>
 #include <boost/signal.hpp>
 #include <boost/chrono.hpp>
 #include "actor.h"
@@ -14,10 +16,12 @@ namespace roomsec {
     CountDown(boost::chrono::milliseconds t);
     virtual ~CountDown();
     virtual void run();
+    void cancelCountDown();
 
   private:
     virtual void act() = 0;
     boost::chrono::milliseconds t;
+    std::atomic<bool> cancel;
   };
 
   class CountDownSignal : public CountDown {

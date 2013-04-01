@@ -6,7 +6,7 @@
 namespace roomsec {
 
   CountDown::CountDown(boost::chrono::milliseconds t)
-    : t(t)
+    : t(t), cancel(false)
   {}
 
   CountDown::~CountDown()
@@ -15,8 +15,16 @@ namespace roomsec {
   void
   CountDown::run() {
     boost::this_thread::sleep_for(this->t);
-    this->act();
+    boost::this_thread::interruption_point();
+    if (!this->cancel) {
+      this->act();
+    }
     return;
+  }
+
+  void
+  CountDown::cancelCountDown() {
+    this->cancel = true;
   }
 
 
