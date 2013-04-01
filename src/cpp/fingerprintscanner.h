@@ -2,6 +2,7 @@
 #ifndef _FINGERPRINTSCANNER_H_
 #define _FINGERPRINTSCANNER_H_
 
+#include <boost/thread/mutex.hpp>
 #include <boost/shared_ptr.hpp>
 #include <log4cxx/logger.h>
 
@@ -108,7 +109,7 @@ namespace roomsec {
       void setFinished(bool result);
       void setAsyncFP(struct fp_print_data *data);
       struct fp_dev *getFPDev ();
-
+      boost::mutex mutex;
     protected:
 
       /**

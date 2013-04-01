@@ -6,7 +6,7 @@ namespace roomsec {
   DoorStateSensor::DoorStateSensor(int pin) : pin(pin) {
 #ifdef ENABLE_GATEWAY
     pinMode(this->pin, INPUT);
-    pullUpDnControl(this->pin, PUD_DOWN);
+    pullUpDnControl(this->pin, PUD_UP);
 #endif
     this->update();
     return;
@@ -17,7 +17,7 @@ namespace roomsec {
 #ifdef ENABLE_GATEWAY
     current = digitalRead(this->pin);
 #endif
-    if (current == 0)
+    if (current == 1)
       this->state = State::open;
     else
       this->state = State::closed;
