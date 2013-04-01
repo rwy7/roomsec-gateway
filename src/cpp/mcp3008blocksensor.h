@@ -1,33 +1,25 @@
-#ifndef MCP3008BLOCKSENSOR
-#define MCP3008BLOCKSENSOR
+/* -*- Mode: c++ -*- */
+#ifndef _ROOMSEC_MCP3008BLOCKSENSOR_H_
+#define _ROOMSEC_MCP3008BLOCKSENSOR_H_
 
-#include "BlockSensor.h"
-#include <wiringPi/wiringPiSPI.h>
-
-#define ADC_CHANNEL 0
-
-#define ADC_HIGH_VOLTAGE 3.3
-#define ADC_LOW_VOLTAGE 0
-#define ADC_HIGH_DATA 1023
-#define MONITORED_CLOSE_VOLTAGE 3.0
-#define MONITORED_FAR_VOLTAGE 0.4
-#define INPUT_CLOSE_VALUE 100
-#define INPUT_FAR_VALUE 0
+#include "blocksensor.h"
 
 namespace roomsec{
 
-class MCP3008BlockSensor : BlockSensor{
-protected:
-	unsigned int MCPPin; //0-7
-	int iValue, mValue;
-	bool DEBUG;
+  class MCP3008BlockSensor : public BlockSensor {
 
-public:
-	MCP3008BlockSensor(unsigned int pin, bool debug = false):MCPPin(pin),mValue(0),iValue(0),DEBUG(debug){}
+  protected:
+    unsigned int MCPPin; //0-7
+    int iValue, mValue;
+    bool DEBUG;
 
-	int getSensorValue();
+  public:
+    MCP3008BlockSensor(unsigned int pin, bool debug = false);
+    virtual ~MCP3008BlockSensor();
+    int getSensorValue();
+
+  };
+
 }
 
-}
-
-#endif
+#endif /* _ROOMSEC_MCP3008BLOCKSENSOR_H_ */

@@ -111,9 +111,9 @@ namespace roomsec {
       }
 
 	BuilderT&
-	setBlockSensor(std::vector<BlockSensor*> sensors){
+	setBlockSensors(std::vector<BlockSensor*> sensors){
 		this->blockSensors.clear();
-		for(int i = 0; i < sensors.size(); i++)
+		for(unsigned int i = 0; i < sensors.size(); i++)
 			this->blockSensors.push_back(sensors[i]);
 		return *static_cast<BuilderT*>(this);
 	}
@@ -126,7 +126,7 @@ namespace roomsec {
       boost::shared_ptr<DoorStateSensor> doorStateSensor;
       boost::shared_ptr<Display> display;
       boost::shared_ptr<Buzzer> buzzer;
-		std::vector<BlockSensor*> blockSensors;	
+      std::vector<BlockSensor*> blockSensors;
     };
 
     template<typename B, typename G> friend class Gateway::Builder;
