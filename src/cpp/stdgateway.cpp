@@ -37,8 +37,6 @@ namespace roomsec {
 
   boost::shared_ptr<StdGateway>
   StdGateway::Builder::build() {
-
-
     /* Networked Systems */
     // TODO: ASSERT
 
@@ -60,18 +58,6 @@ namespace roomsec {
     boost::shared_ptr<FingerprintController>
       fingerprintController(new FingerprintController(this->fingerprintScanner));
 
-    /* Tailgate Detection System */
-    
-
-    /* TODO: */
-
-    // assert(this->fingerpintScanner != NULL);
-
-    // boost::shared_ptr<FingerprintController> 
-    //    fingerprintController(this->fingerprintScanner);
-
-    // gateway->setFingerprintController(fingerprintController);
-
     boost::shared_ptr<StdGateway>
       gateway(new StdGateway(ui,
 			     doorStateController,
@@ -80,8 +66,6 @@ namespace roomsec {
 			     fingerprintAuthnAdapter));
 
     return gateway;
-    
-
   }
 
   /*
@@ -111,7 +95,7 @@ namespace roomsec {
 
     ui->message(UiMessage::Type::info, "Authenticating");
     iface::Credential credential;
-    authnAdapter->authenticate(credential, fingerprint->serialize());
+    fingerprintAuthnAdapter->authenticate(credential, fingerprint->serialize());
 
     if (credential.token == "" &&
 	credential.userid == "") {
@@ -120,6 +104,7 @@ namespace roomsec {
     else {
       ui->message(UiMessage::Type::warning, "User: "+ credential.userid);
     }
+    return;
   }
 
   StdGateway::StdGateway(boost::shared_ptr<Ui> ui,
