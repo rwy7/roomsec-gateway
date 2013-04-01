@@ -76,21 +76,25 @@ namespace roomsec {
 
       case UiMessage::Type::error:
 	display->setBacklightColor(Display::red);
+	display->putStr(*message->getMessage());
 	buzzer->on();
-	boost::this_thread::sleep_for(boost::chrono::milliseconds(messageTime));
+	boost::this_thread::sleep_for(boost::chrono::milliseconds(500));
 	buzzer->off();
-	display->setBacklightColor(Display::blue);
+	boost::this_thread::sleep_for(boost::chrono::milliseconds(messageTime - 500));
 	break;
 
       case UiMessage::Type::prompt:
       case UiMessage::Type::warning:
 	display->setBacklightColor(Display::green);
+	display->putStr(*message->getMessage());
 	buzzer->on();
-	boost::this_thread::sleep_for(boost::chrono::milliseconds(messageTime));
+	boost::this_thread::sleep_for(boost::chrono::milliseconds(500));
 	buzzer->off();
+	boost::this_thread::sleep_for(boost::chrono::milliseconds(messageTime - 500));
 	break;
 
       default:
+	display->putStr("Unrecognized Message Type!");
 	buzzer->on();
 	boost::this_thread::sleep_for(boost::chrono::milliseconds(messageTime));
 	buzzer->off();
