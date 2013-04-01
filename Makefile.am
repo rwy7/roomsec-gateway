@@ -59,6 +59,7 @@ libroomsecgateway_la_SOURCES = \
 	src/cpp/gateway.cpp \
 	src/cpp/stdgateway.cpp \
 	src/cpp/fingerprintcontroller.cpp \
+	src/cpp/doorstatecontroller.cpp \
 	src/cpp/replgateway.cpp \
 	src/cpp/tailgateanalyzer.cpp \
 	src/cpp/blockanalyzer.cpp \

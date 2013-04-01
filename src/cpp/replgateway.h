@@ -54,7 +54,7 @@ namespace roomsec {
 
     virtual void init();
 
-    virtual void run();
+    virtual void begin();
 
     void start_repl();
 

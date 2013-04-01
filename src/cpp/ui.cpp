@@ -1,4 +1,7 @@
 #include "config.h"
+#include <boost/chrono.hpp>
+#include <boost/thread.hpp>
+
 #include <boost/shared_ptr.hpp>
 
 #include "buzzer.h"
@@ -45,6 +48,7 @@ namespace roomsec {
   Ui::Ui(b::shared_ptr<Display> display, b::shared_ptr<Buzzer> buzzer) :
     display(display), buzzer(buzzer)
   {
+    display->setBacklightColor(Display::green);
   }
 
   void
@@ -59,7 +63,7 @@ namespace roomsec {
 
       display->setBacklightColor(Display::red);
       buzzer->on();
-      usleep(1000000);
+      boost::this_thread::sleep_for(boost::chrono::milliseconds(2000));
       buzzer->off();
       display->setBacklightColor(Display::blue);
     }
