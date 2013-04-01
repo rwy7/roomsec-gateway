@@ -70,24 +70,28 @@ namespace roomsec {
    * Ctor / Dtor
    */
 
+  void
+  StdGateway::sigDoorStateChange(DoorStateSensor::State state) {
+
+    LOG4CXX_DEBUG(logger, "sigDoorStateChange called");
+
+    if (state == DoorStateSensor::State::open) {
+      ui->message(UiMessage::Type::error, "Door Opened");
+    }
+
+    else if (state == DoorStateSensor::State::closed) {
+      ui->message(UiMessage::Type::error, "Door Closed");
+    }
+    return;
+  }
+
   StdGateway::StdGateway(boost::shared_ptr<Ui> ui,
 			 boost::shared_ptr<DoorStateController> doorStateController)
     : ui(ui), doorStateController(doorStateController)
   {
-
-    doorStateController->sigDoorStateChange.connect([&] (DoorStateSensor::State state) {
-
-	LOG4CXX_DEBUG(logger, "sigDoorStateChange called");
-
-	if (state == DoorStateSensor::State::open) {
-	  ui->message(UiMessage::Type::error, "Door Opened");
-	}
-
-	else if (state == DoorStateSensor::State::closed) {
-	  ui->message(UiMessage::Type::error, "Door Closed");
-	}
-	return;
-      });
+    doorStateController
+      ->sigDoorStateChange
+      .connect(boost::bind(&StdGateway::sigDoorStateChange, this, _1));
   }
 
   /*
