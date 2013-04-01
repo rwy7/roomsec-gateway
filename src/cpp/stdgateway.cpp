@@ -104,6 +104,9 @@ namespace roomsec {
     LOG4CXX_DEBUG(logger, "Starting DoorStateController Actor");
     boost::thread doorStateControllerThread = doorStateController->start();
     
+    LOG4CXX_DEBUG(logger, "Sleeping");
+    boost::this_thread::sleep_for(boost::chrono::milliseconds(10000));
+
     LOG4CXX_DEBUG(logger, "Waiting for threads to exit");
     uiThread.join();
     doorStateControllerThread.join();

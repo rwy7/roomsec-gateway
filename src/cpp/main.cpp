@@ -134,7 +134,7 @@ int initHardware(po::variables_map& vm) {
   LOG4CXX_DEBUG(logger, "Initializing Hardware");
 
   /* Initialize libfprint for fingerprint scanning */
-
+  LOG4CXX_DEBUG(logger, "Initializing libfprint");
   retVal = fp_init();
   if (retVal != 0) {
     LOG4CXX_ERROR(logger, "Failed to initialize libfprint");
