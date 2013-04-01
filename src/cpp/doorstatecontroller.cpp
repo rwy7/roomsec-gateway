@@ -1,7 +1,7 @@
 #include "config.h"
 
 #include <boost/shared_ptr.hpp>
-#include <boost/signal.hpp>
+#include <boost/signals2.hpp>
 #include <boost/thread.hpp>
 #include <boost/chrono.hpp>
 #include <log4cxx/logger.h>
