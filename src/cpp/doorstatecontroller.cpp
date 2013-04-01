@@ -4,6 +4,7 @@
 #include <boost/bind.hpp>
 #include <boost/signal.hpp>
 #include <boost/thread.hpp>
+#include <boost/chrono.hpp>
 #include "actor.h"
 #include "doorstatesensor.h"
 
