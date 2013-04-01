@@ -24,6 +24,7 @@ namespace roomsec {
   /*
    * Builder
    */
+
   boost::shared_ptr<StdGateway>
   StdGateway::Builder::build() {
 
@@ -69,12 +70,14 @@ namespace roomsec {
 			 boost::shared_ptr<DoorStateController> doorStateController)
     : ui(ui), doorStateController(doorStateController)
   {
-    doorStateController->sigDoorStateChange.connect([&] (DoorStateSensor::State state) {
+
+    doorStateController
+      ->sigDoorStateChange.connect([&] (DoorStateSensor::State state) {
 	if (state == DoorStateSensor::State::open) {
 	  ui->message(UiMessage::Type::error, "Door Opened");
 	}
 
-	if (state == DoorStateSensor::State::closed) {
+	else if (state == DoorStateSensor::State::closed) {
 	  ui->message(UiMessage::Type::error, "Door Closed");
 	}
       });
@@ -93,8 +96,13 @@ namespace roomsec {
   void
   StdGateway::begin() {
     LOG4CXX_INFO(netLogger, "Gateway Up");
-    // Ui ui();
-    // ui.message(UiMessage::Type::warn, "Hello, World!");
+
+    boost::thread uiThread = ui->start();
+    boost::thread doorStateControllerThread = doorStateController->start();
+    
+    uiThread.join();
+    doorStateControllerThread.join();
+
     LOG4CXX_INFO(netLogger, "Gateway Down");
   }
 }
