@@ -70,8 +70,9 @@ namespace roomsec {
     : ui(ui), doorStateController(doorStateController)
   {
 
-    doorStateController
-      ->sigDoorStateChange.connect([&] (DoorStateSensor::State state) {
+    doorStateController->sigDoorStateChange.connect([&] (DoorStateSensor::State state) {
+
+	LOG4CXX_DEBUG(logger, "sigDoorStateChange called");
 
 	if (state == DoorStateSensor::State::open) {
 	  ui->message(UiMessage::Type::error, "Door Opened");
@@ -97,9 +98,13 @@ namespace roomsec {
   StdGateway::begin() {
     LOG4CXX_INFO(netLogger, "Gateway Up");
 
+    LOG4CXX_DEBUG(logger, "Starting Ui Actor");
     boost::thread uiThread = ui->start();
+
+    LOG4CXX_DEBUG(logger, "Starting DoorStateController Actor");
     boost::thread doorStateControllerThread = doorStateController->start();
     
+    LOG4CXX_DEBUG(logger, "Waiting for threads to exit");
     uiThread.join();
     doorStateControllerThread.join();
 
