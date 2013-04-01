@@ -65,16 +65,15 @@ namespace roomsec {
 
     /* Passive State Functions */
 
-    int alarmOn(UiMessage const&);
+    // int alarmOn(UiMessage const&);
 
   private:
     static log4cxx::LoggerPtr logger;
 
     boost::shared_ptr<Display> display;
     boost::shared_ptr<Buzzer> buzzer;
-    Queue<boost::shared_ptr<const UiMessage>> messageQueue;
+    Queue<boost::shared_ptr<const UiMessage> > messageQueue;
     bool stop;
-
   };
 }
 
