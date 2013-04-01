@@ -93,6 +93,10 @@ namespace roomsec {
 	boost::this_thread::sleep_for(boost::chrono::milliseconds(messageTime - 500));
 	break;
 
+      case UiMessage::Type::alarm:
+	/* Do nothing, the steady state defaults have changed. */
+	break;
+
       default:
 	display->putStr("Unrecognized Message Type!");
 	buzzer->on();
@@ -106,8 +110,8 @@ namespace roomsec {
        *  alarm is on.  Since checking the alarm requires mutex access, this is
        *  necessary.*/
 
-
-      boost::this_thread::sleep_for(boost::chrono::milliseconds(500));
+      boost::this_thread::interruption_point();
+      // boost::this_thread::sleep_for(boost::chrono::milliseconds(500));
     }
 
     LOG4CXX_DEBUG(logger, "Ui stopping");
@@ -131,6 +135,7 @@ namespace roomsec {
       this->alarmOn = true;
       this->alarmMessage = message;
       LOG4CXX_DEBUG(logger, "Starting alarm: " << this->alarmMessage);
+      this->messageQueue.push(UiMessage(UiMessage::Type::alarm, ""));
       return retVal;
     }
 
@@ -139,6 +144,7 @@ namespace roomsec {
       boost::unique_lock<boost::mutex> lock(this->mutex);
       this->alarmOn = false;
       this->alarmMessage = "";
+      this->messageQueue.push(UiMessage(UiMessage::Type::alarm, ""));
       return 0;
     }
 

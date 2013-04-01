@@ -28,7 +28,7 @@ namespace roomsec {
      * message is output to the UI system with a UiMessage object.
      */
     enum class Type : unsigned char {
-      info = 0, success, warning, error, prompt
+      info = 0, success, warning, error, prompt, alarm
     };
 
     /**
