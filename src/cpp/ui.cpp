@@ -55,18 +55,44 @@ namespace roomsec {
   Ui::run() {
     boost::shared_ptr<const UiMessage> message(this->messageQueue.front_pop());
     LOG4CXX_DEBUG(logger, "Writing Message: " << *message->getMessage());
-    switch(message->getType()) {
-    default:
-      display->clear();
-      display->home();
-      display->putStr(*message->getMessage());
 
+    display->clear();
+    display->home();
+
+    switch(message->getType()) {
+
+    case UiMessage::Type::info:
+      display->setBacklightColor(Display::blue);
+      display->putStr(*message->getMessage());
+      boost::this_thread::sleep_for(boost::chrono::milliseconds(2000));
+      break;
+
+    case UiMessage::Type::error:
       display->setBacklightColor(Display::red);
       buzzer->on();
       boost::this_thread::sleep_for(boost::chrono::milliseconds(2000));
       buzzer->off();
       display->setBacklightColor(Display::blue);
+      break;
+
+    case UiMessage::Type::prompt:
+    case UiMessage::Type::warning:
+      display->setBacklightColor(Display::green);
+      buzzer->on();
+      boost::this_thread::sleep_for(boost::chrono::milliseconds(2000));
+      buzzer->off();
+      display->setBacklightColor(Display::blue);
+      break;
+
+    default: ;
+      /* Do Nothing */
     }
+
+    /* Return to default, wait 1 second before processing next
+     * message.
+     */
+    boost::this_thread::sleep_for(boost::chrono::milliseconds(500));
+
     LOG4CXX_DEBUG(logger, "Exiting Ui run");
     return;
   }
