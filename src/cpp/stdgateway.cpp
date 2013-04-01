@@ -8,11 +8,16 @@
 
 #include <log4cxx/logger.h>
 
+#include "gen-cpp/authorize_types.h"
+
 #include "actor.h"
 #include "ui.h"
 #include "gateway.h"
 #include "fingerprintcontroller.h"
 #include "doorstatecontroller.h"
+#include "authorityadapter.h"
+#include "fingerprintauthnadapter.h"
+
 #include "stdgateway.h"
 
 namespace roomsec {
@@ -33,6 +38,10 @@ namespace roomsec {
   boost::shared_ptr<StdGateway>
   StdGateway::Builder::build() {
 
+
+    /* Networked Systems */
+    // TODO: ASSERT
+
     /* UI System */
 
     assert(this->display != NULL);
@@ -52,6 +61,7 @@ namespace roomsec {
       fingerprintController(new FingerprintController(this->fingerprintScanner));
 
     /* Tailgate Detection System */
+    
 
     /* TODO: */
 
@@ -63,7 +73,11 @@ namespace roomsec {
     // gateway->setFingerprintController(fingerprintController);
 
     boost::shared_ptr<StdGateway>
-      gateway(new StdGateway(ui, doorStateController, fingerprintController));
+      gateway(new StdGateway(ui,
+			     doorStateController,
+			     fingerprintController,
+			     authorityAdapter,
+			     fingerprintAuthnAdapter));
 
     return gateway;
     
@@ -91,11 +105,18 @@ namespace roomsec {
 
   StdGateway::StdGateway(boost::shared_ptr<Ui> ui,
 			 boost::shared_ptr<DoorStateController> doorStateController,
-			 boost::shared_ptr<FingerprintController> fingerprintController)
+			 boost::shared_ptr<FingerprintController> fingerprintController,
+			 boost::shared_ptr<AuthorityAdapter> authorityAdapter,
+			 boost::shared_ptr<FingerprintAuthnAdapter> fingerprintAuthnAdapter)
     : ui(ui),
       doorStateController(doorStateController), 
-      fingerprintController(fingerprintController)
+      fingerprintController(fingerprintController),
+      authorityAdapter(authorityAdapter),
+      fingerprintAuthnAdapter(fingerprintAuthnAdapter)
   {
+
+    /* Callbacks */
+
     doorStateController
       ->sigDoorStateChange
       .connect(boost::bind(&StdGateway::sigDoorStateChange, this, _1));
@@ -104,6 +125,20 @@ namespace roomsec {
       ->fingerprintScanned
       .connect([&] (boost::shared_ptr<Fingerprint> fingerprint) {
 	  LOG4CXX_DEBUG(logger, "Fingerprint Scanned");
+	  ui->message(UiMessage::Type::info, "Fingerprint Scanned");
+
+	  ui->message(UiMessage::Type::info, "Authenticating");
+	  iface::Credential credential;
+	  authnAdapter->authenticate(credential, fingerprint->serialize());
+
+	  if (credential.token == "" &&
+	      credential.userid == "") {
+	    ui->message(UiMessage::Type::error, "Unrecognized Fingerprint");
+	  }
+	  else {
+	    ui->message(UiMessage::Type::warning, "User: "+ credential.userid);
+	  }
+
 	});
   }
 
