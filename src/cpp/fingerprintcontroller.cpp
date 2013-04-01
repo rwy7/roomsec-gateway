@@ -15,10 +15,13 @@ namespace roomsec {
   FingerprintController::FingerprintController(boost::shared_ptr<FingerprintScanner> const& scanner)
     : stop(false), scanner(scanner)
   {
-    
+    // Do Nothing
   }
 
-  FingerprintController::~FingerprintController() {}
+  FingerprintController::~FingerprintController()
+  {
+    // Do Nothing
+  }
  
 
   void FingerprintController::run()
