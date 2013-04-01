@@ -102,7 +102,9 @@ namespace roomsec {
     LOG4CXX_DEBUG(logger, "Starting Ui Actor");
     boost::thread uiThread = ui->start();
 
-    ui->message(UiMessage::Type::warning, "Initializing");
+    ui->message(UiMessage::Type::warning, "Initializing1");
+    ui->message(UiMessage::Type::warning, "Initializing2");
+    ui->message(UiMessage::Type::warning, "Initializing3");
 
     LOG4CXX_DEBUG(logger, "Starting DoorStateController Actor");
     boost::thread doorStateControllerThread = doorStateController->start();
