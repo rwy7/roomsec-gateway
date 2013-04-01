@@ -17,6 +17,8 @@ namespace roomsec {
   {
     
   }
+
+  FingerprintController::~FingerprintController() {}
  
 
   void FingerprintController::run()
@@ -24,7 +26,8 @@ namespace roomsec {
     LOG4CXX_DEBUG(logger, "Fingerprint Controller running");
     while(!this->stop) {
       boost::shared_ptr<Fingerprint> fingerprint(scanner->scanFingerprint());
-      // this->gateway->notify(new FingerprintScanEvent(fingerprint));
+      LOG4CXX_DEBUG(logger, "Fingerprint Scanned");
+      fingerprintScanned(fingerprint);
       boost::this_thread::interruption_point();
     }
     return;

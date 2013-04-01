@@ -29,8 +29,8 @@
 #include "display.h"
 #include "lcddisplay.h"
 #include "buzzer.h"
-//#include "ui.h"
 #include "doorstatesensor.h"
+#include "fingerprintscanner.h"
 #include "main.h"
 
 
@@ -229,9 +229,24 @@ buildStdGateway(po::variables_map& vm) {
   boost::shared_ptr<roomsec::DoorStateSensor>
     doorStateSensor(new roomsec::DoorStateSensor(18));
   
-  builder
-    .setDoorStateSensor(doorStateSensor);
+  /* Fingerprint Scanner */
 
+  LOG4CXX_DEBUG(logger, "Initializing Fingerprint Scanner");
+  roomsec::FingerprintScannerFactory fpScannerFact;
+
+  if (fpScannerFact.getDeviceCount() < 1) {
+    LOG4CXX_ERROR(logger, "No fingerprint scanner devices detected");
+  }
+  
+  // Get first device found, no selection yet
+  // This may be implemented as a program option eventually.
+
+  boost::shared_ptr<roomsec::FingerprintScanner> fingerprintScanner =
+    fpScannerFact.getFingerprintScanner(1);
+
+  builder
+    .setDoorStateSensor(doorStateSensor)
+    .setFingerprintScanner(fingerprintScanner);
 
   /* Build */
 
@@ -271,3 +286,4 @@ buildReplGateway(po::variables_map& vm) {
 
   return gateway;
 }
+ 
