@@ -54,11 +54,18 @@ namespace roomsec {
     virtual ~Ui() {};
     virtual void run();
 
+    /* Messaging Functions */
+
     int message(UiMessage const& that);
     int message(UiMessage::Type t, std::string const& str);
     int message(boost::shared_ptr<const UiMessage> message);
     int message(UiMessage::Type t);
     int message(std::string const& str);
+
+
+    /* Passive State Functions */
+
+    int alarmOn(UiMessage const&);
 
   private:
     static log4cxx::LoggerPtr logger;
@@ -66,6 +73,8 @@ namespace roomsec {
     boost::shared_ptr<Display> display;
     boost::shared_ptr<Buzzer> buzzer;
     Queue<boost::shared_ptr<const UiMessage>> messageQueue;
+    bool stop;
+
   };
 }
 
