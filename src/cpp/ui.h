@@ -24,11 +24,11 @@ namespace roomsec {
   public:
     /**
      * Represents the type of message.  Different message types
-     * translate to different Ui events (IE sounds, animations), when a
-     * message is output with a Ui object.
+     * translate to different Ui events (IE sounds, colors), when a
+     * message is output to the UI system with a UiMessage object.
      */
     enum class Type : unsigned char {
-      alert = 0, warning, request, error
+      info = 0, success, warning, error, prompt
     };
 
     /**
