@@ -37,7 +37,7 @@ namespace roomsec {
 	oldState = nextState;
       }
       LOG4CXX_TRACE(logger, "Looping");
-      boost::this_thread::sleep_for(boost::chrono::milliseconds(50));
+      boost::this_thread::sleep_for(boost::chrono::milliseconds(5));
     }
 
     LOG4CXX_DEBUG(logger, "DoorStateController stopping");

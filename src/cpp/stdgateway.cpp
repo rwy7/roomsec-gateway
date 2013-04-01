@@ -108,7 +108,7 @@ namespace roomsec {
     boost::thread doorStateControllerThread = doorStateController->start();
     
     LOG4CXX_DEBUG(logger, "Sleeping");
-    boost::this_thread::sleep_for(boost::chrono::milliseconds(10000));
+    boost::this_thread::sleep_for(boost::chrono::milliseconds(100000));
 
     LOG4CXX_DEBUG(logger, "Waiting for threads to exit");
     uiThread.join();
