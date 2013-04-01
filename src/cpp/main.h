@@ -60,10 +60,10 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/program_options.hpp>
 
-#define AUTHZ_ADDR "192.168.0.194"
+#define AUTHZ_ADDR "192.168.0.172"
 #define AUTHZ_PORT 9090
 
-#define AUTHN_ADDR "172.17.144.152"
+#define AUTHN_ADDR "192.168.0.172"
 #define AUTHN_PORT 8080
 
 namespace po = ::boost::program_options;

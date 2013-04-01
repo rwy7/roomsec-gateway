@@ -40,7 +40,9 @@ namespace roomsec {
 
     StdGateway(boost::shared_ptr<Ui> ui,
 	       boost::shared_ptr<DoorStateController> doorStateController,
-	       boost::shared_ptr<FingerprintController> fingerprintController);
+	       boost::shared_ptr<FingerprintController> fingerprintController,
+	       boost::shared_ptr<AuthorityAdapter> authorityAdapter,
+	       boost::shared_ptr<FingerprintAuthnAdapter> fingerprintAuthnAdapter);
 
   private:
 
@@ -53,6 +55,8 @@ namespace roomsec {
     boost::shared_ptr<Ui> ui;
     boost::shared_ptr<DoorStateController> doorStateController;
     boost::shared_ptr<FingerprintController> fingerprintController;
+    boost::shared_ptr<AuthorityAdapter> authorityAdapter;
+    boost::shared_ptr<FingerprintAuthnAdapter> fingerprintAuthnAdapter;
 
   };
 }
