@@ -3,6 +3,7 @@
 #ifndef _ROOMSEC_GATEWAY_H_
 #define _ROOMSEC_GATEWAY_H_
 
+#include <vector>
 #include <boost/shared_ptr.hpp>
 #include "actor.h"
 
@@ -14,6 +15,7 @@ namespace roomsec {
   class FingerprintScanner;
   class Display;
   class Buzzer;
+  class BlockSensor;
 
   /**
    * The central logic of the gateway system.  The gateway class
@@ -102,11 +104,19 @@ namespace roomsec {
 	return *static_cast<BuilderT*>(this);
       }
       
-      BuilderT&
-      setBuzzer(boost::shared_ptr<Buzzer> buzzer) {
-	this->buzzer = buzzer;
-	return *static_cast<BuilderT*>(this);
+	BuilderT&
+	setBuzzer(boost::shared_ptr<Buzzer> buzzer) {
+		this->buzzer = buzzer;
+		return *static_cast<BuilderT*>(this);
       }
+
+	BuilderT&
+	setBlockSensors(std::vector<BlockSensor*> sensors){
+		this->blockSensors.clear();
+		for(unsigned int i = 0; i < sensors.size(); i++)
+			this->blockSensors.push_back(sensors[i]);
+		return *static_cast<BuilderT*>(this);
+	}
 
     protected:
 
@@ -116,6 +126,7 @@ namespace roomsec {
       boost::shared_ptr<DoorStateSensor> doorStateSensor;
       boost::shared_ptr<Display> display;
       boost::shared_ptr<Buzzer> buzzer;
+      std::vector<BlockSensor*> blockSensors;
     };
 
     template<typename B, typename G> friend class Gateway::Builder;

@@ -29,7 +29,7 @@ public:
 	/**
 	 * @brief 
 	 */
-	TailgateAnalyzer(bool debug = false);
+	TailgateAnalyzer(std::vector<BlockSensor*> sensors, bool debug = false);
 
 	/**
 	 * @brief Specifies the block sensor instances to be monitored
@@ -70,19 +70,11 @@ public:
 	bool finishSession();
 
 	/**
-	 * @brief Analyzes the results from the last monitoring session to detect tailgating
-	 *
-	 *  
-	 * @return bool whether or not tailgating was detected by the analysis
-	 */
-	bool analyze();
-
-	/**
 	 * @brief A method to retrive a PassageTriple representing the passages observed in the last monitoring session
 	 *
 	 * @return PassageTriple a triple of values denoting the inward, outward, and directionless passages observed
 	 */
-	PassageTriple getPassageResults();
+	PassageTriple getResults();
 
 };
 }

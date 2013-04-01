@@ -64,6 +64,7 @@ libroomsecgateway_la_SOURCES = \
 	src/cpp/tailgateanalyzer.cpp \
 	src/cpp/blockanalyzer.cpp \
 	src/cpp/blocksensor.cpp \
+	src/cpp/mcp3008blocksensor.cpp \
 	src/cpp/doorstatesensor.cpp \
 	src/cpp/ioexpander.cpp \
 	src/cpp/lcddisplay.cpp \
