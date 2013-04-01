@@ -16,10 +16,10 @@ namespace roomsec {
    * Loggers
    */
   log4cxx::LoggerPtr
-  StdGateway::logger(log4cxx::Logger::getLogger("roomsec.authority"));
+  StdGateway::logger(log4cxx::Logger::getLogger("roomsec.gateway"));
 
   log4cxx::LoggerPtr
-  StdGateway::netLogger(log4cxx::Logger::getLogger("roomsec.authority"));
+  StdGateway::netLogger(log4cxx::Logger::getLogger("roomsec.net"));
 
   /*
    * Builder
@@ -49,12 +49,11 @@ namespace roomsec {
     /* TODO: */
 
     // assert(this->fingerpintScanner != NULL);
-    // boost::shared_ptr<FingerprintController> fingerprintController(this->fingerprintScanner);
-    // gateway->setFingerprintController(fingerprintController);
 
-    // missing asserts
-    // boost::shared_ptr<Ui> ui(this->display, this->buzzer);
-    // gateway->setUi(ui);
+    // boost::shared_ptr<FingerprintController> 
+    //    fingerprintController(this->fingerprintScanner);
+
+    // gateway->setFingerprintController(fingerprintController);
 
     boost::shared_ptr<StdGateway>
       gateway(new StdGateway(ui, doorStateController));
@@ -71,8 +70,10 @@ namespace roomsec {
     : ui(ui), doorStateController(doorStateController)
   {
 
-    doorStateController
-      ->sigDoorStateChange.connect([&] (DoorStateSensor::State state) {
+    doorStateController->sigDoorStateChange.connect([&] (DoorStateSensor::State state) {
+
+	LOG4CXX_DEBUG(logger, "sigDoorStateChange called");
+
 	if (state == DoorStateSensor::State::open) {
 	  ui->message(UiMessage::Type::error, "Door Opened");
 	}
@@ -97,9 +98,13 @@ namespace roomsec {
   StdGateway::begin() {
     LOG4CXX_INFO(netLogger, "Gateway Up");
 
+    LOG4CXX_DEBUG(logger, "Starting Ui Actor");
     boost::thread uiThread = ui->start();
+
+    LOG4CXX_DEBUG(logger, "Starting DoorStateController Actor");
     boost::thread doorStateControllerThread = doorStateController->start();
     
+    LOG4CXX_DEBUG(logger, "Waiting for threads to exit");
     uiThread.join();
     doorStateControllerThread.join();
 
