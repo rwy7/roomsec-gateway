@@ -47,7 +47,9 @@ namespace roomsec {
 
     /* Fingerprint Scanner Monitor and Controller */
 
-    /* TODO: */
+    assert(this->fingerprintScanner != NULL);
+    boost::shared_ptr<FingerprintController>
+      fingerprintController(new FingerprintController(this->fingerprintScanner));
 
     /* Tailgate Detection System */
 
@@ -61,9 +63,11 @@ namespace roomsec {
     // gateway->setFingerprintController(fingerprintController);
 
     boost::shared_ptr<StdGateway>
-      gateway(new StdGateway(ui, doorStateController));
+      gateway(new StdGateway(ui, doorStateController, fingerprintController));
 
     return gateway;
+    
+
   }
 
   /*
@@ -86,8 +90,11 @@ namespace roomsec {
   }
 
   StdGateway::StdGateway(boost::shared_ptr<Ui> ui,
-			 boost::shared_ptr<DoorStateController> doorStateController)
-    : ui(ui), doorStateController(doorStateController)
+			 boost::shared_ptr<DoorStateController> doorStateController,
+			 boost::shared_ptr<FingerprintController> fingerprintController)
+    : ui(ui),
+      doorStateController(doorStateController), 
+      fingerprintController(fingerprintController)
   {
     doorStateController
       ->sigDoorStateChange
@@ -112,20 +119,23 @@ namespace roomsec {
     //boost::thread uiThread = ui->start();
     boost::thread uiThread(boost::bind(&Ui::run, ui));
 
-    ui->message(UiMessage::Type::warning, "Initializing1");
-    ui->message(UiMessage::Type::warning, "Initializing2");
-    ui->message(UiMessage::Type::warning, "Initializing3");
+    ui->message(UiMessage::Type::warning, "Initializing");
 
     LOG4CXX_DEBUG(logger, "Starting DoorStateController Actor");
     boost::thread doorStateControllerThread(boost::bind(&DoorStateController::run,
 							doorStateController));
-    
+
+    LOG4CXX_DEBUG(logger, "Starting FingerprintController Actor");
+    boost::thread fingerprintControllerThread(boost::bind(&FingerprintController::run,
+							  fingerprintController));
+
     LOG4CXX_DEBUG(logger, "Sleeping");
     boost::this_thread::sleep_for(boost::chrono::milliseconds(100000));
 
     LOG4CXX_DEBUG(logger, "Waiting for threads to exit");
     uiThread.join();
     doorStateControllerThread.join();
+    fingerprintControllerThread.join();
 
     LOG4CXX_INFO(netLogger, "Gateway Down");
   }

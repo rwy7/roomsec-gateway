@@ -4,7 +4,10 @@
 #define _ROOMSEC_FINGERPRINTCONTROLLER_H_
 
 #include <boost/shared_ptr.hpp>
+#include <boost/signal.hpp>
 #include <log4cxx/logger.h>
+
+#include "fingerprintscanner.h"
 #include "actor.h"
 
 namespace roomsec {
@@ -19,6 +22,8 @@ namespace roomsec {
     FingerprintController(boost::shared_ptr<FingerprintScanner> const& scanner);
     ~FingerprintController();
     virtual void run();
+
+    boost::signal<void (boost::shared_ptr<Fingerprint> fingerprint)> fingerprintScanned;
 
   private:
     bool stop;

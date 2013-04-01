@@ -11,6 +11,7 @@ namespace roomsec {
 
   class DoorStateController;
   class Ui;
+  class FingerprintController;
 
   /**
    * The standard operations gateway controller.  This controller
@@ -38,7 +39,8 @@ namespace roomsec {
   protected:
 
     StdGateway(boost::shared_ptr<Ui> ui,
-	       boost::shared_ptr<DoorStateController> doorStateController);
+	       boost::shared_ptr<DoorStateController> doorStateController,
+	       boost::shared_ptr<FingerprintController> fingerprintController);
 
   private:
 
@@ -50,6 +52,7 @@ namespace roomsec {
 
     boost::shared_ptr<Ui> ui;
     boost::shared_ptr<DoorStateController> doorStateController;
+    boost::shared_ptr<FingerprintController> fingerprintController;
 
   };
 }

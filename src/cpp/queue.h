@@ -57,7 +57,6 @@ namespace roomsec {
       return this->queue.empty();
     }
   };
-
 }
 
 #endif /* _ROOMSEC_QUEUE_H_ */
