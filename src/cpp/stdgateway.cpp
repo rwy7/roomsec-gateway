@@ -1,6 +1,11 @@
 #include "config.h"
+
 #include <boost/shared_ptr.hpp>
-#include <boost/signals2.hpp>
+#include <boost/thread.hpp>
+#include <boost/chrono.hpp>
+#include <boost/signal.hpp>
+#include <boost/bind.hpp>
+
 #include <log4cxx/logger.h>
 
 #include "actor.h"
@@ -42,7 +47,9 @@ namespace roomsec {
 
     /* Fingerprint Scanner Monitor and Controller */
 
-    /* TODO: */
+    assert(this->fingerprintScanner != NULL);
+    boost::shared_ptr<FingerprintController>
+      fingerprintController(new FingerprintController(this->fingerprintScanner));
 
     /* Tailgate Detection System */
 
@@ -56,32 +63,48 @@ namespace roomsec {
     // gateway->setFingerprintController(fingerprintController);
 
     boost::shared_ptr<StdGateway>
-      gateway(new StdGateway(ui, doorStateController));
+      gateway(new StdGateway(ui, doorStateController, fingerprintController));
 
     return gateway;
+    
+
   }
 
   /*
    * Ctor / Dtor
    */
 
+  void
+  StdGateway::sigDoorStateChange(DoorStateSensor::State state) {
+
+    LOG4CXX_DEBUG(logger, "sigDoorStateChange called");
+
+    if (state == DoorStateSensor::State::open) {
+      ui->message(UiMessage::Type::error, "Door Opened");
+    }
+
+    else if (state == DoorStateSensor::State::closed) {
+      ui->message(UiMessage::Type::error, "Door Closed");
+    }
+    return;
+  }
+
   StdGateway::StdGateway(boost::shared_ptr<Ui> ui,
-			 boost::shared_ptr<DoorStateController> doorStateController)
-    : ui(ui), doorStateController(doorStateController)
+			 boost::shared_ptr<DoorStateController> doorStateController,
+			 boost::shared_ptr<FingerprintController> fingerprintController)
+    : ui(ui),
+      doorStateController(doorStateController), 
+      fingerprintController(fingerprintController)
   {
+    doorStateController
+      ->sigDoorStateChange
+      .connect(boost::bind(&StdGateway::sigDoorStateChange, this, _1));
 
-    doorStateController->sigDoorStateChange.connect([&] (DoorStateSensor::State state) {
-
-	LOG4CXX_DEBUG(logger, "sigDoorStateChange called");
-
-	if (state == DoorStateSensor::State::open) {
-	  ui->message(UiMessage::Type::error, "Door Opened");
-	}
-
-	else if (state == DoorStateSensor::State::closed) {
-	  ui->message(UiMessage::Type::error, "Door Closed");
-	}
-      });
+    fingerprintController
+      ->fingerprintScanned
+      .connect([&] (boost::shared_ptr<Fingerprint> fingerprint) {
+	  LOG4CXX_DEBUG(logger, "Fingerprint Scanned");
+	});
   }
 
   /*
@@ -99,14 +122,26 @@ namespace roomsec {
     LOG4CXX_INFO(netLogger, "Gateway Up");
 
     LOG4CXX_DEBUG(logger, "Starting Ui Actor");
-    boost::thread uiThread = ui->start();
+    //boost::thread uiThread = ui->start();
+    boost::thread uiThread(boost::bind(&Ui::run, ui));
+
+    ui->message(UiMessage::Type::warning, "Initializing");
 
     LOG4CXX_DEBUG(logger, "Starting DoorStateController Actor");
-    boost::thread doorStateControllerThread = doorStateController->start();
-    
+    boost::thread doorStateControllerThread(boost::bind(&DoorStateController::run,
+							doorStateController));
+
+    LOG4CXX_DEBUG(logger, "Starting FingerprintController Actor");
+    boost::thread fingerprintControllerThread(boost::bind(&FingerprintController::run,
+							  fingerprintController));
+
+    LOG4CXX_DEBUG(logger, "Sleeping");
+    boost::this_thread::sleep_for(boost::chrono::milliseconds(100000));
+
     LOG4CXX_DEBUG(logger, "Waiting for threads to exit");
     uiThread.join();
     doorStateControllerThread.join();
+    fingerprintControllerThread.join();
 
     LOG4CXX_INFO(netLogger, "Gateway Down");
   }

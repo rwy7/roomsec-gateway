@@ -4,12 +4,14 @@
 
 #include <boost/shared_ptr.hpp>
 #include <log4cxx/logger.h>
+#include "doorstatesensor.h"
 #include "gateway.h"
 
 namespace roomsec {
+
   class DoorStateController;
   class Ui;
-
+  class FingerprintController;
 
   /**
    * The standard operations gateway controller.  This controller
@@ -19,6 +21,7 @@ namespace roomsec {
    * gateway system.
    */
   class StdGateway : public Gateway {
+
   public:
 
     class Builder : public Gateway::Builder<StdGateway::Builder, StdGateway> {
@@ -30,10 +33,14 @@ namespace roomsec {
 
     friend class StdGateway::Builder;
 
+
+    void sigDoorStateChange(DoorStateSensor::State state);
+
   protected:
 
     StdGateway(boost::shared_ptr<Ui> ui,
-	       boost::shared_ptr<DoorStateController> doorStateController);
+	       boost::shared_ptr<DoorStateController> doorStateController,
+	       boost::shared_ptr<FingerprintController> fingerprintController);
 
   private:
 
@@ -45,6 +52,7 @@ namespace roomsec {
 
     boost::shared_ptr<Ui> ui;
     boost::shared_ptr<DoorStateController> doorStateController;
+    boost::shared_ptr<FingerprintController> fingerprintController;
 
   };
 }

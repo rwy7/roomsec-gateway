@@ -25,23 +25,19 @@ namespace roomsec {
     }
 
     T back() const {
-      boost::lock_guard<boost::mutex> guard(this->mutex);
+      boost::unique_lock<boost::mutex> lock(this->mutex);
       return this->queue.back();
     }
 
     void push(T const& data) {
-      /* Atomic Section */
-      {
-	boost::lock_guard<boost::mutex> guard(this->mutex);
-	this->queue.push(data);
-      }
-
+      boost::unique_lock<boost::mutex> lock(this->mutex);
+      this->queue.push(data);
       this->nonempty.notify_one();
       return;
     }
 
     void pop() {
-      boost::lock_guard<boost::mutex> guard(this->mutex);
+      boost::unique_lock<boost::mutex> lock(this->mutex);
       this->queue.pop();
       return;
     }
@@ -57,11 +53,10 @@ namespace roomsec {
     }
 
     bool empty() const {
-      boost::lock_guard<boost::mutex> guard(this->mutex);
+      boost::unique_lock<boost::mutex> lock(this->mutex);
       return this->queue.empty();
     }
   };
-
 }
 
 #endif /* _ROOMSEC_QUEUE_H_ */

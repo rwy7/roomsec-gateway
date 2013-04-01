@@ -35,37 +35,48 @@ namespace roomsec {
      * Construct a message object, which may then be output to the
      * screen.
      */
-    UiMessage(Type type, boost::shared_ptr<const std::string> message);
+    UiMessage(Type type, std::string  message);
     UiMessage(UiMessage const& that);
+
     Type getType() const;
-    boost::shared_ptr<const std::string> getMessage() const;
+    std::string getMessage() const;
 
   private:
     static log4cxx::LoggerPtr logger;
 
     Type type;
-    boost::shared_ptr<const std::string> message;
+    std::string message;
   };
 
 
   class Ui : public Actor {
   public:
+
     Ui(boost::shared_ptr<Display> display, boost::shared_ptr<Buzzer> buzzer);
-    virtual ~Ui() {};
     virtual void run();
 
-    int message(UiMessage const& that);
+    /* Messaging Functions */
+
+    int message(UiMessage const& message);
     int message(UiMessage::Type t, std::string const& str);
-    int message(boost::shared_ptr<const UiMessage> message);
-    int message(UiMessage::Type t);
-    int message(std::string const& str);
+
+    /* Passive State Functions */
+
+    int startAlarm(std::string const& message);
+    int stopAlarm();
+    void enterDefaultState();
 
   private:
     static log4cxx::LoggerPtr logger;
 
+    boost::mutex mutex;
+    std::string alarmMessage;
+    bool alarmOn;
+
     boost::shared_ptr<Display> display;
     boost::shared_ptr<Buzzer> buzzer;
-    Queue<boost::shared_ptr<const UiMessage>> messageQueue;
+    Queue<UiMessage> messageQueue;
+    bool stop;
   };
 }
 
