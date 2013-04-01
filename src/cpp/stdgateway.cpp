@@ -77,19 +77,30 @@ namespace roomsec {
   void
   StdGateway::sigDoorStateChange(DoorStateSensor::State state) {
 
+
     LOG4CXX_DEBUG(logger, "sigDoorStateChange called");
 
     if (state == DoorStateSensor::State::open) {
       ui->message(UiMessage::Type::warning, "Door Opened");
       LOG4CXX_INFO(netLogger, "roomsec." << gatewayId << ".door.open");
+
+      doorAlarmThread = doorAlarmCountDown.start();
     }
 
     else if (state == DoorStateSensor::State::closed) {
       ui->message(UiMessage::Type::warning, "Door Closed");
-      LOG4CXX_INFO(netLogger, "roomsec." << gatewayId << ".door.open");
+      LOG4CXX_INFO(netLogger, "roomsec." << gatewayId << ".door.close");
+      
+      doorAlarmThread.interrupt();
+      ui->stopAlarm();
     }
     return;
   }
+
+  void StdGateway::signalDoorAlarm() {
+    ui->startAlarm("Close Door");
+  }
+
 
   void
   StdGateway::fingerprintScanned(boost::shared_ptr<Fingerprint> fingerprint) {
@@ -121,10 +132,12 @@ namespace roomsec {
       doorStateController(doorStateController), 
       fingerprintController(fingerprintController),
       authorityAdapter(authorityAdapter),
-      fingerprintAuthnAdapter(fingerprintAuthnAdapter)
+      fingerprintAuthnAdapter(fingerprintAuthnAdapter),
+      doorAlarmCountDown(boost::chrono::milliseconds(100000))
   {
 
     /* Callbacks */
+    doorAlarmCountDown.signal.connect(boost::bind(&StdGateway::signalDoorAlarm, this));
 
     doorStateController
       ->sigDoorStateChange
