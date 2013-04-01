@@ -46,7 +46,7 @@ namespace roomsec {
   log4cxx::LoggerPtr Ui::logger(log4cxx::Logger::getLogger("roomsec.ui"));
 
   Ui::Ui(b::shared_ptr<Display> display, b::shared_ptr<Buzzer> buzzer) :
-    display(display), buzzer(buzzer), stop(false)
+     alarmMessage(""), alarmOn(false), display(display), buzzer(buzzer), stop(false)
   {
     display->setBacklightColor(Display::green);
   }
@@ -100,12 +100,13 @@ namespace roomsec {
 	buzzer->off();
       }
 
-      /* Return to default, wait 0.5 seconds before processing next
-       * message.
-       */
-      display->clear();
-      display->home();
-      display->setBacklightColor(Display::blue);
+      this->enterDefaultState();
+
+      /*  Default the message to blue.  Check after clearing the screen if the
+       *  alarm is on.  Since checking the alarm requires mutex access, this is
+       *  necessary.*/
+
+
       boost::this_thread::sleep_for(boost::chrono::milliseconds(500));
     }
 
@@ -116,16 +117,51 @@ namespace roomsec {
   /** Messaging Functions */
 
   int
-  Ui::message(UiMessage const& msg) {
-    LOG4CXX_DEBUG(logger, "Queueing message: " << msg.getMessage());
-    int retVal = 0;
-    messageQueue.push(msg);
-    return retVal;
+    Ui::message(UiMessage const& msg) {
+      LOG4CXX_DEBUG(logger, "Queueing message: " << msg.getMessage());
+      int retVal = 0;
+      messageQueue.push(msg);
+      return retVal;
+    }
+
+  int
+    Ui::startAlarm(std::string const& message) {
+      int retVal = 0;
+      boost::unique_lock<boost::mutex> lock(this->mutex);
+      this->alarmOn = true;
+      this->alarmMessage = message;
+      LOG4CXX_DEBUG(logger, "Starting alarm: " << this->alarmMessage);
+      return retVal;
+    }
+
+  int
+    Ui::stopAlarm() {
+      boost::unique_lock<boost::mutex> lock(this->mutex);
+      this->alarmOn = false;
+      this->alarmMessage = "";
+      return 0;
+    }
+
+  void Ui::enterDefaultState() {
+    boost::unique_lock<boost::mutex> lock(this->mutex);
+    if (alarmOn) {
+      buzzer->on();
+      display->clear();
+      display->home();
+      display->setBacklightColor(Display::red);
+      display->putStr(this->alarmMessage);
+    }
+    else {
+      display->clear();
+      display->home();
+      display->setBacklightColor(Display::blue);
+    }
+    return;
   }
 
   int
-  Ui::message(UiMessage::Type type, std::string const& str) {
-    UiMessage msg(type, str);
-    return message(msg);
-  }
+    Ui::message(UiMessage::Type type, std::string const& str) {
+      UiMessage msg(type, str);
+      return message(msg);
+    }
 }

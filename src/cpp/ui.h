@@ -62,10 +62,16 @@ namespace roomsec {
 
     /* Passive State Functions */
 
-    // int alarmOn(UiMessage const&);
+    int startAlarm(std::string const& message);
+    int stopAlarm();
+    void enterDefaultState();
 
   private:
     static log4cxx::LoggerPtr logger;
+
+    boost::mutex mutex;
+    std::string alarmMessage;
+    bool alarmOn;
 
     boost::shared_ptr<Display> display;
     boost::shared_ptr<Buzzer> buzzer;
