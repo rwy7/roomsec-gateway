@@ -136,7 +136,7 @@ int initHardware(po::variables_map& vm) {
   /* Initialize libfprint for fingerprint scanning */
 
   retVal = fp_init();
-  if (retVal < 0) {
+  if (retVal != 0) {
     LOG4CXX_ERROR(logger, "Failed to initialize libfprint");
   }
   else {
@@ -146,14 +146,17 @@ int initHardware(po::variables_map& vm) {
   /* Initialize GPIO, SPI, and I2C Subsystems */
 
 #ifdef ENABLE_GATEWAY
-  if (wiringPiSetupGpio() == -1) {
+  LOG4CXX_DEBUG(logger, "Initializing WiringPi GPIO");
+  if (wiringPiSetupGpio() !== 0) {
     LOG4CXX_ERROR(logger, "WiringPi initialization failed");
     retVal = -1;
   }
-
-  if (wiringPiSPISetup(0, 1000000) == -1){
-    LOG4CXX_ERROR(logger, "WiringPi SPI initialization failed");
-	retVal = -1;
+  else {
+    LOG4CXX_DEBUG(logger, "Initializing WiringPi SPI");
+    if (wiringPiSPISetup(0, 500000) != 0){
+      LOG4CXX_ERROR(logger, "WiringPi SPI initialization failed");
+      retVal = -1;
+    }
   }
 #endif /* ENABLE_GATEWAY */
 
