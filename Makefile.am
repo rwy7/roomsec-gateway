@@ -64,6 +64,7 @@ libroomsecgateway_la_SOURCES = \
 	src/cpp/tailgateanalyzer.cpp \
 	src/cpp/blockanalyzer.cpp \
 	src/cpp/blocksensor.cpp \
+	src/cpp/mcp3008blocksensor.cpp \
 	src/cpp/doorstatesensor.cpp \
 	src/cpp/ioexpander.cpp \
 	src/cpp/lcddisplay.cpp \
@@ -72,7 +73,8 @@ libroomsecgateway_la_SOURCES = \
 	src/cpp/ui.cpp \
 	src/cpp/actor.cpp \
 	src/cpp/doorstatesensor.cpp \
-	src/cpp/fingerprintscanner.cpp
+	src/cpp/fingerprintscanner.cpp \
+	src/cpp/alarm.cpp
 
 libroomsecgateway_la_CPPFLAGS = \
 	$(THRIFT_CFLAGS) $(LOG4CXX_CFLAGS) \

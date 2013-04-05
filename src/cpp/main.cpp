@@ -31,8 +31,9 @@
 #include "buzzer.h"
 #include "doorstatesensor.h"
 #include "fingerprintscanner.h"
+#include "blocksensor.h"
+#include "mcp3008blocksensor.h"
 #include "main.h"
-
 
 
 log4cxx::LoggerPtr logger(log4cxx::Logger::getLogger("roomsec.main"));
@@ -51,34 +52,6 @@ int main (int argc, char *argv[]) {
 #endif /* ENABLE_GATEWAY */
 
     if(initHardware(vm)) {
-
-      // Test the net logger
-      log4cxx::LoggerPtr netLogger(log4cxx::Logger::getLogger("roomsec.net"));
-      LOG4CXX_INFO(netLogger, "Hello, world!");
-
-
-      /* Set up the authority and authentication adapters. Main is
-	 configuring to use networked processes communicating over a
-	 thrift connection. */
-
-      /*
-      LOG4CXX_DEBUG(logger, "Setting backlight pins");
-      disp->setBacklightPins(expander->GPIOB, 0x01, 0x02, 0x04);
-      LOG4CXX_DEBUG(logger, "Setting backlight color");
-      disp->setBacklightColor(disp->blue);
-
-      LOG4CXX_DEBUG(logger, "Printing to Display");
-      disp->putStr("    RoomSec");
-      disp->setDisplay(1, 0);
-      disp->putStr("initializing...");
-      */
-
-      /*
-	LOG4CXX_DEBUG(logger, "Writing test UI message");
-	ui->message(roomsec::UiMessage::Type::error, "Hello, world!");
-	boost::thread thread = ui->start();
-	thread.join();
-      */
 
       LOG4CXX_DEBUG(logger, "Building Gateway");
       buildStdGateway(vm)->run();
@@ -179,6 +152,10 @@ buildStdGateway(po::variables_map& vm) {
 
   /* Authentication and Authorization Systems */
 
+  /* Set up the authority and authentication adapters. Main is
+     configuring to use networked processes communicating over a
+     thrift connection. */
+
   /* Authority Authorization information */
   int authzPort = AUTHZ_PORT;
   std::string authzAddr = AUTHZ_ADDR;
@@ -186,6 +163,7 @@ buildStdGateway(po::variables_map& vm) {
   /*  Fingerprint Authentication information */
   int authnPort = AUTHN_PORT;
   std::string authnAddr = AUTHN_ADDR;
+
 
   LOG4CXX_DEBUG(logger, "Initializing AuthorityAdapter");
   boost::shared_ptr<roomsec::ThriftAuthorityAdapter>
@@ -224,7 +202,7 @@ buildStdGateway(po::variables_map& vm) {
     .setBuzzer(buzzer);
 
 
-  /* Scanners */
+  /* Door State Scanner */
 
   LOG4CXX_DEBUG(logger, "Initializing Door State Sensor");
   boost::shared_ptr<roomsec::DoorStateSensor>
@@ -244,6 +222,16 @@ buildStdGateway(po::variables_map& vm) {
 
   boost::shared_ptr<roomsec::FingerprintScanner> fingerprintScanner =
     fpScannerFact.getFingerprintScanner(1);
+
+  // lock Sensor
+
+  /*
+    LOG4CXX_DEBUG(logger, "Initializing Block Sensors");
+    std::vector<roomsec::BlockSensor*> blockSensors;
+    blockSensors[0] = new roomsec::MCP3008BlockSensor(0);
+    blockSensors[1] = new roomsec::MCP3008BlockSensor(1);
+    .setBlockSensors(blockSensors);
+  */
 
   builder
     .setDoorStateSensor(doorStateSensor)
