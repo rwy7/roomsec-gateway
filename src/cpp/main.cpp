@@ -164,6 +164,12 @@ buildStdGateway(po::variables_map& vm) {
   int authnPort = AUTHN_PORT;
   std::string authnAddr = AUTHN_ADDR;
 
+  if (vm.count("fpauthn")) {
+    authnAddr = vm["fpauthn"].as<std::string>();
+  }
+  if (vm.count("fpauthn-port")) {
+    authnPort = vm["fpauthn-port"].as<int>();
+  }
 
   LOG4CXX_DEBUG(logger, "Initializing AuthorityAdapter");
   boost::shared_ptr<roomsec::ThriftAuthorityAdapter>
