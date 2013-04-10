@@ -70,7 +70,8 @@ int storeOptions(int argc, char* argv[], po::variables_map & vm) {
   desc.add_options()
     ("logconf", po::value<std::string>(), "log4cxx configuration file")
     ("help", "produce help message")
-    ("fpauthn",  po::value<std::string>(), "Set the fingerprint authority server address");
+    ("fpauthn",  po::value<std::string>(), "Set the fingerprint authority server address")
+    ("fpauthn-port", po::value<int>(), "Set the port of the authority server");
 
   po::store(po::parse_command_line(argc, argv, desc), vm);
   po::notify(vm);
@@ -163,6 +164,12 @@ buildStdGateway(po::variables_map& vm) {
   int authnPort = AUTHN_PORT;
   std::string authnAddr = AUTHN_ADDR;
 
+  if (vm.count("fpauthn")) {
+    authnAddr = vm["fpauthn"].as<std::string>();
+  }
+  if (vm.count("fpauthn-port")) {
+    authnPort = vm["fpauthn-port"].as<int>();
+  }
 
   LOG4CXX_DEBUG(logger, "Initializing AuthorityAdapter");
   boost::shared_ptr<roomsec::ThriftAuthorityAdapter>
@@ -255,7 +262,11 @@ buildReplGateway(po::variables_map& vm) {
   std::string authnAddr = AUTHN_ADDR;
   
   if (vm.count("fpauthn")) {
-    // Do something?
+    authnAddr = vm["fpauthn"].as<std::string>();
+  }
+
+  if (vm.count("fpauthn-port")) {
+    authnPort = vm["fpauthn-port"].as<int>();
   }
 
   boost::shared_ptr<roomsec::ThriftAuthorityAdapter>
