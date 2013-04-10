@@ -1,15 +1,12 @@
 #include "config.h"
 
+#include <thread>
+#include <chrono>
 #include <boost/shared_ptr.hpp>
-#include <boost/thread.hpp>
-#include <boost/chrono.hpp>
 #include <boost/signal.hpp>
 #include <boost/bind.hpp>
-
 #include <log4cxx/logger.h>
-
 #include "gen-cpp/authorize_types.h"
-
 #include "actor.h"
 #include "ui.h"
 #include "gateway.h"
@@ -84,7 +81,6 @@ namespace roomsec {
       ui->message(UiMessage::Type::warning, "Door Opened");
       LOG4CXX_INFO(netLogger, "roomsec." << gatewayId << ".door.open");
       doorAlarmCountDown.cancelCountDown();
-      doorAlarmThread.interrupt();
       doorAlarmThread = doorAlarmCountDown.start();
     }
 
@@ -93,7 +89,6 @@ namespace roomsec {
       LOG4CXX_INFO(netLogger, "roomsec." << gatewayId << ".door.close");
 
       doorAlarmCountDown.cancelCountDown();
-      doorAlarmThread.interrupt();
       ui->stopAlarm();
     }
     return;
@@ -159,7 +154,6 @@ namespace roomsec {
   void
   StdGateway::init() {
     LOG4CXX_TRACE(logger, "Initializing StdGateway");
-    
   }
 
   void
@@ -167,21 +161,17 @@ namespace roomsec {
     LOG4CXX_INFO(netLogger, "roomsec." << gatewayId << ".online");
 
     LOG4CXX_DEBUG(logger, "Starting Ui Actor");
-    //boost::thread uiThread = ui->start();
-    boost::thread uiThread(boost::bind(&Ui::run, ui));
-
+    std::thread uiThread = ui->start();
     ui->message(UiMessage::Type::warning, "Initializing");
 
     LOG4CXX_DEBUG(logger, "Starting DoorStateController Actor");
-    boost::thread doorStateControllerThread(boost::bind(&DoorStateController::run,
-							doorStateController));
+    std::thread doorStateControllerThread = doorStateController->start();
 
     LOG4CXX_DEBUG(logger, "Starting FingerprintController Actor");
-    boost::thread fingerprintControllerThread(boost::bind(&FingerprintController::run,
-							  fingerprintController));
+    std::thread fingerprintControllerThread = fingerprintController->start();
 
     LOG4CXX_DEBUG(logger, "Sleeping");
-    boost::this_thread::sleep_for(boost::chrono::milliseconds(100000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(100000));
 
     LOG4CXX_DEBUG(logger, "Waiting for threads to exit");
     uiThread.join();

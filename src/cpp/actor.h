@@ -3,7 +3,7 @@
 #ifndef _ROOMSEC_ACTOR_H_
 #define _ROOMSEC_ACTOR_H_
 
-#include <boost/thread.hpp>
+#include <thread>
 
 namespace roomsec {
   class Actor {
@@ -11,7 +11,7 @@ namespace roomsec {
     Actor();
     virtual ~Actor();
     virtual void run() = 0;
-    boost::thread start();
+    std::thread start();
   };
 }
 

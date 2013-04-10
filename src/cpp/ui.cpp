@@ -1,9 +1,8 @@
 #include "config.h"
-
-#include <boost/chrono.hpp>
-#include <boost/thread.hpp>
+#include <thread>
+#include <chrono>
+#include <mutex>
 #include <boost/shared_ptr.hpp>
-
 #include "buzzer.h"
 #include "display.h"
 #include "ui.h"
@@ -41,12 +40,12 @@ namespace roomsec {
    * Ui
    ********************/
 
-  namespace b = ::boost;
-
   log4cxx::LoggerPtr Ui::logger(log4cxx::Logger::getLogger("roomsec.ui"));
 
-  Ui::Ui(b::shared_ptr<Display> display, b::shared_ptr<Buzzer> buzzer) :
-     alarmMessage(""), alarmOn(false), display(display), buzzer(buzzer), stop(false)
+  Ui::Ui(boost::shared_ptr<Display> display,
+	 boost::shared_ptr<Buzzer> buzzer)
+    : alarmMessage(""), alarmOn(false), display(display), 
+      buzzer(buzzer), stop(false)
   {
     display->setBacklightColor(Display::green);
   }
@@ -71,16 +70,16 @@ namespace roomsec {
       case UiMessage::Type::info:
 	display->setBacklightColor(Display::blue);
 	display->putStr(message.getMessage());
-	boost::this_thread::sleep_for(boost::chrono::milliseconds(messageTime));
+	std::this_thread::sleep_for(std::chrono::milliseconds(messageTime));
 	break;
 
       case UiMessage::Type::error:
 	display->setBacklightColor(Display::red);
 	display->putStr(message.getMessage());
 	buzzer->on();
-	boost::this_thread::sleep_for(boost::chrono::milliseconds(500));
+	std::this_thread::sleep_for(std::chrono::milliseconds(500));
 	buzzer->off();
-	boost::this_thread::sleep_for(boost::chrono::milliseconds(messageTime - 500));
+	std::this_thread::sleep_for(std::chrono::milliseconds(messageTime - 500));
 	break;
 
       case UiMessage::Type::prompt:
@@ -88,9 +87,9 @@ namespace roomsec {
 	display->setBacklightColor(Display::green);
 	display->putStr(message.getMessage());
 	buzzer->on();
-	boost::this_thread::sleep_for(boost::chrono::milliseconds(500));
+	std::this_thread::sleep_for(std::chrono::milliseconds(500));
 	buzzer->off();
-	boost::this_thread::sleep_for(boost::chrono::milliseconds(messageTime - 500));
+	std::this_thread::sleep_for(std::chrono::milliseconds(messageTime - 500));
 	break;
 
       case UiMessage::Type::alarm:
@@ -100,7 +99,7 @@ namespace roomsec {
       default:
 	display->putStr("Unrecognized Message Type!");
 	buzzer->on();
-	boost::this_thread::sleep_for(boost::chrono::milliseconds(messageTime));
+	std::this_thread::sleep_for(std::chrono::milliseconds(messageTime));
 	buzzer->off();
       }
 
@@ -110,7 +109,7 @@ namespace roomsec {
        *  alarm is on.  Since checking the alarm requires mutex access, this is
        *  necessary.*/
 
-      boost::this_thread::interruption_point();
+      // std::this_thread::interruption_point();
       // boost::this_thread::sleep_for(boost::chrono::milliseconds(500));
     }
 
@@ -131,7 +130,7 @@ namespace roomsec {
   int
     Ui::startAlarm(std::string const& message) {
       int retVal = 0;
-      boost::unique_lock<boost::mutex> lock(this->mutex);
+      std::unique_lock<std::mutex> lock(this->mutex);
       this->alarmOn = true;
       this->alarmMessage = message;
       LOG4CXX_DEBUG(logger, "Starting alarm: " << this->alarmMessage);
@@ -141,7 +140,7 @@ namespace roomsec {
 
   int
     Ui::stopAlarm() {
-      boost::unique_lock<boost::mutex> lock(this->mutex);
+      std::unique_lock<std::mutex> lock(this->mutex);
       this->alarmOn = false;
       this->alarmMessage = "";
       this->messageQueue.push(UiMessage(UiMessage::Type::alarm, ""));
@@ -149,7 +148,7 @@ namespace roomsec {
     }
 
   void Ui::enterDefaultState() {
-    boost::unique_lock<boost::mutex> lock(this->mutex);
+    std::unique_lock<std::mutex> lock(this->mutex);
     if (alarmOn) {
       buzzer->on();
       display->clear();

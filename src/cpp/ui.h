@@ -3,7 +3,8 @@
 #ifndef _ROOMSEC_UI_H_
 #define _ROOMSEC_UI_H_
 
-#include <boost/thread.hpp>
+#include <thread>
+#include <mutex>
 #include <boost/shared_ptr.hpp>
 #include <log4cxx/logger.h>
 
@@ -69,7 +70,7 @@ namespace roomsec {
   private:
     static log4cxx::LoggerPtr logger;
 
-    boost::mutex mutex;
+    std::mutex mutex;
     std::string alarmMessage;
     bool alarmOn;
 

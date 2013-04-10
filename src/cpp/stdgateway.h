@@ -61,7 +61,7 @@ namespace roomsec {
     boost::shared_ptr<AuthorityAdapter> authorityAdapter;
     boost::shared_ptr<FingerprintAuthnAdapter> fingerprintAuthnAdapter;
 
-    boost::thread  doorAlarmThread;
+    std::thread  doorAlarmThread;
     CountDownSignal doorAlarmCountDown;
 
   };

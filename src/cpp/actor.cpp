@@ -1,6 +1,5 @@
 #include "config.h"
-#include <boost/bind.hpp>
-#include <boost/thread.hpp>
+#include <thread>
 #include "actor.h"
 
 namespace roomsec {
@@ -11,8 +10,7 @@ namespace roomsec {
   Actor::~Actor() {
   }
 
-  boost::thread Actor::start() {
-    return boost::thread(boost::bind(&Actor::run, this));
+  std::thread Actor::start() {
+    return std::thread{&Actor::run, this};
   }
-
 }
