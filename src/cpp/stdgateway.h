@@ -4,8 +4,6 @@
 
 #include <boost/shared_ptr.hpp>
 #include <log4cxx/logger.h>
-#include "doorstatesensor.h"
-#include "alarm.h"
 #include "gateway.h"
 
 namespace roomsec {
@@ -35,9 +33,7 @@ namespace roomsec {
 
     friend class StdGateway::Builder;
 
-    void sigDoorStateChange(DoorStateSensor::State state);
     void fingerprintScanned(boost::shared_ptr<Fingerprint> fingerprint);
-    void signalDoorAlarm();
 
   protected:
 
@@ -60,9 +56,6 @@ namespace roomsec {
     boost::shared_ptr<FingerprintController> fingerprintController;
     boost::shared_ptr<AuthorityAdapter> authorityAdapter;
     boost::shared_ptr<FingerprintAuthnAdapter> fingerprintAuthnAdapter;
-
-    std::thread  doorAlarmThread;
-    CountDownSignal doorAlarmCountDown;
 
   };
 }

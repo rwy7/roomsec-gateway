@@ -48,6 +48,8 @@ namespace roomsec {
       int pin;
       void update();
   };
+
+  using DoorState = DoorStateSensor::State;
 }
 
 #endif /* _DOORSTATESENSOR_H */

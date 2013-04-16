@@ -1,5 +1,4 @@
 #include "config.h"
-
 #include <thread>
 #include <chrono>
 #include <boost/shared_ptr.hpp>
@@ -14,7 +13,6 @@
 #include "doorstatecontroller.h"
 #include "authorityadapter.h"
 #include "fingerprintauthnadapter.h"
-
 #include "stdgateway.h"
 
 namespace roomsec {
@@ -67,40 +65,6 @@ namespace roomsec {
     return gateway;
   }
 
-  /*
-   * Ctor / Dtor
-   */
-
-  void
-  StdGateway::sigDoorStateChange(DoorStateSensor::State state) {
-
-
-    LOG4CXX_DEBUG(logger, "sigDoorStateChange called");
-
-    if (state == DoorStateSensor::State::open) {
-      ui->message(UiMessage::Type::warning, "Door Opened");
-      LOG4CXX_INFO(netLogger, "roomsec." << gatewayId << ".door.open");
-      doorAlarmCountDown.cancelCountDown();
-      doorAlarmThread = doorAlarmCountDown.start();
-    }
-
-    else if (state == DoorStateSensor::State::closed) {
-      ui->message(UiMessage::Type::warning, "Door Closed");
-      LOG4CXX_INFO(netLogger, "roomsec." << gatewayId << ".door.close");
-
-      doorAlarmCountDown.cancelCountDown();
-      ui->stopAlarm();
-    }
-    return;
-  }
-
-  void StdGateway::signalDoorAlarm() {
-    LOG4CXX_DEBUG(logger, "Starting DoorStateController Actor");
-    LOG4CXX_INFO(netLogger, "roomsec." << gatewayId << ".alarm.door");
-    ui->startAlarm("Close Door");
-  }
-
-
   void
   StdGateway::fingerprintScanned(boost::shared_ptr<Fingerprint> fingerprint) {
 
@@ -117,10 +81,18 @@ namespace roomsec {
     }
     else {
       ui->message(UiMessage::Type::warning, "User: "+ credential.userid);
-      LOG4CXX_INFO(netLogger, "roomsec." << gatewayId << ".userauth.pass." << credential.userid);
+
+      LOG4CXX_INFO(netLogger,
+		   "roomsec." << gatewayId << 
+		   ".userauth.pass." << credential.userid);
     }
     return;
   }
+
+
+  /*
+   * Ctor / Dtor
+   */
 
   StdGateway::StdGateway(boost::shared_ptr<Ui> ui,
 			 boost::shared_ptr<DoorStateController> doorStateController,
@@ -128,28 +100,16 @@ namespace roomsec {
 			 boost::shared_ptr<AuthorityAdapter> authorityAdapter,
 			 boost::shared_ptr<FingerprintAuthnAdapter> fingerprintAuthnAdapter)
     : ui(ui),
-      doorStateController(doorStateController), 
+      doorStateController(doorStateController),
       fingerprintController(fingerprintController),
       authorityAdapter(authorityAdapter),
-      fingerprintAuthnAdapter(fingerprintAuthnAdapter),
-      doorAlarmCountDown(boost::chrono::milliseconds(10000))
+      fingerprintAuthnAdapter(fingerprintAuthnAdapter)
   {
-
-    /* Callbacks */
-    doorAlarmCountDown.signal.connect(boost::bind(&StdGateway::signalDoorAlarm, this));
-
-    doorStateController
-      ->sigDoorStateChange
-      .connect(boost::bind(&StdGateway::sigDoorStateChange, this, _1));
-
     fingerprintController
       ->fingerprintScanned
       .connect(boost::bind(&StdGateway::fingerprintScanned, this, _1));
-
-    /*
-     * Threading
-     */
   }
+
 
   void
   StdGateway::init() {
@@ -165,7 +125,7 @@ namespace roomsec {
     ui->message(UiMessage::Type::warning, "Initializing");
 
     LOG4CXX_DEBUG(logger, "Starting DoorStateController Actor");
-    std::thread doorStateControllerThread = doorStateController->start();
+    std::thread doorStateControllerThread(*doorStateController);
 
     LOG4CXX_DEBUG(logger, "Starting FingerprintController Actor");
     std::thread fingerprintControllerThread = fingerprintController->start();

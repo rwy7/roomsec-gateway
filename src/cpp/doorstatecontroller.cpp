@@ -1,13 +1,8 @@
 #include "config.h"
-
+#include <thread>
+#include <chrono>
 #include <boost/shared_ptr.hpp>
-#include <boost/thread.hpp>
-#include <boost/chrono.hpp>
-#include <boost/signal.hpp>
-
 #include <log4cxx/logger.h>
-
-#include "actor.h"
 #include "doorstatesensor.h"
 #include "doorstatecontroller.h"
 
@@ -16,6 +11,7 @@ namespace roomsec {
   log4cxx::LoggerPtr DoorStateController::logger =
     log4cxx::Logger::getLogger("roomsec.doorstatecontroller");
 
+
   DoorStateController::DoorStateController(boost::shared_ptr<DoorStateSensor> sensor)
     : sensor(sensor), stop(false)
   {
@@ -23,24 +19,83 @@ namespace roomsec {
   }
 
   void
-  DoorStateController::run()
+  DoorStateController::operator()()
   {
     LOG4CXX_DEBUG(logger, "DoorStateController running");
-    LOG4CXX_TRACE(logger, "Getting Old State");
-    DoorStateSensor::State oldState = sensor->getDoorState();
-    LOG4CXX_TRACE(logger, "Got Old State");
+    LOG4CXX_TRACE(logger, "Initializing state");
 
+    DoorState state = sensor->getDoorState();
+
+    std::chrono::system_clock::time_point
+      doorOpenTime = std::chrono::system_clock::now();
+
+    const std::chrono::seconds maxOpenTime(10);
+    const std::chrono::milliseconds period(10);
+    
     while(!this->stop) {
-      DoorStateSensor::State nextState = sensor->getDoorState();
-      if (nextState != oldState) {
-	LOG4CXX_DEBUG(logger, "Door State changed");
-	this->sigDoorStateChange(nextState);
-	oldState = nextState;
+      std::chrono::system_clock::time_point startTime = 
+	std::chrono::system_clock::now();
+
+      DoorState nextState = sensor->getDoorState();
+
+      switch(state) {
+
+      case DoorState::closed:
+	switch(nextState) {
+	case DoorState::closed:
+	  break;
+
+	case DoorState::open:
+	  doorOpenTime = startTime;
+	  break;
+	}
+	break;
+
+      case DoorState::open:
+	switch(nextState) {
+	case DoorState::closed:
+	  break;
+
+	case DoorState::open:
+	  if (startTime - doorOpenTime > maxOpenTime) {
+	    LOG4CXX_INFO(logger, "Door alarm triggered: Open too long");
+	  }
+	  break;
+	}
+	break;
       }
-      LOG4CXX_TRACE(logger, "Looping");
-      boost::this_thread::sleep_for(boost::chrono::milliseconds(5));
+      
+      state = nextState;
+      std::this_thread::sleep_until(startTime + period);
+    }
+  }
+
+}
+
+
+/*
+    LOG4CXX_DEBUG(logger, "sigDoorStateChange called");
+
+    if (state == DoorStateSensor::State::open) {
+      ui->message(UiMessage::Type::warning, "Door Opened");
+      LOG4CXX_INFO(netLogger, "roomsec." << gatewayId << ".door.open");
+      doorAlarmCountDown.cancelCountDown();
+      doorAlarmThread = doorAlarmCountDown.start();
     }
 
-    LOG4CXX_DEBUG(logger, "DoorStateController stopping");
+    else if (state == DoorStateSensor::State::closed) {
+      ui->message(UiMessage::Type::warning, "Door Closed");
+      LOG4CXX_INFO(netLogger, "roomsec." << gatewayId << ".door.close");
+
+      doorAlarmCountDown.cancelCountDown();
+      ui->stopAlarm();
+    }
+    return;
+
+  void StdGateway::signalDoorAlarm() {
+    LOG4CXX_DEBUG(logger, "Starting DoorStateController Actor");
+    LOG4CXX_INFO(netLogger, "roomsec." << gatewayId << ".alarm.door");
+    ui->startAlarm("Close Door");
   }
-}
+
+*/

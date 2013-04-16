@@ -3,25 +3,19 @@
 #define _ROOMSEC_DOORSTATECONTROLLER_H_
 
 #include <boost/shared_ptr.hpp>
-#include <boost/signal.hpp>
-
 #include <log4cxx/logger.h>
-
 #include "doorstatesensor.h"
-#include "actor.h"
 
 namespace roomsec {
 
   class DoorStateSensor;
 
-  class DoorStateController : public Actor {
+  class DoorStateController {
 
   public:
 
     DoorStateController(boost::shared_ptr<DoorStateSensor> sensor);
-    virtual void run();
-
-    boost::signal<void (DoorStateSensor::State)> sigDoorStateChange;
+    void operator()();
     
   private:
 
