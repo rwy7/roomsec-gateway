@@ -121,11 +121,11 @@ namespace roomsec {
     LOG4CXX_INFO(netLogger, "roomsec." << gatewayId << ".online");
 
     LOG4CXX_DEBUG(logger, "Starting Ui Actor");
-    std::thread uiThread = ui->start();
+    std::thread uiThread(std::ref(*ui));
     ui->message(UiMessage::Type::warning, "Initializing");
 
     LOG4CXX_DEBUG(logger, "Starting DoorStateController Actor");
-    std::thread doorStateControllerThread(*doorStateController);
+    std::thread doorStateControllerThread(std::ref(*doorStateController));
 
     LOG4CXX_DEBUG(logger, "Starting FingerprintController Actor");
     std::thread fingerprintControllerThread = fingerprintController->start();

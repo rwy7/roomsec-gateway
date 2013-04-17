@@ -7,8 +7,7 @@
 #include <mutex>
 #include <boost/shared_ptr.hpp>
 #include <log4cxx/logger.h>
-
-#include "actor.h"
+#include "uimessage.h"
 #include "queue.h"
 
 namespace roomsec {
@@ -17,44 +16,24 @@ namespace roomsec {
   class Buzzer;
 
   /**
-   * An object which may be output for the user.  Messages are
-   * translated into Ui Events by a Ui object.
+   * @class Ui
+   *
+   * The Ui class requires exclusive ownership of hardware devices.
+   * Because of this, it's copy constructor is disallowed.  A move
+   * constructor is defined, however, allowing ownership to transfer.
+   * This is neccessary when operator() is invoked by std::thread,
+   * which will moves the Ui class.
    */
-  class UiMessage {
-
-  public:
-    /**
-     * Represents the type of message.  Different message types
-     * translate to different Ui events (IE sounds, colors), when a
-     * message is output to the UI system with a UiMessage object.
-     */
-    enum class Type : unsigned char {
-      info = 0, success, warning, error, prompt, alarm
-    };
-
-    /**
-     * Construct a message object, which may then be output to the
-     * screen.
-     */
-    UiMessage(Type type, std::string  message);
-    UiMessage(UiMessage const& that);
-
-    Type getType() const;
-    std::string getMessage() const;
-
-  private:
-    static log4cxx::LoggerPtr logger;
-
-    Type type;
-    std::string message;
-  };
-
-
-  class Ui : public Actor {
+  class Ui {
   public:
 
-    Ui(boost::shared_ptr<Display> display, boost::shared_ptr<Buzzer> buzzer);
-    virtual void run();
+    Ui(boost::shared_ptr<Display> display,
+       boost::shared_ptr<Buzzer> buzzer);
+
+    Ui(Ui const& ui) = delete;
+    Ui(Ui && ui) = delete;
+
+    void operator()();
 
     /* Messaging Functions */
 

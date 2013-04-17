@@ -5,40 +5,11 @@
 #include <boost/shared_ptr.hpp>
 #include "buzzer.h"
 #include "display.h"
+#include "uimessage.h"
+#include "queue.h"
 #include "ui.h"
 
 namespace roomsec {
-  
-  /********************
-   * UiMessage
-   ********************/
-  
-  log4cxx::LoggerPtr UiMessage::logger(log4cxx::Logger::getLogger("roomsec.ui"));
-
-  UiMessage::UiMessage(Type type, std::string message)
-    : type(type), message(message) 
-  {
-    LOG4CXX_TRACE(logger, "UiMessage created: " << message);
-  }
-
-  UiMessage::UiMessage(UiMessage const& that) :
-    type(that.getType()), message(that.getMessage())
-  {
-  }
-
-  UiMessage::Type
-  UiMessage::getType() const {
-    return type;
-  }
-
-  std::string
-  UiMessage::getMessage() const {
-    return message;
-  }
-
-  /********************
-   * Ui
-   ********************/
 
   log4cxx::LoggerPtr Ui::logger(log4cxx::Logger::getLogger("roomsec.ui"));
 
@@ -51,7 +22,7 @@ namespace roomsec {
   }
 
   void
-  Ui::run() {
+  Ui::operator()() {
     LOG4CXX_DEBUG(logger, "Ui running");
 
     const int messageTime = 2000; // milliseconds;
@@ -165,8 +136,8 @@ namespace roomsec {
   }
 
   int
-    Ui::message(UiMessage::Type type, std::string const& str) {
-      UiMessage msg(type, str);
-      return message(msg);
-    }
+  Ui::message(UiMessage::Type type, std::string const& str) {
+    UiMessage msg(type, str);
+    return message(msg);
+  }
 }
