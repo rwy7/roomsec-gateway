@@ -2,14 +2,12 @@
 #include <boost/thread.hpp>
 #include <boost/shared_ptr.hpp>
 #include <log4cxx/logger.h>
-#include "actor.h"
 #include "fingerprintscanner.h"
 #include "fingerprintcontroller.h"
 
 namespace roomsec {
 
-  log4cxx::LoggerPtr
-  FingerprintController::logger = log4cxx::Logger::getLogger("roomsec.fingerprint");
+  static log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger("roomsec.fingerprint");
 
 
   FingerprintController::FingerprintController(boost::shared_ptr<FingerprintScanner> const& scanner)
@@ -24,15 +22,16 @@ namespace roomsec {
   }
  
 
-  void FingerprintController::run()
+  void FingerprintController::operator()()
   {
     LOG4CXX_DEBUG(logger, "Fingerprint Controller running");
     while(!this->stop) {
       boost::shared_ptr<Fingerprint> fingerprint(scanner->scanFingerprint());
       LOG4CXX_DEBUG(logger, "Fingerprint Scanned");
       fingerprintScanned(fingerprint);
-      boost::this_thread::interruption_point();
     }
+    LOG4CXX_DEBUG(logger, "Fingerprint Controller Stopping");
+    // TODO: Clean up fingerprint scanner device.
     return;
   }
 }

@@ -3,9 +3,7 @@
 #ifndef _ROOMSEC_GATEWAY_H_
 #define _ROOMSEC_GATEWAY_H_
 
-#include <vector>
 #include <boost/shared_ptr.hpp>
-#include "actor.h"
 
 namespace roomsec {
 
@@ -26,16 +24,16 @@ namespace roomsec {
    * for implementing the "guts" of the system.  This class is in
    * place to allow for multiple policy implementations.
    */
-  class Gateway : public Actor {
+  class Gateway {
   public:
 
     virtual ~Gateway();
 
     /**
      * Start the gateway, and begin standard operation. This is a
-     * blocking operation, that may not return.
+     * blocking operation, and may not return.
      */    
-    virtual void run();
+    virtual void operator()() = 0;
 
     /**
      * @class Builder
@@ -140,25 +138,6 @@ namespace roomsec {
     virtual void setAuthorityAdapter(boost::shared_ptr<AuthorityAdapter> authzAdapter);
     virtual void setFingerprintAuthnAdapter(boost::shared_ptr<FingerprintAuthnAdapter> authnAdapter);
 
-  private:
-
-    /**
-     * Initialize subsystems.  This method provides a mechanism for
-     * derived gatway classes to have their initialization code
-     * called.  This method is called from the start function
-     * implemented in this Gateway base class.
-     */
-    virtual void init() = 0;
-
-    /**
-     * Run the gatway control module.  Begin continuous standard
-     * operation.  This is a blocking operation that may not return.
-     * This function must be implemented by derived classes.
-     *
-     * Derived classes implement the policy of the system.  Differing
-     * managers may be implemented.
-     */
-    virtual void begin() = 0;
   };
 }
 

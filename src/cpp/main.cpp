@@ -22,6 +22,7 @@
 #include "fingerprintauthnadapter.h"
 #include "thriftfingerprintauthnadapter.h"
 
+#include "gateway.h"
 #include "stdgateway.h"
 #include "replgateway.h"
 
@@ -54,7 +55,8 @@ int main (int argc, char *argv[]) {
     if(initHardware(vm)) {
 
       LOG4CXX_DEBUG(logger, "Building Gateway");
-      buildStdGateway(vm)->run();
+      boost::shared_ptr<roomsec::Gateway> gateway = buildStdGateway(vm);
+      (*gateway)();
       cleanupHardware(vm);
     }
   }

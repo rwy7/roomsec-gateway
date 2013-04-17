@@ -52,11 +52,7 @@ namespace roomsec {
 
   private:
 
-    virtual void init();
-
-    virtual void begin();
-
-    void start_repl();
+    virtual void operator()();
 
   };
 }

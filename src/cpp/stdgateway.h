@@ -35,6 +35,9 @@ namespace roomsec {
 
     void fingerprintScanned(boost::shared_ptr<Fingerprint> fingerprint);
 
+    virtual void operator()();
+
+
   protected:
 
     StdGateway(boost::shared_ptr<Ui> ui,
@@ -44,9 +47,6 @@ namespace roomsec {
 	       boost::shared_ptr<FingerprintAuthnAdapter> fingerprintAuthnAdapter);
 
   private:
-
-    virtual void init();
-    virtual void begin();
 
     static log4cxx::LoggerPtr logger;
     static log4cxx::LoggerPtr netLogger;

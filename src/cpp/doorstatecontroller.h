@@ -7,17 +7,21 @@
 namespace roomsec {
 
   class DoorStateSensor;
+  class Ui;
 
   class DoorStateController {
 
   public:
 
-    DoorStateController(boost::shared_ptr<DoorStateSensor> sensor);
+    DoorStateController(boost::shared_ptr<DoorStateSensor> sensor,
+			boost::shared_ptr<Ui> ui);
+
     void operator()();
     
   private:
 
     boost::shared_ptr<DoorStateSensor> sensor;
+    boost::shared_ptr<Ui> ui;
     bool stop;
 
   };

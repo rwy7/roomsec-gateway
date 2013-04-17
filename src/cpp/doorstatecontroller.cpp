@@ -3,23 +3,30 @@
 #include <chrono>
 #include <boost/shared_ptr.hpp>
 #include <log4cxx/logger.h>
+#include "ui.h"
+#include "uimessage.h"
 #include "doorstatesensor.h"
 #include "doorstatecontroller.h"
 
 namespace roomsec {
 
   static log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger("roomsec.doorstatecontroller");
+  //static log4cxx::LoggerPtr netLogger = log4cxx::Logger::getLogger("");
 
 
-  DoorStateController::DoorStateController(boost::shared_ptr<DoorStateSensor> sensor)
-    : sensor(sensor), stop(false)
+  DoorStateController::DoorStateController(boost::shared_ptr<DoorStateSensor> sensor,
+					   boost::shared_ptr<Ui> ui)
+    : sensor(sensor), ui(ui), stop(false)
   {
     LOG4CXX_TRACE(logger, "DoorStateController Constructed");
   }
 
+
   /*
-   * The doorstate controller polls every 10 or so milliseconds.  If the door is lef
+   * The doorstate controller polls every 10 or so milliseconds.  If
+   * the door is left open, it sounds an alarm.
    */
+
   void
   DoorStateController::operator()()
   {
@@ -49,6 +56,7 @@ namespace roomsec {
 
 	case DoorState::open:
 	  doorOpenTime = startTime;
+	  ui->message(UiMessage::Type::info, "Door Open");
 	  break;
 	}
 	break;
@@ -61,6 +69,8 @@ namespace roomsec {
 	case DoorState::open:
 	  if (startTime - doorOpenTime > maxOpenTime) {
 	    LOG4CXX_INFO(logger, "Door alarm triggered: Open too long");
+	    ui->message(UiMessage::Type::error, "Close door");
+	    // TODO: Start Alarm, NetLog.
 	  }
 	  break;
 	}

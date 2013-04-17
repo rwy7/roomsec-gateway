@@ -6,12 +6,12 @@
 #include <boost/bind.hpp>
 #include <log4cxx/logger.h>
 #include "gen-cpp/authorize_types.h"
-#include "actor.h"
 #include "ui.h"
 #include "gateway.h"
 #include "fingerprintcontroller.h"
 #include "doorstatecontroller.h"
 #include "authorityadapter.h"
+#include "fingerprintscanner.h"
 #include "fingerprintauthnadapter.h"
 #include "stdgateway.h"
 
@@ -47,7 +47,7 @@ namespace roomsec {
 
     assert(this->doorStateSensor != NULL);
     boost::shared_ptr<DoorStateController>
-      doorStateController(new DoorStateController(this->doorStateSensor));
+      doorStateController(new DoorStateController(this->doorStateSensor, ui));
 
     /* Fingerprint Scanner Monitor and Controller */
 
@@ -112,12 +112,8 @@ namespace roomsec {
 
 
   void
-  StdGateway::init() {
+  StdGateway::operator()() {
     LOG4CXX_TRACE(logger, "Initializing StdGateway");
-  }
-
-  void
-  StdGateway::begin() {
     LOG4CXX_INFO(netLogger, "roomsec." << gatewayId << ".online");
 
     LOG4CXX_DEBUG(logger, "Starting Ui Actor");
@@ -128,7 +124,7 @@ namespace roomsec {
     std::thread doorStateControllerThread(std::ref(*doorStateController));
 
     LOG4CXX_DEBUG(logger, "Starting FingerprintController Actor");
-    std::thread fingerprintControllerThread = fingerprintController->start();
+    std::thread fingerprintControllerThread(std::ref(*fingerprintController));
 
     LOG4CXX_DEBUG(logger, "Sleeping");
     std::this_thread::sleep_for(std::chrono::milliseconds(100000));
