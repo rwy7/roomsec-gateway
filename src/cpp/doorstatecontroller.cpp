@@ -8,8 +8,7 @@
 
 namespace roomsec {
 
-  log4cxx::LoggerPtr DoorStateController::logger =
-    log4cxx::Logger::getLogger("roomsec.doorstatecontroller");
+  static log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger("roomsec.doorstatecontroller");
 
 
   DoorStateController::DoorStateController(boost::shared_ptr<DoorStateSensor> sensor)
@@ -18,6 +17,9 @@ namespace roomsec {
     LOG4CXX_TRACE(logger, "DoorStateController Constructed");
   }
 
+  /*
+   * The doorstate controller polls every 10 or so milliseconds.  If the door is lef
+   */
   void
   DoorStateController::operator()()
   {
