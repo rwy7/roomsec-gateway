@@ -18,11 +18,6 @@ namespace roomsec {
   /**
    * @class Ui
    *
-   * The Ui class requires exclusive ownership of hardware devices.
-   * Because of this, it's copy constructor is disallowed.  A move
-   * constructor is defined, however, allowing ownership to transfer.
-   * This is neccessary when operator() is invoked by std::thread,
-   * which will moves the Ui class.
    */
   class Ui {
   public:
@@ -31,7 +26,7 @@ namespace roomsec {
        boost::shared_ptr<Buzzer> buzzer);
 
     Ui(Ui const& ui) = delete;
-    Ui(Ui && ui) = delete;
+    Ui(Ui && ui)     = delete;
 
     void operator()();
 
