@@ -55,14 +55,17 @@ namespace roomsec {
       PassageTriple result;
 
       switch(state) {
-
+	
       case DoorState::closed:
 	LOG4CXX_TRACE(logger, "State = closed");
 	switch(nextState) {
+
+	  // CLOSED -> CLOSED
 	case DoorState::closed:
 	  LOG4CXX_TRACE(logger, "Next State = closed");
 	  break;
 
+	  // CLOSED -> OPEN
 	case DoorState::open:
 	  LOG4CXX_TRACE(logger, "Next State = closed");
 	  doorOpenTime = startTime;
@@ -77,6 +80,7 @@ namespace roomsec {
 	LOG4CXX_TRACE(logger, "State = open");
 	switch(nextState) {
 
+	  // OPEN -> CLOSED
 	case DoorState::closed:
 	  LOG4CXX_TRACE(logger, "Next State = closed");
 	  if(alarmOn) {
@@ -86,11 +90,12 @@ namespace roomsec {
 	  tailgateAnalyzer->finishSession();
 	  result = tailgateAnalyzer->getResults();
 	  LOG4CXX_INFO(logger, "tailgate analysis: " << 
-		       "in: " << result.ingoing <<
-		       "out: " << result.outgoing <<
-		       "unk: " << result.unknown);
+		       "in: "      << result.ingoing  << " " <<
+		       "out: "     << result.outgoing << " " <<
+		       "unknown: " << result.unknown);
 	  break;
 
+	  // OPEN -> OPEN
 	case DoorState::open:
 	  LOG4CXX_TRACE(logger, "Next State = open");
 	  if (startTime - doorOpenTime > maxOpenTime) {
