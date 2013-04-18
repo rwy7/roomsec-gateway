@@ -4,30 +4,40 @@
 #define _ROOMSEC_FINGERPRINTCONTROLLER_H_
 
 #include <boost/shared_ptr.hpp>
-#include <boost/signal.hpp>
 
 namespace roomsec {
 
   class FingerprintScanner;
-  class Fingerprint;
-
+  class AuthorityAdapter;
+  class FingerprintAuthnAdapter;
+  class Ui;
+  
   /**
    * This class controls the fingerprint scanning and detection
-   * hardware subsystems.  As an actor, it is intended to be run under
-   * it's own, dedicated thread.
+   * hardware subsystems.  It is intended to be run under it's own,
+   * dedicated thread.  This class also controls authentication and
+   * authorization subsystems.
    */
   class FingerprintController {
   public:
-    FingerprintController(boost::shared_ptr<FingerprintScanner> const& scanner);
-    ~FingerprintController();
+    FingerprintController(boost::shared_ptr<FingerprintScanner> const& scanner,
+			  boost::shared_ptr<AuthorityAdapter> authorityAdapter,
+			  boost::shared_ptr<FingerprintAuthnAdapter> fingerprintAuthnAdapter,
+			  boost::shared_ptr<Ui> ui);
 
-    virtual void operator()();
+    FingerprintController(FingerprintController const& source) = delete;
+    FingerprintController(FingerprintController && source) = delete;
 
-    boost::signal<void (boost::shared_ptr<Fingerprint> fingerprint)> fingerprintScanned;
+  ~FingerprintController();
+
+  virtual void operator()();
 
   private:
-    bool stop;
     boost::shared_ptr<FingerprintScanner> scanner;
+    boost::shared_ptr<AuthorityAdapter> authorityAdapter;
+    boost::shared_ptr<FingerprintAuthnAdapter> fingerprintAuthnAdapter;
+    boost::shared_ptr<Ui> ui;
+    bool stop;
   };
 }
 

@@ -32,11 +32,7 @@ namespace roomsec {
     };
 
     friend class StdGateway::Builder;
-
-    void fingerprintScanned(boost::shared_ptr<Fingerprint> fingerprint);
-
     virtual void operator()();
-
 
   protected:
 

@@ -2,17 +2,12 @@
 #include <thread>
 #include <chrono>
 #include <boost/shared_ptr.hpp>
-#include <boost/signal.hpp>
-#include <boost/bind.hpp>
 #include <log4cxx/logger.h>
-#include "gen-cpp/authorize_types.h"
+
 #include "ui.h"
 #include "gateway.h"
 #include "fingerprintcontroller.h"
 #include "doorstatecontroller.h"
-#include "authorityadapter.h"
-#include "fingerprintscanner.h"
-#include "fingerprintauthnadapter.h"
 #include "stdgateway.h"
 
 namespace roomsec {
@@ -22,11 +17,13 @@ namespace roomsec {
   /*
    * Loggers
    */
+
   log4cxx::LoggerPtr
   StdGateway::logger(log4cxx::Logger::getLogger("roomsec.gateway"));
 
   log4cxx::LoggerPtr
   StdGateway::netLogger(log4cxx::Logger::getLogger("roomsec.net"));
+
 
   /*
    * Builder
@@ -53,7 +50,10 @@ namespace roomsec {
 
     assert(this->fingerprintScanner != NULL);
     boost::shared_ptr<FingerprintController>
-      fingerprintController(new FingerprintController(this->fingerprintScanner));
+      fingerprintController(new FingerprintController(fingerprintScanner,
+						      authorityAdapter,
+						      fingerprintAuthnAdapter,
+						      ui));
 
     boost::shared_ptr<StdGateway>
       gateway(new StdGateway(ui,
@@ -63,30 +63,6 @@ namespace roomsec {
 			     fingerprintAuthnAdapter));
 
     return gateway;
-  }
-
-  void
-  StdGateway::fingerprintScanned(boost::shared_ptr<Fingerprint> fingerprint) {
-
-    LOG4CXX_DEBUG(logger, "Fingerprint Scanned");
-    ui->message(UiMessage::Type::info, "Fingerprint Scanned");
-
-    iface::Credential credential;
-    fingerprintAuthnAdapter->authenticate(credential, fingerprint->serialize());
-
-    if (credential.token == "" &&
-	credential.userid == "") {
-      ui->message(UiMessage::Type::error, "User Unrecognized");
-      LOG4CXX_INFO(netLogger, "roomsec." << gatewayId << ".userauth.fail");
-    }
-    else {
-      ui->message(UiMessage::Type::warning, "User: "+ credential.userid);
-
-      LOG4CXX_INFO(netLogger,
-		   "roomsec." << gatewayId << 
-		   ".userauth.pass." << credential.userid);
-    }
-    return;
   }
 
 
@@ -105,11 +81,12 @@ namespace roomsec {
       authorityAdapter(authorityAdapter),
       fingerprintAuthnAdapter(fingerprintAuthnAdapter)
   {
-    fingerprintController
-      ->fingerprintScanned
-      .connect(boost::bind(&StdGateway::fingerprintScanned, this, _1));
   }
 
+
+  /*
+   * Running Code
+   */
 
   void
   StdGateway::operator()() {
@@ -126,8 +103,8 @@ namespace roomsec {
     LOG4CXX_DEBUG(logger, "Starting FingerprintController Actor");
     std::thread fingerprintControllerThread(std::ref(*fingerprintController));
 
-    LOG4CXX_DEBUG(logger, "Sleeping");
-    std::this_thread::sleep_for(std::chrono::milliseconds(100000));
+    // LOG4CXX_DEBUG(logger, "Sleeping");
+    // std::this_thread::sleep_for(std::chrono::milliseconds(100000));
 
     LOG4CXX_DEBUG(logger, "Waiting for threads to exit");
     uiThread.join();
