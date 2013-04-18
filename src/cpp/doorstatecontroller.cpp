@@ -74,9 +74,10 @@ namespace roomsec {
 	case DoorState::closed:
 	  LOG4CXX_TRACE(logger, "Next State = closed");
 	  if(alarmOn) {
-	    ui->alarmOff();
+	    ui->stopAlarm();
 	    alarmOn = false;
-	    break;
+	  }
+	  break;
 
 	case DoorState::open:
 	  LOG4CXX_TRACE(logger, "Next State = open");
@@ -84,7 +85,7 @@ namespace roomsec {
 	    if (!alarmOn) {
 	      // TODO: Start Alarm, NetLog.
 	      LOG4CXX_INFO(logger, "Door alarm triggered.");
-	      ui->alarmOn("Close door");
+	      ui->startAlarm("Close door");
 	      alarmOn = true;
 	    }
 	  }
@@ -104,28 +105,28 @@ namespace roomsec {
 
 
 /*
-    LOG4CXX_DEBUG(logger, "sigDoorStateChange called");
+  LOG4CXX_DEBUG(logger, "sigDoorStateChange called");
 
-    if (state == DoorStateSensor::State::open) {
-      ui->message(UiMessage::Type::warning, "Door Opened");
-      LOG4CXX_INFO(netLogger, "roomsec." << gatewayId << ".door.open");
-      doorAlarmCountDown.cancelCountDown();
-      doorAlarmThread = doorAlarmCountDown.start();
-    }
+  if (state == DoorStateSensor::State::open) {
+  ui->message(UiMessage::Type::warning, "Door Opened");
+  LOG4CXX_INFO(netLogger, "roomsec." << gatewayId << ".door.open");
+  doorAlarmCountDown.cancelCountDown();
+  doorAlarmThread = doorAlarmCountDown.start();
+  }
 
-    else if (state == DoorStateSensor::State::closed) {
-      ui->message(UiMessage::Type::warning, "Door Closed");
-      LOG4CXX_INFO(netLogger, "roomsec." << gatewayId << ".door.close");
+  else if (state == DoorStateSensor::State::closed) {
+  ui->message(UiMessage::Type::warning, "Door Closed");
+  LOG4CXX_INFO(netLogger, "roomsec." << gatewayId << ".door.close");
 
-      doorAlarmCountDown.cancelCountDown();
-      ui->stopAlarm();
-    }
-    return;
+  doorAlarmCountDown.cancelCountDown();
+  ui->stopAlarm();
+  }
+  return;
 
   void StdGateway::signalDoorAlarm() {
-    LOG4CXX_DEBUG(logger, "Starting DoorStateController Actor");
-    LOG4CXX_INFO(netLogger, "roomsec." << gatewayId << ".alarm.door");
-    ui->startAlarm("Close Door");
+  LOG4CXX_DEBUG(logger, "Starting DoorStateController Actor");
+  LOG4CXX_INFO(netLogger, "roomsec." << gatewayId << ".alarm.door");
+  ui->startAlarm("Close Door");
   }
 
 */
