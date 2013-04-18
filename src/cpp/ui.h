@@ -3,12 +3,8 @@
 #ifndef _ROOMSEC_UI_H_
 #define _ROOMSEC_UI_H_
 
-#include <thread>
-#include <mutex>
 #include <boost/shared_ptr.hpp>
-#include <log4cxx/logger.h>
 #include "uimessage.h"
-#include "queue.h"
 
 namespace roomsec {
 
@@ -18,6 +14,10 @@ namespace roomsec {
   /**
    * @class Ui
    *
+   * The Ui class is responsible for putting message to the lcd screen
+   * of the gateway.  The Ui is a functor, and operates in a dedicated
+   * thread.  Messages may be queued to be displayed by using one of
+   * the public message functions.
    */
   class Ui {
   public:
@@ -28,30 +28,35 @@ namespace roomsec {
     Ui(Ui const& ui) = delete;
     Ui(Ui && ui)     = delete;
 
+    ~Ui();
+
     void operator()();
 
     /* Messaging Functions */
 
+    /**
+     * Display a UI message.  The object is passed by reference, and
+     * is not copied.  Use this method, and preconstructed UiMessage
+     * objects, when a standard set of frequently shown messages is
+     * used.
+     */
     int message(UiMessage const& message);
+
+    /**
+     * Copy the string, construct a UiMessage, and enqueue that
+     * message to be displayed.
+     */
     int message(UiMessage::Type t, std::string const& str);
 
-    /* Passive State Functions */
+    /* Passive State and Alarm Functions */
 
     int startAlarm(std::string const& message);
     int stopAlarm();
-    void enterDefaultState();
 
   private:
-    static log4cxx::LoggerPtr logger;
 
-    std::mutex mutex;
-    std::string alarmMessage;
-    bool alarmOn;
-
-    boost::shared_ptr<Display> display;
-    boost::shared_ptr<Buzzer> buzzer;
-    Queue<UiMessage> messageQueue;
-    bool stop;
+    class Impl;
+    boost::shared_ptr<Impl> impl;
   };
 }
 
