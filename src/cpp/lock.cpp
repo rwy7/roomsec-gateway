@@ -12,7 +12,7 @@ namespace roomsec {
       return;
     }
 
-  Lock::LockState Lock::getState() {
+  LockState Lock::getState() {
     return this->state;
   }
 
@@ -34,4 +34,3 @@ namespace roomsec {
     return result;
   }
 }
-
