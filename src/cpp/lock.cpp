@@ -17,17 +17,22 @@ namespace roomsec {
   }
 
   bool Lock::setState(LockState state) {
-    /* Check if the desired state is not the current state.  Set the current
-     * state if it needs to be set. Return True if something changed */
+    /*  Check if the desired state is not the current state.  Set the
+     * current state if it needs to be set. Return True if something
+     * changed.
+     *
+     * The lock is locked when the pin is low, and open when the pin
+     * is high.
+     */
     bool result = (this->state != state);
     if (result) {
       this->state = state;
       switch (state) {
         case LockState::locked:
-          this->device->makeHigh(this->bank, this->pins);
+          this->device->makeLow(this->bank, this->pins);
           break;
         case LockState::unlocked:
-          this->device->makeLow(this->bank, this->pins);
+          this->device->makeHigh(this->bank, this->pins);
           break;
       }
     }
