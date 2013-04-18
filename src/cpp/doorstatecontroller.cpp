@@ -34,6 +34,7 @@ namespace roomsec {
     LOG4CXX_TRACE(logger, "Initializing state");
 
     DoorState state = sensor->getDoorState();
+    bool alarmOn = false;
 
     std::chrono::system_clock::time_point
       doorOpenTime = std::chrono::system_clock::now();
@@ -72,14 +73,20 @@ namespace roomsec {
 	switch(nextState) {
 	case DoorState::closed:
 	  LOG4CXX_TRACE(logger, "Next State = closed");
-	  break;
+	  if(alarmOn) {
+	    ui->alarmOff();
+	    alarmOn = false;
+	    break;
 
 	case DoorState::open:
 	  LOG4CXX_TRACE(logger, "Next State = open");
 	  if (startTime - doorOpenTime > maxOpenTime) {
-	    LOG4CXX_INFO(logger, "Door alarm triggered: Open too long");
-	    ui->message(UiMessage::Type::error, "Close door");
-	    // TODO: Start Alarm, NetLog.
+	    if (!alarmOn) {
+	      // TODO: Start Alarm, NetLog.
+	      LOG4CXX_INFO(logger, "Door alarm triggered.");
+	      ui->alarmOn("Close door");
+	      alarmOn = true;
+	    }
 	  }
 	  break;
 	}
