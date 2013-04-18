@@ -7,6 +7,7 @@
 namespace roomsec {
 
   class DoorStateSensor;
+  class TailgateAnalyzer;
   class Ui;
 
   class DoorStateController {
@@ -14,6 +15,7 @@ namespace roomsec {
   public:
 
     DoorStateController(boost::shared_ptr<DoorStateSensor> sensor,
+			boost::shared_ptr<TailgateAnalyzer> tailgateAnalyzer,
 			boost::shared_ptr<Ui> ui);
 
     void operator()();
@@ -21,6 +23,7 @@ namespace roomsec {
   private:
 
     boost::shared_ptr<DoorStateSensor> sensor;
+    boost::shared_ptr<TailgateAnalyzer> tailgateAnalyzer;
     boost::shared_ptr<Ui> ui;
     bool stop;
 

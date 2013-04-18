@@ -8,6 +8,7 @@
 #include "gateway.h"
 #include "fingerprintcontroller.h"
 #include "doorstatecontroller.h"
+#include "tailgateanalyzer.h"
 #include "stdgateway.h"
 
 namespace roomsec {
@@ -40,11 +41,16 @@ namespace roomsec {
     assert(this->buzzer != NULL);
     boost::shared_ptr<Ui> ui(new Ui(this->display, this->buzzer));
 
+
+    /* Tailgate Analyzer */
+    boost::shared_ptr<TailgateAnalyzer> tailgateAnalyzer(new TailgateAnalyzer(blockSensors));
+
     /* Door State Monitor and Controller */
+
 
     assert(this->doorStateSensor != NULL);
     boost::shared_ptr<DoorStateController>
-      doorStateController(new DoorStateController(this->doorStateSensor, ui));
+      doorStateController(new DoorStateController(this->doorStateSensor, tailgateAnalyzer, ui));
 
     /* Fingerprint Scanner Monitor and Controller */
 

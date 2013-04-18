@@ -5,6 +5,7 @@
 #include <log4cxx/logger.h>
 #include "ui.h"
 #include "uimessage.h"
+#include "tailgateanalyzer.h"
 #include "doorstatesensor.h"
 #include "doorstatecontroller.h"
 
@@ -15,8 +16,9 @@ namespace roomsec {
 
 
   DoorStateController::DoorStateController(boost::shared_ptr<DoorStateSensor> sensor,
+					   boost::shared_ptr<TailgateAnalyzer> tailgateAnalyzer,
 					   boost::shared_ptr<Ui> ui)
-    : sensor(sensor), ui(ui), stop(false)
+    : sensor(sensor), tailgateAnalyzer(tailgateAnalyzer), ui(ui), stop(false)
   {
     LOG4CXX_TRACE(logger, "Constructing DoorStateController");
   }
@@ -50,6 +52,7 @@ namespace roomsec {
 	std::chrono::system_clock::now();
 
       DoorState nextState = sensor->getDoorState();
+      PassageTriple result;
 
       switch(state) {
 
@@ -64,6 +67,8 @@ namespace roomsec {
 	  LOG4CXX_TRACE(logger, "Next State = closed");
 	  doorOpenTime = startTime;
 	  ui->message(UiMessage::Type::info, "Door Open");
+	  tailgateAnalyzer->beginSession();
+	  // TODO: sleep / freeze for debouncing
 	  break;
 	}
 	break;
@@ -71,12 +76,19 @@ namespace roomsec {
       case DoorState::open:
 	LOG4CXX_TRACE(logger, "State = open");
 	switch(nextState) {
+
 	case DoorState::closed:
 	  LOG4CXX_TRACE(logger, "Next State = closed");
 	  if(alarmOn) {
 	    ui->stopAlarm();
 	    alarmOn = false;
 	  }
+	  tailgateAnalyzer->finishSession();
+	  result = tailgateAnalyzer->getResults();
+	  LOG4CXX_INFO(logger, "tailgate analysis: " << 
+		       "in: " << result.ingoing <<
+		       "out: " << result.outgoing <<
+		       "unk: " << result.unknown);
 	  break;
 
 	case DoorState::open:
@@ -88,6 +100,7 @@ namespace roomsec {
 	      ui->startAlarm("Close door");
 	      alarmOn = true;
 	    }
+	    tailgateAnalyzer->update();
 	  }
 	  break;
 	}
