@@ -56,6 +56,10 @@ namespace roomsec {
   void FingerprintController::operator()()
   {
     LOG4CXX_DEBUG(logger, "Fingerprint Controller running");
+
+
+    // lock the door
+    lock->setState(LockState::locked);
     while(!this->stop) {
 
       // Scan for fingerprint.  This is a blocking/waiting operation.
