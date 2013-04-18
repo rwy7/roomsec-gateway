@@ -18,8 +18,11 @@ namespace roomsec {
 static log4cxx::loggerPtr logger = log4cxx::logger::getLogger("roomsec.mcp3008blocksensor");
 
   MCP3008BlockSensor::MCP3008BlockSensor(unsigned int pin, bool debug)
-    : MCPPin(pin), iValue(0), mValue(0), DEBUG(debug)
   {
+	MCPPin = pin;
+	iValue = 0;
+	mValue = 0;
+	DEBUG = debug;
 	LOG4CXX_DEBUG(logger, "MCP3008BlockSensor - construction complete");
   }
 

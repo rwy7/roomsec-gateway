@@ -417,7 +417,7 @@ bool BlockAnalyzer::endMonitoringSession()
 	monitoring = false;
 	this->initializeStreams();
 
-	LOG4CXX_DEBUG(logger, "BlockAnalyzer beginMonitoringSession() - monitoring session ended");
+	LOG4CXX_DEBUG(logger, "BlockAnalyzer beginMonitoringSession() - monitoring session endedblock");
 	if (DEBUG)
 		printf("#BlockAnalyzer::endMonitoringSession() - monitoring session ended;\n");
 	return true;
