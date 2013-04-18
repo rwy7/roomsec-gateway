@@ -2,6 +2,8 @@
 #include <wiringPi/wiringPiSPI.h>
 #include "blocksensor.h"
 #include "mcp3008blocksensor.h"
+#include <log4cxx/logger.h>
+
 
 #define ADC_CHANNEL 0
 #define ADC_HIGH_VOLTAGE 3.3
@@ -13,9 +15,12 @@
 #define INPUT_FAR_VALUE 0
 
 namespace roomsec {
+static log4cxx::loggerPtr logger = log4cxx::logger::getLogger("roomsec.mcp3008blocksensor");
+
   MCP3008BlockSensor::MCP3008BlockSensor(unsigned int pin, bool debug)
     : MCPPin(pin), iValue(0), mValue(0), DEBUG(debug)
   {
+	LOG4CXX_DEBUG(logger, "MCP3008BlockSensor - construction complete");
   }
 
 
@@ -24,6 +29,7 @@ namespace roomsec {
       
 
   int MCP3008BlockSensor::getSensorValue() {
+	LOG4CXX_DEBUG(logger, "MCP3008BlockSensor - getSensorValue()");
     int mVal, iVal;
 		
     //read from sensor value to mVal using wiringPi SPI library
