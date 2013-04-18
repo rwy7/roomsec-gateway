@@ -221,8 +221,8 @@ buildStdGateway(po::variables_map& vm) {
 
   LOG4CXX_DEBUG(logger, "Initializing Block Sensors");
   std::vector<roomsec::BlockSensor*> blockSensors;
-  blockSensors[0] = new roomsec::MCP3008BlockSensor(0);
-  blockSensors[1] = new roomsec::MCP3008BlockSensor(1);
+  blockSensors.push_back(new roomsec::MCP3008BlockSensor(0));
+  blockSensors.push_back(new roomsec::MCP3008BlockSensor(1));
 
   builder.setBlockSensors(blockSensors);
 

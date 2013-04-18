@@ -20,7 +20,7 @@ static log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger("roomsec.mcp3008bl
   MCP3008BlockSensor::MCP3008BlockSensor(unsigned int pin, bool debug)
     : MCPPin(pin), iValue(0), mValue(0), DEBUG(debug)
   {
-	LOG4CXX_DEBUG(logger, "MCP3008BlockSensor - construction complete");
+    LOG4CXX_DEBUG(logger, "MCP3008BlockSensor - construction complete");
   }
 
 
