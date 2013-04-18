@@ -2,13 +2,12 @@
 #include <thread>
 #include <boost/shared_ptr.hpp>
 #include <log4cxx/logger.h>
-
+#include "gen-cpp/authorize_types.h"
 #include "authorityadapter.h"
 #include "fingerprintauthnadapter.h"
 #include "ui.h"
 #include "uimessage.h"
-#include "gen-cpp/authorize_types.h"
-// #include 
+#include "lock.h"
 #include "fingerprintscanner.h"
 #include "fingerprintcontroller.h"
 
@@ -31,10 +30,12 @@ namespace roomsec {
   FingerprintController::FingerprintController(boost::shared_ptr<FingerprintScanner> const& scanner,
 					       boost::shared_ptr<AuthorityAdapter> authorityAdapter,
 					       boost::shared_ptr<FingerprintAuthnAdapter> fingerprintAuthnAdapter,
+					       boost::shared_ptr<Lock> lock,
 					       boost::shared_ptr<Ui> ui)
     : scanner(scanner),
       authorityAdapter(authorityAdapter),
       fingerprintAuthnAdapter(fingerprintAuthnAdapter),
+      lock(lock),
       ui(ui),
       stop(false)
   {
@@ -65,7 +66,7 @@ namespace roomsec {
 
       iface::Credential credential;
 
-      // Todo: Handle Failure more robustly
+      // TODO: Handle Failure more robustly
       fingerprintAuthnAdapter->authenticate(credential, fingerprint->serialize());
 
       if (credential.token == "" &&
@@ -80,11 +81,14 @@ namespace roomsec {
 	LOG4CXX_INFO(netLogger,
 		     "roomsec." << gatewayId << 
 		     ".userauth.pass." << credential.userid);
+
+	lock->setState(LockState::unlocked);
+	std::this_thread::sleep_for(std::chrono::seconds(5));
+	lock->setState(LockState::locked);
       }
 
     }
     LOG4CXX_DEBUG(logger, "Fingerprint Controller Stopping");
-
     // TODO: Close fingerprint scanner device.
     return;
   }

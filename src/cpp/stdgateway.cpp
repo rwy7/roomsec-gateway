@@ -53,6 +53,7 @@ namespace roomsec {
       fingerprintController(new FingerprintController(fingerprintScanner,
 						      authorityAdapter,
 						      fingerprintAuthnAdapter,
+						      lock,
 						      ui));
 
     boost::shared_ptr<StdGateway>

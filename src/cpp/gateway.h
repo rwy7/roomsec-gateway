@@ -14,6 +14,7 @@ namespace roomsec {
   class Display;
   class Buzzer;
   class BlockSensor;
+  class Lock;
 
   /**
    * The central logic of the gateway system.  The gateway class
@@ -72,18 +73,12 @@ namespace roomsec {
 	return *static_cast<BuilderT*>(this);
       }
 
-      /**
-       * Set the fingerprintauthn adapter used by the built Gateway.
-       */
       BuilderT&
       setFingerprintAuthnAdapter(boost::shared_ptr<FingerprintAuthnAdapter> authnAdapter) {
 	this->fingerprintAuthnAdapter = authnAdapter;
 	return *static_cast<BuilderT*>(this);
       }
 
-      /**
-       * Set the fingerprint scanner device.
-       */
       BuilderT&
       setFingerprintScanner(boost::shared_ptr<FingerprintScanner> fingerprintScanner) {
 	this->fingerprintScanner = fingerprintScanner;
@@ -102,19 +97,25 @@ namespace roomsec {
 	return *static_cast<BuilderT*>(this);
       }
       
-	BuilderT&
-	setBuzzer(boost::shared_ptr<Buzzer> buzzer) {
-		this->buzzer = buzzer;
-		return *static_cast<BuilderT*>(this);
+      BuilderT&
+      setBuzzer(boost::shared_ptr<Buzzer> buzzer) {
+	this->buzzer = buzzer;
+	return *static_cast<BuilderT*>(this);
       }
 
-	BuilderT&
-	setBlockSensors(std::vector<BlockSensor*> sensors){
-		this->blockSensors.clear();
-		for(unsigned int i = 0; i < sensors.size(); i++)
-			this->blockSensors.push_back(sensors[i]);
-		return *static_cast<BuilderT*>(this);
-	}
+      BuilderT&
+      setBlockSensors(std::vector<BlockSensor*> sensors){
+	this->blockSensors.clear();
+	for(unsigned int i = 0; i < sensors.size(); i++)
+	  this->blockSensors.push_back(sensors[i]);
+	return *static_cast<BuilderT*>(this);
+      }
+
+      BuilderT&
+      setLock(boost::shared_ptr<Lock> lock) {
+	this->lock = lock;
+	return *static_cast<BuilderT*>(this);
+      }
 
     protected:
 
@@ -125,6 +126,7 @@ namespace roomsec {
       boost::shared_ptr<Display> display;
       boost::shared_ptr<Buzzer> buzzer;
       std::vector<BlockSensor*> blockSensors;
+      boost::shared_ptr<Lock> lock;
     };
 
     template<typename B, typename G> friend class Gateway::Builder;

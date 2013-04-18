@@ -17,7 +17,7 @@ namespace roomsec {
   }
 
   bool Lock::setState(LockState state) {
-    /*  Check if the desired state is not the current state.  Set the
+    /* Check if the desired state is not the current state.  Set the
      * current state if it needs to be set. Return True if something
      * changed.
      *

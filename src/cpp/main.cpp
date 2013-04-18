@@ -34,6 +34,7 @@
 #include "fingerprintscanner.h"
 #include "blocksensor.h"
 #include "mcp3008blocksensor.h"
+#include "lock.h"
 #include "main.h"
 
 
@@ -215,6 +216,14 @@ buildStdGateway(po::variables_map& vm) {
   LOG4CXX_DEBUG(logger, "Initializing Door State Sensor");
   boost::shared_ptr<roomsec::DoorStateSensor>
     doorStateSensor(new roomsec::DoorStateSensor(18));
+
+  /*
+    LOG4CXX_DEBUG(logger, "Initializing Block Sensors");
+    std::vector<roomsec::BlockSensor*> blockSensors;
+    blockSensors[0] = new roomsec::MCP3008BlockSensor(0);
+    blockSensors[1] = new roomsec::MCP3008BlockSensor(1);
+    .setBlockSensors(blockSensors);
+  */
   
   /* Fingerprint Scanner */
 
@@ -231,17 +240,10 @@ buildStdGateway(po::variables_map& vm) {
   boost::shared_ptr<roomsec::FingerprintScanner> fingerprintScanner =
     fpScannerFact.getFingerprintScanner(1);
 
-  // lock Sensor
-
-  /*
-    LOG4CXX_DEBUG(logger, "Initializing Block Sensors");
-    std::vector<roomsec::BlockSensor*> blockSensors;
-    blockSensors[0] = new roomsec::MCP3008BlockSensor(0);
-    blockSensors[1] = new roomsec::MCP3008BlockSensor(1);
-    .setBlockSensors(blockSensors);
-  */
+  boost::shared_ptr<roomsec::Lock> lock(new roomsec::Lock(expander, expander->GPIOA, 0x80));
 
   builder
+    .setLock(lock)
     .setDoorStateSensor(doorStateSensor)
     .setFingerprintScanner(fingerprintScanner);
 
