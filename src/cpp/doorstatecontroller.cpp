@@ -18,7 +18,7 @@ namespace roomsec {
 					   boost::shared_ptr<Ui> ui)
     : sensor(sensor), ui(ui), stop(false)
   {
-    LOG4CXX_TRACE(logger, "DoorStateController Constructed");
+    LOG4CXX_TRACE(logger, "Constructing DoorStateController");
   }
 
 
@@ -42,6 +42,9 @@ namespace roomsec {
     const std::chrono::milliseconds period(10);
     
     while(!this->stop) {
+
+      LOG4CXX_TRACE(logger, "Begin cycle");
+
       std::chrono::system_clock::time_point startTime = 
 	std::chrono::system_clock::now();
 
@@ -50,11 +53,14 @@ namespace roomsec {
       switch(state) {
 
       case DoorState::closed:
+	LOG4CXX_TRACE(logger, "State = closed");
 	switch(nextState) {
 	case DoorState::closed:
+	  LOG4CXX_TRACE(logger, "Next State = closed");
 	  break;
 
 	case DoorState::open:
+	  LOG4CXX_TRACE(logger, "Next State = closed");
 	  doorOpenTime = startTime;
 	  ui->message(UiMessage::Type::info, "Door Open");
 	  break;
@@ -62,11 +68,14 @@ namespace roomsec {
 	break;
 
       case DoorState::open:
+	LOG4CXX_TRACE(logger, "State = open");
 	switch(nextState) {
 	case DoorState::closed:
+	  LOG4CXX_TRACE(logger, "Next State = closed");
 	  break;
 
 	case DoorState::open:
+	  LOG4CXX_TRACE(logger, "Next State = open");
 	  if (startTime - doorOpenTime > maxOpenTime) {
 	    LOG4CXX_INFO(logger, "Door alarm triggered: Open too long");
 	    ui->message(UiMessage::Type::error, "Close door");
@@ -80,6 +89,8 @@ namespace roomsec {
       state = nextState;
       std::this_thread::sleep_until(startTime + period);
     }
+
+    LOG4CXX_DEBUG(logger, "DoorStateController stopping");
   }
 
 }
