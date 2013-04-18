@@ -137,11 +137,8 @@ namespace roomsec {
 
     while(!impl->stop) {
 
-      impl->clearScreen();
-
       LOG4CXX_DEBUG(logger, "Waiting for message");
       UiMessage message = impl->popMessage();
-
       LOG4CXX_DEBUG(logger, "Writing Message: " << message.getMessage());
 
       switch(message.getType()) {
