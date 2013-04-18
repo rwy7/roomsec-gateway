@@ -217,14 +217,16 @@ buildStdGateway(po::variables_map& vm) {
   boost::shared_ptr<roomsec::DoorStateSensor>
     doorStateSensor(new roomsec::DoorStateSensor(18));
 
-  /*
-    LOG4CXX_DEBUG(logger, "Initializing Block Sensors");
-    std::vector<roomsec::BlockSensor*> blockSensors;
-    blockSensors[0] = new roomsec::MCP3008BlockSensor(0);
-    blockSensors[1] = new roomsec::MCP3008BlockSensor(1);
-    .setBlockSensors(blockSensors);
-  */
-  
+  /* Tailgate analyzer */
+
+  LOG4CXX_DEBUG(logger, "Initializing Block Sensors");
+  std::vector<roomsec::BlockSensor*> blockSensors;
+  blockSensors[0] = new roomsec::MCP3008BlockSensor(0);
+  blockSensors[1] = new roomsec::MCP3008BlockSensor(1);
+
+  builder.setBlockSensors(blockSensors);
+
+
   /* Fingerprint Scanner */
 
   LOG4CXX_DEBUG(logger, "Initializing Fingerprint Scanner");
