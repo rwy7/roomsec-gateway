@@ -5,7 +5,7 @@ using namespace std;
 
 namespace roomsec{
 
-static log4cxx::loggerPtr logger = log4cxx::logger::getLogger("roomsec.blockanalyzer");
+static log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger("roomsec.blockanalyzer");
 
 BlockAnalyzer::BlockAnalyzer(std::vector<BlockSensor*> sensorPointers, bool debug)
 {
