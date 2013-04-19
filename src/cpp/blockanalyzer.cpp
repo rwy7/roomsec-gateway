@@ -229,7 +229,7 @@ PassageTriple BlockAnalyzer::analyzeStreams(vector<pair<unsigned int, float> > *
 		if(simpleStreams[i].size() < 1)
 		{
 			LOG4CXX_DEBUG(logger, "- No data to analyse, ending analysis");
-			return 0;
+			return triple;
 		}
 	}
 	if(streamCount >= 2)
