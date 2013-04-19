@@ -21,7 +21,8 @@ namespace roomsec {
    */
   class FingerprintController {
   public:
-    FingerprintController(boost::shared_ptr<FingerprintScanner> const& scanner,
+    FingerprintController(std::string name,
+			  boost::shared_ptr<FingerprintScanner> const& scanner,
 			  boost::shared_ptr<AuthorityAdapter> authorityAdapter,
 			  boost::shared_ptr<FingerprintAuthnAdapter> fingerprintAuthnAdapter,
 			  boost::shared_ptr<Lock> lock,
@@ -35,6 +36,7 @@ namespace roomsec {
     virtual void operator()();
 
   private:
+    std::string name;
     boost::shared_ptr<FingerprintScanner> scanner;
     boost::shared_ptr<AuthorityAdapter> authorityAdapter;
     boost::shared_ptr<FingerprintAuthnAdapter> fingerprintAuthnAdapter;

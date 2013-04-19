@@ -13,8 +13,6 @@
 
 namespace roomsec {
 
-  const std::string gatewayId = "gateway1";
-
   /*
    * Loggers
    */
@@ -33,7 +31,7 @@ namespace roomsec {
   boost::shared_ptr<StdGateway>
   StdGateway::Builder::build() {
     /* Networked Systems */
-    // TODO: ASSERT
+    // TODO: ASSERTs
 
     /* UI System */
 
@@ -50,24 +48,29 @@ namespace roomsec {
 
     assert(this->doorStateSensor != NULL);
     boost::shared_ptr<DoorStateController>
-      doorStateController(new DoorStateController(this->doorStateSensor, tailgateAnalyzer, ui));
+      doorStateController(new DoorStateController(name,
+						  doorStateSensor,
+						  tailgateAnalyzer,
+						  ui));
 
     /* Fingerprint Scanner Monitor and Controller */
 
     assert(this->fingerprintScanner != NULL);
     boost::shared_ptr<FingerprintController>
-      fingerprintController(new FingerprintController(fingerprintScanner,
+      fingerprintController(new FingerprintController(name,
+						      fingerprintScanner,
 						      authorityAdapter,
 						      fingerprintAuthnAdapter,
 						      lock,
 						      ui));
 
     boost::shared_ptr<StdGateway>
-      gateway(new StdGateway(ui,
+      gateway(new StdGateway(name,
 			     doorStateController,
 			     fingerprintController,
 			     authorityAdapter,
-			     fingerprintAuthnAdapter));
+			     fingerprintAuthnAdapter,
+			     ui));
 
     return gateway;
   }
@@ -77,16 +80,18 @@ namespace roomsec {
    * Ctor / Dtor
    */
 
-  StdGateway::StdGateway(boost::shared_ptr<Ui> ui,
+  StdGateway::StdGateway(std::string name,
 			 boost::shared_ptr<DoorStateController> doorStateController,
 			 boost::shared_ptr<FingerprintController> fingerprintController,
 			 boost::shared_ptr<AuthorityAdapter> authorityAdapter,
-			 boost::shared_ptr<FingerprintAuthnAdapter> fingerprintAuthnAdapter)
-    : ui(ui),
+			 boost::shared_ptr<FingerprintAuthnAdapter> fingerprintAuthnAdapter,
+			 boost::shared_ptr<Ui> ui)
+    : name(name),
       doorStateController(doorStateController),
       fingerprintController(fingerprintController),
       authorityAdapter(authorityAdapter),
-      fingerprintAuthnAdapter(fingerprintAuthnAdapter)
+      fingerprintAuthnAdapter(fingerprintAuthnAdapter),
+      ui(ui)
   {
   }
 
@@ -98,7 +103,7 @@ namespace roomsec {
   void
   StdGateway::operator()() {
     LOG4CXX_TRACE(logger, "Initializing StdGateway");
-    LOG4CXX_INFO(netLogger, "roomsec." << gatewayId << ".online");
+    LOG4CXX_INFO(netLogger, "roomsec." << name << ".online");
 
     LOG4CXX_DEBUG(logger, "Starting Ui Actor");
     std::thread uiThread(std::ref(*ui));
@@ -110,15 +115,12 @@ namespace roomsec {
     LOG4CXX_DEBUG(logger, "Starting FingerprintController Actor");
     std::thread fingerprintControllerThread(std::ref(*fingerprintController));
 
-    // LOG4CXX_DEBUG(logger, "Sleeping");
-    // std::this_thread::sleep_for(std::chrono::milliseconds(100000));
-
     LOG4CXX_DEBUG(logger, "Waiting for threads to exit");
     uiThread.join();
     doorStateControllerThread.join();
     fingerprintControllerThread.join();
 
-    LOG4CXX_INFO(netLogger, "roomsec." << gatewayId << ".online");
+    LOG4CXX_INFO(netLogger, "roomsec." << name << ".online");
     return;
   }
 }

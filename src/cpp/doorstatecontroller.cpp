@@ -15,10 +15,11 @@ namespace roomsec {
   //static log4cxx::LoggerPtr netLogger = log4cxx::Logger::getLogger("");
 
 
-  DoorStateController::DoorStateController(boost::shared_ptr<DoorStateSensor> sensor,
+  DoorStateController::DoorStateController(std::string name,
+					   boost::shared_ptr<DoorStateSensor> sensor,
 					   boost::shared_ptr<TailgateAnalyzer> tailgateAnalyzer,
 					   boost::shared_ptr<Ui> ui)
-    : sensor(sensor), tailgateAnalyzer(tailgateAnalyzer), ui(ui), stop(false)
+    : name(name), sensor(sensor), tailgateAnalyzer(tailgateAnalyzer), ui(ui), stop(false)
   {
     LOG4CXX_TRACE(logger, "Constructing DoorStateController");
   }
@@ -120,31 +121,3 @@ namespace roomsec {
   }
 
 }
-
-
-/*
-  LOG4CXX_DEBUG(logger, "sigDoorStateChange called");
-
-  if (state == DoorStateSensor::State::open) {
-  ui->message(UiMessage::Type::warning, "Door Opened");
-  LOG4CXX_INFO(netLogger, "roomsec." << gatewayId << ".door.open");
-  doorAlarmCountDown.cancelCountDown();
-  doorAlarmThread = doorAlarmCountDown.start();
-  }
-
-  else if (state == DoorStateSensor::State::closed) {
-  ui->message(UiMessage::Type::warning, "Door Closed");
-  LOG4CXX_INFO(netLogger, "roomsec." << gatewayId << ".door.close");
-
-  doorAlarmCountDown.cancelCountDown();
-  ui->stopAlarm();
-  }
-  return;
-
-  void StdGateway::signalDoorAlarm() {
-  LOG4CXX_DEBUG(logger, "Starting DoorStateController Actor");
-  LOG4CXX_INFO(netLogger, "roomsec." << gatewayId << ".alarm.door");
-  ui->startAlarm("Close Door");
-  }
-
-*/

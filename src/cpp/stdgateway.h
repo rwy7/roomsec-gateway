@@ -36,22 +36,24 @@ namespace roomsec {
 
   protected:
 
-    StdGateway(boost::shared_ptr<Ui> ui,
+    StdGateway(std::string name,
 	       boost::shared_ptr<DoorStateController> doorStateController,
 	       boost::shared_ptr<FingerprintController> fingerprintController,
 	       boost::shared_ptr<AuthorityAdapter> authorityAdapter,
-	       boost::shared_ptr<FingerprintAuthnAdapter> fingerprintAuthnAdapter);
+	       boost::shared_ptr<FingerprintAuthnAdapter> fingerprintAuthnAdapter,
+	       boost::shared_ptr<Ui> ui);
 
   private:
 
     static log4cxx::LoggerPtr logger;
     static log4cxx::LoggerPtr netLogger;
 
-    boost::shared_ptr<Ui> ui;
+    std::string name;
     boost::shared_ptr<DoorStateController> doorStateController;
     boost::shared_ptr<FingerprintController> fingerprintController;
     boost::shared_ptr<AuthorityAdapter> authorityAdapter;
     boost::shared_ptr<FingerprintAuthnAdapter> fingerprintAuthnAdapter;
+    boost::shared_ptr<Ui> ui;
 
   };
 }

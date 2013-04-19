@@ -27,12 +27,14 @@ namespace roomsec {
    * Ctor / Dtor
    */
 
-  FingerprintController::FingerprintController(boost::shared_ptr<FingerprintScanner> const& scanner,
+  FingerprintController::FingerprintController(std::string name,
+					       boost::shared_ptr<FingerprintScanner> const& scanner,
 					       boost::shared_ptr<AuthorityAdapter> authorityAdapter,
 					       boost::shared_ptr<FingerprintAuthnAdapter> fingerprintAuthnAdapter,
 					       boost::shared_ptr<Lock> lock,
 					       boost::shared_ptr<Ui> ui)
-    : scanner(scanner),
+    : name(name),
+      scanner(scanner),
       authorityAdapter(authorityAdapter),
       fingerprintAuthnAdapter(fingerprintAuthnAdapter),
       lock(lock),

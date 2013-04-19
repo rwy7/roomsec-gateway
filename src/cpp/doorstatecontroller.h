@@ -14,14 +14,15 @@ namespace roomsec {
 
   public:
 
-    DoorStateController(boost::shared_ptr<DoorStateSensor> sensor,
+    DoorStateController(std::string name,
+			boost::shared_ptr<DoorStateSensor> sensor,
 			boost::shared_ptr<TailgateAnalyzer> tailgateAnalyzer,
 			boost::shared_ptr<Ui> ui);
 
     void operator()();
     
   private:
-
+    std::string name;
     boost::shared_ptr<DoorStateSensor> sensor;
     boost::shared_ptr<TailgateAnalyzer> tailgateAnalyzer;
     boost::shared_ptr<Ui> ui;

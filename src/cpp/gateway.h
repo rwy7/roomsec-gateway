@@ -58,6 +58,12 @@ namespace roomsec {
     public:
       virtual ~Builder() {};
 
+      BuilderT&
+      setName(std::string const& name) {
+	this->name = name;
+	return *static_cast<BuilderT*>(this);
+      }
+
       /**
        * Construct and return the gateway object.  This should be the
        * last function that is called.
@@ -118,7 +124,7 @@ namespace roomsec {
       }
 
     protected:
-
+      std::string name;
       boost::shared_ptr<AuthorityAdapter> authorityAdapter;
       boost::shared_ptr<FingerprintAuthnAdapter> fingerprintAuthnAdapter;
       boost::shared_ptr<FingerprintScanner> fingerprintScanner;
