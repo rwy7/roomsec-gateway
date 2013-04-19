@@ -12,7 +12,7 @@
 namespace roomsec {
 
   static log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger("roomsec.doorstatecontroller");
-  //static log4cxx::LoggerPtr netLogger = log4cxx::Logger::getLogger("");
+  static log4cxx::LoggerPtr netLogger = log4cxx::Logger::getLogger("roomsec.net");
 
 
   DoorStateController::DoorStateController(std::string name,
@@ -42,7 +42,7 @@ namespace roomsec {
     std::chrono::system_clock::time_point
       doorOpenTime = std::chrono::system_clock::now();
 
-    const std::chrono::seconds maxOpenTime(10);
+    const std::chrono::seconds maxOpenTime(60);
     const std::chrono::milliseconds period(10);
     
     while(!this->stop) {
@@ -68,10 +68,12 @@ namespace roomsec {
 
 	  // CLOSED -> OPEN
 	case DoorState::open:
-	  LOG4CXX_TRACE(logger, "Next State = closed");
+	  LOG4CXX_INFO(netLogger, "roomsec." << name << ".door.open");
+	  LOG4CXX_TRACE(logger, "Next State = open");
 	  doorOpenTime = startTime;
 	  ui->message(UiMessage::Type::info, "Door Open");
 	  tailgateAnalyzer->beginSession();
+	  
 	  // TODO: sleep / freeze for debouncing
 	  break;
 	}
@@ -83,6 +85,8 @@ namespace roomsec {
 
 	  // OPEN -> CLOSED
 	case DoorState::closed:
+	  ui->message(UiMessage::Type::info, "Door Closed");
+	  LOG4CXX_INFO(netLogger, "roomsec." << name << ".door.closed");
 	  LOG4CXX_TRACE(logger, "Next State = closed");
 	  if(alarmOn) {
 	    ui->stopAlarm();
@@ -94,6 +98,7 @@ namespace roomsec {
 		       "in: "      << result.ingoing  << " " <<
 		       "out: "     << result.outgoing << " " <<
 		       "unknown: " << result.unknown);
+	  
 	  break;
 
 	  // OPEN -> OPEN
@@ -102,9 +107,9 @@ namespace roomsec {
 	  tailgateAnalyzer->update();
 	  if (startTime - doorOpenTime > maxOpenTime) {
 	    if (!alarmOn) {
-	      // TODO: Start Alarm, NetLog.
-	      LOG4CXX_INFO(logger, "Door alarm triggered.");
-	      ui->startAlarm("Close door");
+	      LOG4CXX_INFO(netLogger, "roomsec." << name << ".alarm.door");
+	      LOG4CXX_INFO(logger, "Door alarm triggered");
+	      ui->startAlarm("Close door now");
 	      alarmOn = true;
 	    }
 	  }
