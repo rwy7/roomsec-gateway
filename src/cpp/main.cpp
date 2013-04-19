@@ -107,6 +107,9 @@ int storeOptions(int argc, char* argv[], po::variables_map & vm) {
 
   po::options_description networkOptions("Networking Options");
   networkOptions.add_options()
+    ("name",
+         po::value<std::string>()->default_value("gateway"),
+         "the identifying name of this gateway.")
     ("fpauthn",
          po::value<std::string>()->default_value("localhost"), 
          "Fingerprint authentication server address")
