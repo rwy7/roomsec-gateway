@@ -8,6 +8,9 @@
 #include "tailgateanalyzer.h"
 #include "doorstatesensor.h"
 #include "doorstatecontroller.h"
+#include <cstdlib>
+#include <sstream>
+#include <string>
 
 namespace roomsec {
 
@@ -97,8 +100,16 @@ namespace roomsec {
 	  LOG4CXX_INFO(logger, "tailgate analysis: " << 
 		       "in: "      << result.ingoing  << " " <<
 		       "out: "     << result.outgoing << " " <<
-		       "unknown: " << result.unknown);
-	  
+                       "unknown: " << result.unknown);
+
+          LOG4CXX_INFO(netLogger, "roomsec." << name << ".ingoing." << result.ingoing);
+          LOG4CXX_INFO(netLogger, "roomsec." << name << ".outgoing." << result.outgoing);
+          if (result.ingoing > 1) {
+            std::stringstream convert;
+            convert << "in: " << result.ingoing <<", out: " << result.outgoing;
+            ui->message(UiMessage::Type::warning, convert.str());
+          }
+          
 	  break;
 
 	  // OPEN -> OPEN
