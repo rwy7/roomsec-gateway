@@ -1,16 +1,13 @@
 #include "config.h"
-#include <iostream>
-#include <string>
-#include <exception>
+
+#include <fstream>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/program_options.hpp>
-#include <boost/thread.hpp>
 
 #include <log4cxx/logger.h>
 #include <log4cxx/basicconfigurator.h>
 #include <log4cxx/propertyconfigurator.h>
-#include <log4cxx/helpers/exception.h>
 
 #include <wiringPi/wiringPi.h>
 #include <wiringPi/wiringPiSPI.h>
@@ -22,6 +19,7 @@
 #include "fingerprintauthnadapter.h"
 #include "thriftfingerprintauthnadapter.h"
 
+#include "gateway.h"
 #include "stdgateway.h"
 #include "replgateway.h"
 
@@ -33,10 +31,44 @@
 #include "fingerprintscanner.h"
 #include "blocksensor.h"
 #include "mcp3008blocksensor.h"
+#include "lock.h"
+
 #include "main.h"
 
 
+namespace po = ::boost::program_options;
+
+
+/**
+ * Define program options and parse the option sources.  Program
+ * options can be processed from a configuration file, or parsed from
+ * the command line. Options are processed here, and their values are
+ * stored in a returned boost::variable_map.
+ */
+int storeOptions(int argc, char* argv[], po::variables_map & vm);
+
+/**
+ * Initialize the logging subsystem. 
+ */
+int initLogging(po::variables_map& vm);
+
+/**
+ * Initialize hardware systems and libraries. These are
+ * initializations which must occur before specific hardware classes
+ * are instantiated.
+ */
+int initHardware(po::variables_map& vm);
+int cleanupHardware(po::variables_map const& vm);
+
+boost::shared_ptr<roomsec::Gateway>
+buildStdGateway(po::variables_map& vm);
+
+boost::shared_ptr<roomsec::Gateway>
+buildReplGateway(po::variables_map& vm);
+
+
 log4cxx::LoggerPtr logger(log4cxx::Logger::getLogger("roomsec.main"));
+
 
 int main (int argc, char *argv[]) {
   int retVal = 0;
@@ -54,7 +86,8 @@ int main (int argc, char *argv[]) {
     if(initHardware(vm)) {
 
       LOG4CXX_DEBUG(logger, "Building Gateway");
-      buildStdGateway(vm)->run();
+      boost::shared_ptr<roomsec::Gateway> gateway = buildStdGateway(vm);
+      (*gateway)();
       cleanupHardware(vm);
     }
   }
@@ -65,19 +98,58 @@ int main (int argc, char *argv[]) {
 
 int storeOptions(int argc, char* argv[], po::variables_map & vm) {
   int retVal = 0;
-  po::options_description desc("Allowed Options");
 
-  desc.add_options()
-    ("logconf", po::value<std::string>(), "log4cxx configuration file")
-    ("help", "produce help message")
-    ("fpauthn",  po::value<std::string>(), "Set the fingerprint authority server address")
-    ("fpauthn-port", po::value<int>(), "Set the port of the authority server");
+  po::options_description generalOptions("Configuration Options");
+  generalOptions.add_options()
+    ("logconf",
+         po::value<std::string>(),
+         "log4cxx configuration file");
 
-  po::store(po::parse_command_line(argc, argv, desc), vm);
+  po::options_description networkOptions("Networking Options");
+  networkOptions.add_options()
+    ("name",
+         po::value<std::string>()->default_value("gateway"),
+         "the identifying name of this gateway.")
+    ("fpauthn",
+         po::value<std::string>()->default_value("localhost"), 
+         "Fingerprint authentication server address")
+    ("fpauthn-port",
+         po::value<int>()->default_value(2222),
+         "Fingerprint authentication server port")
+    ("authority",
+         po::value<std::string>()->default_value("localhost"),   
+         "Authority server address")
+    ("authority-port",
+         po::value<int>()->default_value(2223),
+         "Authority server port");
+
+  po::options_description commandLineOptions("Command Line Options");
+
+  commandLineOptions.add_options()
+    ("conf", po::value<std::string>(), "configuration file")
+    ("help", "produce help message");
+
+  commandLineOptions
+    .add(generalOptions)
+    .add(networkOptions);
+
+  po::options_description fileOptions("Configuration File Options");
+  fileOptions
+    .add(generalOptions)
+    .add(networkOptions);
+
+  po::store(po::parse_command_line(argc, argv, commandLineOptions), vm);
+
+  if(vm.count("conf")) {
+    std::ifstream confFile;
+    confFile.open(vm["conf"].as<std::string>());
+    po::store(po::parse_config_file<char>(confFile, fileOptions), vm);
+  }
+
   po::notify(vm);
 
   if(vm.count("help")) {
-    std::cout << desc << "\n";
+    std::cout << commandLineOptions << "\n";
     retVal = -2;
   }
 
@@ -157,19 +229,12 @@ buildStdGateway(po::variables_map& vm) {
      thrift connection. */
 
   /* Authority Authorization information */
-  int authzPort = AUTHZ_PORT;
-  std::string authzAddr = AUTHZ_ADDR;
+  std::string authzAddr = vm["authority"].as<std::string>();
+  int authzPort         = vm["authority-port"].as<int>();
 
   /*  Fingerprint Authentication information */
-  int authnPort = AUTHN_PORT;
-  std::string authnAddr = AUTHN_ADDR;
-
-  if (vm.count("fpauthn")) {
-    authnAddr = vm["fpauthn"].as<std::string>();
-  }
-  if (vm.count("fpauthn-port")) {
-    authnPort = vm["fpauthn-port"].as<int>();
-  }
+  std::string authnAddr = vm["fpauthn"].as<std::string>();
+  int authnPort         = vm["fpauthn-port"].as<int>();
 
   LOG4CXX_DEBUG(logger, "Initializing AuthorityAdapter");
   boost::shared_ptr<roomsec::ThriftAuthorityAdapter>
@@ -213,7 +278,17 @@ buildStdGateway(po::variables_map& vm) {
   LOG4CXX_DEBUG(logger, "Initializing Door State Sensor");
   boost::shared_ptr<roomsec::DoorStateSensor>
     doorStateSensor(new roomsec::DoorStateSensor(18));
-  
+
+  /* Tailgate analyzer */
+
+  LOG4CXX_DEBUG(logger, "Initializing Block Sensors");
+  std::vector<roomsec::BlockSensor*> blockSensors;
+  blockSensors.push_back(new roomsec::MCP3008BlockSensor(0));
+  blockSensors.push_back(new roomsec::MCP3008BlockSensor(1));
+
+  builder.setBlockSensors(blockSensors);
+
+
   /* Fingerprint Scanner */
 
   LOG4CXX_DEBUG(logger, "Initializing Fingerprint Scanner");
@@ -229,17 +304,10 @@ buildStdGateway(po::variables_map& vm) {
   boost::shared_ptr<roomsec::FingerprintScanner> fingerprintScanner =
     fpScannerFact.getFingerprintScanner(1);
 
-  // lock Sensor
-
-  /*
-    LOG4CXX_DEBUG(logger, "Initializing Block Sensors");
-    std::vector<roomsec::BlockSensor*> blockSensors;
-    blockSensors[0] = new roomsec::MCP3008BlockSensor(0);
-    blockSensors[1] = new roomsec::MCP3008BlockSensor(1);
-    .setBlockSensors(blockSensors);
-  */
+  boost::shared_ptr<roomsec::Lock> lock(new roomsec::Lock(expander, expander->GPIOA, 0x80));
 
   builder
+    .setLock(lock)
     .setDoorStateSensor(doorStateSensor)
     .setFingerprintScanner(fingerprintScanner);
 

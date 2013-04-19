@@ -1,122 +1,179 @@
 #include "config.h"
-
-#include <boost/chrono.hpp>
-#include <boost/thread.hpp>
+#include <thread>
+#include <chrono>
+#include <mutex>
+#include <log4cxx/logger.h>
 #include <boost/shared_ptr.hpp>
-
 #include "buzzer.h"
 #include "display.h"
+#include "uimessage.h"
+#include "queue.h"
 #include "ui.h"
 
 namespace roomsec {
+
+  /*
+   * Logging
+   */
+
+  static log4cxx::LoggerPtr logger(log4cxx::Logger::getLogger("roomsec.ui"));
+
+
+  /*
+   * Display Constants
+   */
+
+  const std::chrono::milliseconds beepTime(550);
+  const std::chrono::milliseconds messageTime(1000);
+
+
+  /*
+   * Implementation Class
+   */
   
-  /********************
-   * UiMessage
-   ********************/
-  
-  log4cxx::LoggerPtr UiMessage::logger(log4cxx::Logger::getLogger("roomsec.ui"));
+  class Ui::Impl {
+    friend class Ui;
 
-  UiMessage::UiMessage(Type type, std::string message)
-    : type(type), message(message) 
+  protected:
+    Impl(boost::shared_ptr<Display> display,
+	 boost::shared_ptr<Buzzer> buzzer);
+
+    std::mutex mutex;
+    std::string alarmMessage;
+    bool alarmOn;
+    boost::shared_ptr<Display> display;
+    boost::shared_ptr<Buzzer> buzzer;
+    Queue<UiMessage> messageQueue;
+    bool stop;
+
+    UiMessage popMessage();
+    void show(Display::Color c, std::string const& m);
+    void showBeep(Display::Color c, std::string const& m);
+    void clearScreen();
+    void enterDefaultState();
+  };
+
+
+  Ui::Impl::Impl(boost::shared_ptr<Display> display,
+		 boost::shared_ptr<Buzzer> buzzer)
+  : alarmMessage(""),
+    alarmOn(false),
+    display(display),
+    buzzer(buzzer),
+    stop(false)
   {
-    LOG4CXX_TRACE(logger, "UiMessage created: " << message);
   }
 
-  UiMessage::UiMessage(UiMessage const& that) :
-    type(that.getType()), message(that.getMessage())
+  /* Convienience Functions 
+     These functions represent common operations on the impl class. */
+
+  UiMessage Ui::Impl::popMessage() {
+    return messageQueue.front_pop();
+  }
+
+  void Ui::Impl::show(Display::Color c, std::string const& m) {
+    clearScreen();
+    display->setBacklightColor(c);
+    display->putStr(m);
+    std::this_thread::sleep_for(messageTime);
+    enterDefaultState();
+    return;
+  }
+
+  void Ui::Impl::showBeep(Display::Color c, std::string const& m) {
+    clearScreen();
+    display->setBacklightColor(c);
+    display->putStr(m);
+    buzzer->on();
+    std::this_thread::sleep_for(beepTime);
+    buzzer->off();
+    std::this_thread::sleep_for(messageTime - beepTime);
+    enterDefaultState();
+    return;
+  }
+
+  void Ui::Impl::clearScreen() {
+    display->clear();
+    display->home();
+    return;
+  }
+
+  void Ui::Impl::enterDefaultState() {
+    std::unique_lock<std::mutex> lock(mutex);
+    if (alarmOn) {
+      buzzer->on();
+      clearScreen();
+      display->setBacklightColor(Display::red);
+      display->putStr(alarmMessage);
+    }
+    else {
+      clearScreen();
+      display->setBacklightColor(Display::blue);
+    }
+    return;
+  }
+
+  /*
+   * Ctor/Dtor
+   */
+
+  Ui::Ui(boost::shared_ptr<Display> display,
+	 boost::shared_ptr<Buzzer> buzzer)
+    : impl(new Impl(display, buzzer))
   {
+    impl->enterDefaultState();
   }
 
-  UiMessage::Type
-  UiMessage::getType() const {
-    return type;
-  }
 
-  std::string
-  UiMessage::getMessage() const {
-    return message;
-  }
-
-  /********************
-   * Ui
-   ********************/
-
-  namespace b = ::boost;
-
-  log4cxx::LoggerPtr Ui::logger(log4cxx::Logger::getLogger("roomsec.ui"));
-
-  Ui::Ui(b::shared_ptr<Display> display, b::shared_ptr<Buzzer> buzzer) :
-     alarmMessage(""), alarmOn(false), display(display), buzzer(buzzer), stop(false)
+  Ui::~Ui()
   {
-    display->setBacklightColor(Display::green);
+    // TODO: Disable backlight, clear screen on destruction
   }
+
 
   void
-  Ui::run() {
+  Ui::operator()() {
     LOG4CXX_DEBUG(logger, "Ui running");
 
-    const int messageTime = 2000; // milliseconds;
-
-    while(!stop) {
+    while(!impl->stop) {
 
       LOG4CXX_DEBUG(logger, "Waiting for message");
-      UiMessage message = messageQueue.front_pop();
-
+      UiMessage message = impl->popMessage();
       LOG4CXX_DEBUG(logger, "Writing Message: " << message.getMessage());
-      display->clear();
-      display->home();
 
       switch(message.getType()) {
 
       case UiMessage::Type::info:
-	display->setBacklightColor(Display::blue);
-	display->putStr(message.getMessage());
-	boost::this_thread::sleep_for(boost::chrono::milliseconds(messageTime));
+	impl->show(Display::blue, message.getMessage());
 	break;
 
       case UiMessage::Type::error:
-	display->setBacklightColor(Display::red);
-	display->putStr(message.getMessage());
-	buzzer->on();
-	boost::this_thread::sleep_for(boost::chrono::milliseconds(500));
-	buzzer->off();
-	boost::this_thread::sleep_for(boost::chrono::milliseconds(messageTime - 500));
+	impl->showBeep(Display::red, message.getMessage());
 	break;
 
       case UiMessage::Type::prompt:
       case UiMessage::Type::warning:
-	display->setBacklightColor(Display::green);
-	display->putStr(message.getMessage());
-	buzzer->on();
-	boost::this_thread::sleep_for(boost::chrono::milliseconds(500));
-	buzzer->off();
-	boost::this_thread::sleep_for(boost::chrono::milliseconds(messageTime - 500));
+	impl->showBeep(Display::green, message.getMessage());
 	break;
 
       case UiMessage::Type::alarm:
-	/* Do nothing, the steady state defaults have changed. */
+	/* Do nothing.
+	   The steady state defaults have changed. */
 	break;
 
       default:
-	display->putStr("Unrecognized Message Type!");
-	buzzer->on();
-	boost::this_thread::sleep_for(boost::chrono::milliseconds(messageTime));
-	buzzer->off();
+	impl->display->putStr("Unkwn Msg Type!");
+	impl->buzzer->on();
+	std::this_thread::sleep_for(messageTime);
+	impl->buzzer->off();
+	impl->enterDefaultState();
       }
-
-      this->enterDefaultState();
-
-      /*  Default the message to blue.  Check after clearing the screen if the
-       *  alarm is on.  Since checking the alarm requires mutex access, this is
-       *  necessary.*/
-
-      boost::this_thread::interruption_point();
-      // boost::this_thread::sleep_for(boost::chrono::milliseconds(500));
     }
 
     LOG4CXX_DEBUG(logger, "Ui stopping");
     return;
   }
+
 
   /** Messaging Functions */
 
@@ -124,50 +181,36 @@ namespace roomsec {
     Ui::message(UiMessage const& msg) {
       LOG4CXX_DEBUG(logger, "Queueing message: " << msg.getMessage());
       int retVal = 0;
-      messageQueue.push(msg);
+      impl->messageQueue.push(msg);
       return retVal;
     }
 
   int
-    Ui::startAlarm(std::string const& message) {
-      int retVal = 0;
-      boost::unique_lock<boost::mutex> lock(this->mutex);
-      this->alarmOn = true;
-      this->alarmMessage = message;
-      LOG4CXX_DEBUG(logger, "Starting alarm: " << this->alarmMessage);
-      this->messageQueue.push(UiMessage(UiMessage::Type::alarm, ""));
-      return retVal;
-    }
-
-  int
-    Ui::stopAlarm() {
-      boost::unique_lock<boost::mutex> lock(this->mutex);
-      this->alarmOn = false;
-      this->alarmMessage = "";
-      this->messageQueue.push(UiMessage(UiMessage::Type::alarm, ""));
-      return 0;
-    }
-
-  void Ui::enterDefaultState() {
-    boost::unique_lock<boost::mutex> lock(this->mutex);
-    if (alarmOn) {
-      buzzer->on();
-      display->clear();
-      display->home();
-      display->setBacklightColor(Display::red);
-      display->putStr(this->alarmMessage);
-    }
-    else {
-      display->clear();
-      display->home();
-      display->setBacklightColor(Display::blue);
-    }
-    return;
+  Ui::message(UiMessage::Type type, std::string const& str) {
+    UiMessage msg(type, str);
+    return message(msg);
   }
 
+
   int
-    Ui::message(UiMessage::Type type, std::string const& str) {
-      UiMessage msg(type, str);
-      return message(msg);
-    }
+  Ui::startAlarm(std::string const& message) {
+    int retVal = 0;
+    std::unique_lock<std::mutex> lock(impl->mutex);
+    impl->alarmOn = true;
+    impl->alarmMessage = message;
+    LOG4CXX_DEBUG(logger, "Starting alarm: " << impl->alarmMessage);
+    this->message(UiMessage::Type::alarm, "");
+    return retVal;
+  }
+
+
+  int
+  Ui::stopAlarm() {
+    std::unique_lock<std::mutex> lock(impl->mutex);
+    impl->alarmOn = false;
+    impl->alarmMessage = "";
+    impl->messageQueue.push(UiMessage(UiMessage::Type::alarm, ""));
+    return 0;
+  }
+
 }

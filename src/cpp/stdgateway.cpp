@@ -1,37 +1,28 @@
 #include "config.h"
-
+#include <thread>
+#include <chrono>
 #include <boost/shared_ptr.hpp>
-#include <boost/thread.hpp>
-#include <boost/chrono.hpp>
-#include <boost/signal.hpp>
-#include <boost/bind.hpp>
-
 #include <log4cxx/logger.h>
 
-#include "gen-cpp/authorize_types.h"
-
-#include "actor.h"
 #include "ui.h"
 #include "gateway.h"
 #include "fingerprintcontroller.h"
 #include "doorstatecontroller.h"
-#include "authorityadapter.h"
-#include "fingerprintauthnadapter.h"
-
+#include "tailgateanalyzer.h"
 #include "stdgateway.h"
 
 namespace roomsec {
 
-  const std::string gatewayId = "gateway1";
-
   /*
    * Loggers
    */
+
   log4cxx::LoggerPtr
   StdGateway::logger(log4cxx::Logger::getLogger("roomsec.gateway"));
 
   log4cxx::LoggerPtr
   StdGateway::netLogger(log4cxx::Logger::getLogger("roomsec.net"));
+
 
   /*
    * Builder
@@ -40,7 +31,7 @@ namespace roomsec {
   boost::shared_ptr<StdGateway>
   StdGateway::Builder::build() {
     /* Networked Systems */
-    // TODO: ASSERT
+    // TODO: ASSERTs
 
     /* UI System */
 
@@ -48,147 +39,88 @@ namespace roomsec {
     assert(this->buzzer != NULL);
     boost::shared_ptr<Ui> ui(new Ui(this->display, this->buzzer));
 
+
+    /* Tailgate Analyzer */
+    boost::shared_ptr<TailgateAnalyzer> tailgateAnalyzer(new TailgateAnalyzer(blockSensors));
+
     /* Door State Monitor and Controller */
+
 
     assert(this->doorStateSensor != NULL);
     boost::shared_ptr<DoorStateController>
-      doorStateController(new DoorStateController(this->doorStateSensor));
+      doorStateController(new DoorStateController(name,
+						  doorStateSensor,
+						  tailgateAnalyzer,
+						  ui));
 
     /* Fingerprint Scanner Monitor and Controller */
 
     assert(this->fingerprintScanner != NULL);
     boost::shared_ptr<FingerprintController>
-      fingerprintController(new FingerprintController(this->fingerprintScanner));
+      fingerprintController(new FingerprintController(name,
+						      fingerprintScanner,
+						      authorityAdapter,
+						      fingerprintAuthnAdapter,
+						      lock,
+						      ui));
 
     boost::shared_ptr<StdGateway>
-      gateway(new StdGateway(ui,
+      gateway(new StdGateway(name,
 			     doorStateController,
 			     fingerprintController,
 			     authorityAdapter,
-			     fingerprintAuthnAdapter));
+			     fingerprintAuthnAdapter,
+			     ui));
 
     return gateway;
   }
+
 
   /*
    * Ctor / Dtor
    */
 
-  void
-  StdGateway::sigDoorStateChange(DoorStateSensor::State state) {
-
-
-    LOG4CXX_DEBUG(logger, "sigDoorStateChange called");
-
-    if (state == DoorStateSensor::State::open) {
-      ui->message(UiMessage::Type::warning, "Door Opened");
-      LOG4CXX_INFO(netLogger, "roomsec." << gatewayId << ".door.open");
-      doorAlarmCountDown.cancelCountDown();
-      doorAlarmThread.interrupt();
-      doorAlarmThread = doorAlarmCountDown.start();
-    }
-
-    else if (state == DoorStateSensor::State::closed) {
-      ui->message(UiMessage::Type::warning, "Door Closed");
-      LOG4CXX_INFO(netLogger, "roomsec." << gatewayId << ".door.close");
-
-      doorAlarmCountDown.cancelCountDown();
-      doorAlarmThread.interrupt();
-      ui->stopAlarm();
-    }
-    return;
-  }
-
-  void StdGateway::signalDoorAlarm() {
-    LOG4CXX_DEBUG(logger, "Starting DoorStateController Actor");
-    LOG4CXX_INFO(netLogger, "roomsec." << gatewayId << ".alarm.door");
-    ui->startAlarm("Close Door");
-  }
-
-
-  void
-  StdGateway::fingerprintScanned(boost::shared_ptr<Fingerprint> fingerprint) {
-
-    LOG4CXX_DEBUG(logger, "Fingerprint Scanned");
-    ui->message(UiMessage::Type::info, "Fingerprint Scanned");
-
-    iface::Credential credential;
-    fingerprintAuthnAdapter->authenticate(credential, fingerprint->serialize());
-
-    if (credential.token == "" &&
-	credential.userid == "") {
-      ui->message(UiMessage::Type::error, "User Unrecognized");
-      LOG4CXX_INFO(netLogger, "roomsec." << gatewayId << ".userauth.fail");
-    }
-    else {
-      ui->message(UiMessage::Type::warning, "User: "+ credential.userid);
-      LOG4CXX_INFO(netLogger, "roomsec." << gatewayId << ".userauth.pass." << credential.userid);
-    }
-    return;
-  }
-
-  StdGateway::StdGateway(boost::shared_ptr<Ui> ui,
+  StdGateway::StdGateway(std::string name,
 			 boost::shared_ptr<DoorStateController> doorStateController,
 			 boost::shared_ptr<FingerprintController> fingerprintController,
 			 boost::shared_ptr<AuthorityAdapter> authorityAdapter,
-			 boost::shared_ptr<FingerprintAuthnAdapter> fingerprintAuthnAdapter)
-    : ui(ui),
-      doorStateController(doorStateController), 
+			 boost::shared_ptr<FingerprintAuthnAdapter> fingerprintAuthnAdapter,
+			 boost::shared_ptr<Ui> ui)
+    : name(name),
+      doorStateController(doorStateController),
       fingerprintController(fingerprintController),
       authorityAdapter(authorityAdapter),
       fingerprintAuthnAdapter(fingerprintAuthnAdapter),
-      doorAlarmCountDown(boost::chrono::milliseconds(10000))
+      ui(ui)
   {
-
-    /* Callbacks */
-    doorAlarmCountDown.signal.connect(boost::bind(&StdGateway::signalDoorAlarm, this));
-
-    doorStateController
-      ->sigDoorStateChange
-      .connect(boost::bind(&StdGateway::sigDoorStateChange, this, _1));
-
-    fingerprintController
-      ->fingerprintScanned
-      .connect(boost::bind(&StdGateway::fingerprintScanned, this, _1));
-
-    /*
-     * Threading
-     */
   }
 
+
+  /*
+   * Running Code
+   */
+
   void
-  StdGateway::init() {
+  StdGateway::operator()() {
     LOG4CXX_TRACE(logger, "Initializing StdGateway");
-    
-  }
-
-  void
-  StdGateway::begin() {
-    LOG4CXX_INFO(netLogger, "roomsec." << gatewayId << ".online");
+    LOG4CXX_INFO(netLogger, "roomsec." << name << ".online");
 
     LOG4CXX_DEBUG(logger, "Starting Ui Actor");
-    //boost::thread uiThread = ui->start();
-    boost::thread uiThread(boost::bind(&Ui::run, ui));
-
+    std::thread uiThread(std::ref(*ui));
     ui->message(UiMessage::Type::warning, "Initializing");
 
     LOG4CXX_DEBUG(logger, "Starting DoorStateController Actor");
-    boost::thread doorStateControllerThread(boost::bind(&DoorStateController::run,
-							doorStateController));
+    std::thread doorStateControllerThread(std::ref(*doorStateController));
 
     LOG4CXX_DEBUG(logger, "Starting FingerprintController Actor");
-    boost::thread fingerprintControllerThread(boost::bind(&FingerprintController::run,
-							  fingerprintController));
-
-    LOG4CXX_DEBUG(logger, "Sleeping");
-    boost::this_thread::sleep_for(boost::chrono::milliseconds(100000));
+    std::thread fingerprintControllerThread(std::ref(*fingerprintController));
 
     LOG4CXX_DEBUG(logger, "Waiting for threads to exit");
     uiThread.join();
     doorStateControllerThread.join();
     fingerprintControllerThread.join();
 
-    LOG4CXX_INFO(netLogger, "roomsec." << gatewayId << ".online");
+    LOG4CXX_INFO(netLogger, "roomsec." << name << ".online");
     return;
   }
 }

@@ -3,7 +3,9 @@
 #define _ROOMSEC_QUEUE_H_
 
 #include <queue>
-#include <boost/thread.hpp>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
 
 namespace roomsec {
 
@@ -11,13 +13,13 @@ namespace roomsec {
   class Queue {
   private:
     std::queue<T> queue;
-    mutable boost::mutex mutex;
-    boost::condition_variable nonempty;
+    mutable std::mutex mutex;
+    std::condition_variable nonempty;
 
   public:
 
     T front() {
-      boost::unique_lock<boost::mutex> lock(this->mutex);
+      std::unique_lock<std::mutex> lock(this->mutex);
       while (this->queue.empty()) {
 	this->nonempty.wait(lock);
       }
@@ -25,25 +27,25 @@ namespace roomsec {
     }
 
     T back() const {
-      boost::unique_lock<boost::mutex> lock(this->mutex);
+      std::unique_lock<std::mutex> lock(this->mutex);
       return this->queue.back();
     }
 
     void push(T const& data) {
-      boost::unique_lock<boost::mutex> lock(this->mutex);
+      std::unique_lock<std::mutex> lock(this->mutex);
       this->queue.push(data);
       this->nonempty.notify_one();
       return;
     }
 
     void pop() {
-      boost::unique_lock<boost::mutex> lock(this->mutex);
+      std::unique_lock<std::mutex> lock(this->mutex);
       this->queue.pop();
       return;
     }
 
     T front_pop() {
-      boost::unique_lock<boost::mutex> lock(this->mutex);
+      std::unique_lock<std::mutex> lock(this->mutex);
       while (this->queue.empty()) {
 	this->nonempty.wait(lock);
       }
@@ -53,7 +55,7 @@ namespace roomsec {
     }
 
     bool empty() const {
-      boost::unique_lock<boost::mutex> lock(this->mutex);
+      std::unique_lock<std::mutex> lock(this->mutex);
       return this->queue.empty();
     }
   };

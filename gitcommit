@@ -1,0 +1,6 @@
+Implement Gateway control object
+
+This new gateway object controls the high level logic of the
+gateway. The ReplGateway provides a convenient interface to interact
+with and demo the system.  It allows the user to control the gateway
+through a happy/crappy repl.

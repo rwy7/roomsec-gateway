@@ -39,19 +39,7 @@ namespace roomsec {
 
 
   void
-  ReplGateway::init() {
-
-  }
-
-
-  void
-  ReplGateway::begin() {
-    this->start_repl();
-  }
-
-
-  void
-  ReplGateway::start_repl() {
+  ReplGateway::operator()() {
 
     std::cout << "RoomSec Gateway\n";
 

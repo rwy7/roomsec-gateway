@@ -5,11 +5,6 @@ namespace roomsec {
   Gateway::~Gateway() {
   }
 
-  void Gateway::run() {
-    this->init();
-    this->begin();
-  }
-  
   void
   Gateway::setAuthorityAdapter(boost::shared_ptr<AuthorityAdapter> authzAdapter){
     this->authzAdapter = authzAdapter;

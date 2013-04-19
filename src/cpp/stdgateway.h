@@ -4,8 +4,6 @@
 
 #include <boost/shared_ptr.hpp>
 #include <log4cxx/logger.h>
-#include "doorstatesensor.h"
-#include "alarm.h"
 #include "gateway.h"
 
 namespace roomsec {
@@ -34,35 +32,28 @@ namespace roomsec {
     };
 
     friend class StdGateway::Builder;
-
-    void sigDoorStateChange(DoorStateSensor::State state);
-    void fingerprintScanned(boost::shared_ptr<Fingerprint> fingerprint);
-    void signalDoorAlarm();
+    virtual void operator()();
 
   protected:
 
-    StdGateway(boost::shared_ptr<Ui> ui,
+    StdGateway(std::string name,
 	       boost::shared_ptr<DoorStateController> doorStateController,
 	       boost::shared_ptr<FingerprintController> fingerprintController,
 	       boost::shared_ptr<AuthorityAdapter> authorityAdapter,
-	       boost::shared_ptr<FingerprintAuthnAdapter> fingerprintAuthnAdapter);
+	       boost::shared_ptr<FingerprintAuthnAdapter> fingerprintAuthnAdapter,
+	       boost::shared_ptr<Ui> ui);
 
   private:
-
-    virtual void init();
-    virtual void begin();
 
     static log4cxx::LoggerPtr logger;
     static log4cxx::LoggerPtr netLogger;
 
-    boost::shared_ptr<Ui> ui;
+    std::string name;
     boost::shared_ptr<DoorStateController> doorStateController;
     boost::shared_ptr<FingerprintController> fingerprintController;
     boost::shared_ptr<AuthorityAdapter> authorityAdapter;
     boost::shared_ptr<FingerprintAuthnAdapter> fingerprintAuthnAdapter;
-
-    boost::thread  doorAlarmThread;
-    CountDownSignal doorAlarmCountDown;
+    boost::shared_ptr<Ui> ui;
 
   };
 }

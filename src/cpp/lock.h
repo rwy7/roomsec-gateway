@@ -7,6 +7,14 @@
 namespace roomsec {
 
   /**
+   * The state of a door lock.  The lock is a physical device attached
+   * to the gateway.  The lock may either be locked, or unlocked.
+   */
+  enum class LockState {
+    locked, unlocked
+  };
+
+  /**
    * A representation of a physical lock device.  In the gateway
    * system, the lock is actually implemented as an electronically
    * controlled strike plate.  This class provides an abstract
@@ -24,14 +32,6 @@ namespace roomsec {
      * @param pin The pin(s) on the bank.
      */
     Lock(boost::shared_ptr<IOExpander> device, IOExpander::GPIO bank, uint8_t pin);
-
-    /**
-     * The state of a door lock.  The lock is a physical device attached
-     * to the gateway.  The lock may either be locked, or unlocked.
-     */
-    enum class LockState {
-      locked, unlocked
-    };
 
     /**
      * Determine the locks' state.

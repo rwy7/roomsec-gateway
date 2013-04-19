@@ -4,32 +4,45 @@
 #define _ROOMSEC_FINGERPRINTCONTROLLER_H_
 
 #include <boost/shared_ptr.hpp>
-#include <boost/signal.hpp>
-#include <log4cxx/logger.h>
-
-#include "fingerprintscanner.h"
-#include "actor.h"
 
 namespace roomsec {
 
+  class FingerprintScanner;
+  class AuthorityAdapter;
+  class FingerprintAuthnAdapter;
+  class Lock;
+  class Ui;
+  
   /**
    * This class controls the fingerprint scanning and detection
-   * hardware subsystems.  As an actor, it is intended to be run under
-   * it's own, dedicated thread.
+   * hardware subsystems.  It is intended to be run under it's own,
+   * dedicated thread.  This class also controls authentication and
+   * authorization subsystems.
    */
-  class FingerprintController : public Actor {
+  class FingerprintController {
   public:
-    FingerprintController(boost::shared_ptr<FingerprintScanner> const& scanner);
-    ~FingerprintController();
-    virtual void run();
+    FingerprintController(std::string name,
+			  boost::shared_ptr<FingerprintScanner> const& scanner,
+			  boost::shared_ptr<AuthorityAdapter> authorityAdapter,
+			  boost::shared_ptr<FingerprintAuthnAdapter> fingerprintAuthnAdapter,
+			  boost::shared_ptr<Lock> lock,
+			  boost::shared_ptr<Ui> ui);
 
-    boost::signal<void (boost::shared_ptr<Fingerprint> fingerprint)> fingerprintScanned;
+    FingerprintController(FingerprintController const& source) = delete;
+    FingerprintController(FingerprintController && source) = delete;
+
+    ~FingerprintController();
+
+    virtual void operator()();
 
   private:
-    bool stop;
+    std::string name;
     boost::shared_ptr<FingerprintScanner> scanner;
-    static log4cxx::LoggerPtr logger;
-    
+    boost::shared_ptr<AuthorityAdapter> authorityAdapter;
+    boost::shared_ptr<FingerprintAuthnAdapter> fingerprintAuthnAdapter;
+    boost::shared_ptr<Lock> lock;
+    boost::shared_ptr<Ui> ui;
+    bool stop;
   };
 }
 

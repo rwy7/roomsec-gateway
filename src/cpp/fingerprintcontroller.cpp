@@ -1,38 +1,101 @@
 #include "config.h"
-#include <boost/thread.hpp>
+#include <thread>
 #include <boost/shared_ptr.hpp>
 #include <log4cxx/logger.h>
-#include "actor.h"
+#include "gen-cpp/authorize_types.h"
+#include "authorityadapter.h"
+#include "fingerprintauthnadapter.h"
+#include "ui.h"
+#include "uimessage.h"
+#include "lock.h"
 #include "fingerprintscanner.h"
 #include "fingerprintcontroller.h"
 
 namespace roomsec {
 
-  log4cxx::LoggerPtr
-  FingerprintController::logger = log4cxx::Logger::getLogger("roomsec.fingerprint");
+  /*
+   * Logging
+   */
+
+  // TODO: Repair netlogger
+  const std::string gatewayId = "gateway1";
+  static log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger("roomsec.fingerprint");
+  static log4cxx::LoggerPtr netLogger = log4cxx::Logger::getLogger("roomsec.net");
 
 
-  FingerprintController::FingerprintController(boost::shared_ptr<FingerprintScanner> const& scanner)
-    : stop(false), scanner(scanner)
+  /*
+   * Ctor / Dtor
+   */
+
+  FingerprintController::FingerprintController(std::string name,
+					       boost::shared_ptr<FingerprintScanner> const& scanner,
+					       boost::shared_ptr<AuthorityAdapter> authorityAdapter,
+					       boost::shared_ptr<FingerprintAuthnAdapter> fingerprintAuthnAdapter,
+					       boost::shared_ptr<Lock> lock,
+					       boost::shared_ptr<Ui> ui)
+    : name(name),
+      scanner(scanner),
+      authorityAdapter(authorityAdapter),
+      fingerprintAuthnAdapter(fingerprintAuthnAdapter),
+      lock(lock),
+      ui(ui),
+      stop(false)
   {
     // Do Nothing
   }
+
 
   FingerprintController::~FingerprintController()
   {
     // Do Nothing
   }
- 
 
-  void FingerprintController::run()
+
+  /*
+   * Running Code
+   */
+
+  void FingerprintController::operator()()
   {
     LOG4CXX_DEBUG(logger, "Fingerprint Controller running");
+
+
+    // lock the door
+    lock->setState(LockState::locked);
     while(!this->stop) {
+
+      // Scan for fingerprint.  This is a blocking/waiting operation.
       boost::shared_ptr<Fingerprint> fingerprint(scanner->scanFingerprint());
+
       LOG4CXX_DEBUG(logger, "Fingerprint Scanned");
-      fingerprintScanned(fingerprint);
-      boost::this_thread::interruption_point();
+      ui->message(UiMessage::Type::info, "Fingerprint Scanned");
+
+      iface::Credential credential;
+
+      // TODO: Handle Failure more robustly
+      fingerprintAuthnAdapter->authenticate(credential, fingerprint->serialize());
+
+      if (credential.token == "" &&
+	  credential.userid == "") {
+	ui->message(UiMessage::Type::error, "User Unrecognized");
+	LOG4CXX_INFO(netLogger, "roomsec." << gatewayId << ".userauth.fail");
+      }
+
+      else {
+	ui->message(UiMessage::Type::warning, "User: "+ credential.userid);
+
+	LOG4CXX_INFO(netLogger,
+		     "roomsec." << gatewayId << 
+		     ".userauth.pass." << credential.userid);
+
+	lock->setState(LockState::unlocked);
+	std::this_thread::sleep_for(std::chrono::seconds(5));
+	lock->setState(LockState::locked);
+      }
+
     }
+    LOG4CXX_DEBUG(logger, "Fingerprint Controller Stopping");
+    // TODO: Close fingerprint scanner device.
     return;
   }
 }
