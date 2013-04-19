@@ -108,6 +108,7 @@ namespace roomsec {
     }
     else {
       clearScreen();
+      buzzer->off();
       display->setBacklightColor(Display::blue);
     }
     return;
@@ -137,9 +138,11 @@ namespace roomsec {
 
     while(!impl->stop) {
 
-      LOG4CXX_DEBUG(logger, "Waiting for message");
+      impl->enterDefaultState();
+
+      LOG4CXX_TRACE(logger, "Waiting for message");
       UiMessage message = impl->popMessage();
-      LOG4CXX_DEBUG(logger, "Writing Message: " << message.getMessage());
+      LOG4CXX_TRACE(logger, "Writing Message: " << message.getMessage());
 
       switch(message.getType()) {
 
@@ -179,7 +182,7 @@ namespace roomsec {
 
   int
     Ui::message(UiMessage const& msg) {
-      LOG4CXX_DEBUG(logger, "Queueing message: " << msg.getMessage());
+      LOG4CXX_TRACE(logger, "Queueing message: " << msg.getMessage());
       int retVal = 0;
       impl->messageQueue.push(msg);
       return retVal;
