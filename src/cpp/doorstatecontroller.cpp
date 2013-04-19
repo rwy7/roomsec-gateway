@@ -19,9 +19,9 @@ namespace roomsec {
 
 
   DoorStateController::DoorStateController(std::string name,
-					   boost::shared_ptr<DoorStateSensor> sensor,
-					   boost::shared_ptr<TailgateAnalyzer> tailgateAnalyzer,
-					   boost::shared_ptr<Ui> ui)
+      boost::shared_ptr<DoorStateSensor> sensor,
+      boost::shared_ptr<TailgateAnalyzer> tailgateAnalyzer,
+      boost::shared_ptr<Ui> ui)
     : name(name), sensor(sensor), tailgateAnalyzer(tailgateAnalyzer), ui(ui), stop(false)
   {
     LOG4CXX_TRACE(logger, "Constructing DoorStateController");
@@ -34,106 +34,104 @@ namespace roomsec {
    */
 
   void
-  DoorStateController::operator()()
-  {
-    LOG4CXX_DEBUG(logger, "DoorStateController running");
-    LOG4CXX_TRACE(logger, "Initializing state");
+    DoorStateController::operator()()
+    {
+      LOG4CXX_DEBUG(logger, "DoorStateController running");
+      LOG4CXX_TRACE(logger, "Initializing state");
 
-    DoorState state = sensor->getDoorState();
-    bool alarmOn = false;
+      DoorState state = sensor->getDoorState();
+      bool alarmOn = false;
+      std::stringstream convert;
 
-    std::chrono::system_clock::time_point
-      doorOpenTime = std::chrono::system_clock::now();
+      std::chrono::system_clock::time_point
+        doorOpenTime = std::chrono::system_clock::now();
 
-    const std::chrono::seconds maxOpenTime(60);
-    const std::chrono::milliseconds period(10);
-    
-    while(!this->stop) {
+      const std::chrono::seconds maxOpenTime(60);
+      const std::chrono::milliseconds period(10);
 
-      LOG4CXX_TRACE(logger, "Begin cycle");
+      while(!this->stop) {
 
-      std::chrono::system_clock::time_point startTime = 
-	std::chrono::system_clock::now();
+        LOG4CXX_TRACE(logger, "Begin cycle");
 
-      DoorState nextState = sensor->getDoorState();
-      PassageTriple result;
+        std::chrono::system_clock::time_point startTime = 
+          std::chrono::system_clock::now();
 
-      switch(state) {
-	
-      case DoorState::closed:
-	LOG4CXX_TRACE(logger, "State = closed");
-	switch(nextState) {
+        DoorState nextState = sensor->getDoorState();
+        PassageTriple result;
 
-	  // CLOSED -> CLOSED
-	case DoorState::closed:
-	  LOG4CXX_TRACE(logger, "Next State = closed");
-	  break;
+        switch(state) {
 
-	  // CLOSED -> OPEN
-	case DoorState::open:
-	  LOG4CXX_INFO(netLogger, "roomsec." << name << ".door.open");
-	  LOG4CXX_TRACE(logger, "Next State = open");
-	  doorOpenTime = startTime;
-	  ui->message(UiMessage::Type::info, "Door Open");
-	  tailgateAnalyzer->beginSession();
-	  
-	  // TODO: sleep / freeze for debouncing
-	  break;
-	}
-	break;
+          case DoorState::closed:
+            LOG4CXX_TRACE(logger, "State = closed");
+            switch(nextState) {
 
-      case DoorState::open:
-	LOG4CXX_TRACE(logger, "State = open");
-	switch(nextState) {
+              // CLOSED -> CLOSED
+              case DoorState::closed:
+                LOG4CXX_TRACE(logger, "Next State = closed");
+                break;
 
-	  // OPEN -> CLOSED
-	case DoorState::closed:
-	  ui->message(UiMessage::Type::info, "Door Closed");
-	  LOG4CXX_INFO(netLogger, "roomsec." << name << ".door.closed");
-	  LOG4CXX_TRACE(logger, "Next State = closed");
-	  if(alarmOn) {
-	    ui->stopAlarm();
-	    alarmOn = false;
-	  }
-	  tailgateAnalyzer->finishSession();
-	  result = tailgateAnalyzer->getResults();
-	  LOG4CXX_INFO(logger, "tailgate analysis: " << 
-		       "in: "      << result.ingoing  << " " <<
-		       "out: "     << result.outgoing << " " <<
-                       "unknown: " << result.unknown);
+                // CLOSED -> OPEN
+              case DoorState::open:
+                LOG4CXX_INFO(netLogger, "roomsec." << name << ".door.open");
+                LOG4CXX_TRACE(logger, "Next State = open");
+                doorOpenTime = startTime;
+                ui->message(UiMessage::Type::info, "Door Open");
+                tailgateAnalyzer->beginSession();
 
-          LOG4CXX_INFO(netLogger, "roomsec." << name << ".ingoing." << result.ingoing);
-          LOG4CXX_INFO(netLogger, "roomsec." << name << ".outgoing." << result.outgoing);
-          if (result.ingoing > 1) {
-            std::stringstream convert;
-            convert << "in: " << result.ingoing <<", out: " << result.outgoing;
-            ui->message(UiMessage::Type::warning, convert.str());
-          }
-          
-	  break;
+                // TODO: sleep / freeze for debouncing
+                break;
+            }
+            break;
 
-	  // OPEN -> OPEN
-	case DoorState::open:
-	  LOG4CXX_TRACE(logger, "Next State = open");
-	  tailgateAnalyzer->update();
-	  if (startTime - doorOpenTime > maxOpenTime) {
-	    if (!alarmOn) {
-	      LOG4CXX_INFO(netLogger, "roomsec." << name << ".alarm.door");
-	      LOG4CXX_INFO(logger, "Door alarm triggered");
-	      ui->startAlarm("Close door now");
-	      alarmOn = true;
-	    }
-	  }
-	  break;
-	}
-	break;
+          case DoorState::open:
+            LOG4CXX_TRACE(logger, "State = open");
+            switch(nextState) {
+
+              // OPEN -> CLOSED
+              case DoorState::closed:
+                ui->message(UiMessage::Type::info, "Door Closed");
+                LOG4CXX_INFO(netLogger, "roomsec." << name << ".door.closed");
+                LOG4CXX_TRACE(logger, "Next State = closed");
+                if(alarmOn) {
+                  ui->stopAlarm();
+                  alarmOn = false;
+                }
+                tailgateAnalyzer->finishSession();
+                result = tailgateAnalyzer->getResults();
+                LOG4CXX_INFO(logger, "tailgate analysis: " << 
+                    "in: "      << result.ingoing  << " " <<
+                    "out: "     << result.outgoing << " " <<
+                    "unknown: " << result.unknown);
+
+                LOG4CXX_INFO(netLogger, "roomsec." << name << ".ingoing." << result.ingoing);
+                LOG4CXX_INFO(netLogger, "roomsec." << name << ".outgoing." << result.outgoing);
+                convert << "in: " << result.ingoing <<", out: " << result.outgoing;
+                ui->message(UiMessage::Type::warning, convert.str());
+
+                break;
+
+                // OPEN -> OPEN
+              case DoorState::open:
+                LOG4CXX_TRACE(logger, "Next State = open");
+                tailgateAnalyzer->update();
+                if (startTime - doorOpenTime > maxOpenTime) {
+                  if (!alarmOn) {
+                    LOG4CXX_INFO(netLogger, "roomsec." << name << ".alarm.door");
+                    LOG4CXX_INFO(logger, "Door alarm triggered");
+                    ui->startAlarm("Close door now");
+                    alarmOn = true;
+                  }
+                }
+                break;
+            }
+            break;
+        }
+
+        state = nextState;
+        std::this_thread::sleep_until(startTime + period);
       }
-      
-      state = nextState;
-      std::this_thread::sleep_until(startTime + period);
-    }
 
-    LOG4CXX_DEBUG(logger, "DoorStateController stopping");
-  }
+      LOG4CXX_DEBUG(logger, "DoorStateController stopping");
+    }
 
 }
