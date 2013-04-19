@@ -49,6 +49,7 @@ namespace roomsec {
     UiMessage popMessage();
     void show(Display::Color c, std::string const& m);
     void showBeep(Display::Color c, std::string const& m);
+    void showBeep2(Display::Color c, std::string const& m);
     void clearScreen();
     void enterDefaultState();
   };
@@ -92,6 +93,22 @@ namespace roomsec {
     return;
   }
 
+  void Ui::Impl::showBeep2(Display::Color c, std::string const& m) {
+    clearScreen();
+    display->setBacklightColor(c);
+    display->putStr(m);
+    buzzer->on();
+    std::this_thread::sleep_for(beepTime);
+    buzzer->off();
+    std::this_thread::sleep_for(beepTime/2);
+    buzzer->on();
+    std::this_thread::sleep_for(beepTime);
+    buzzer->off();
+    std::this_thread::sleep_for(messageTime - 2.5*beepTime);
+    enterDefaultState();
+    return;
+  }
+
   void Ui::Impl::clearScreen() {
     display->clear();
     display->home();
@@ -128,6 +145,7 @@ namespace roomsec {
 
   Ui::~Ui()
   {
+    impl->clearScreen();
     // TODO: Disable backlight, clear screen on destruction
   }
 
@@ -151,12 +169,16 @@ namespace roomsec {
 	break;
 
       case UiMessage::Type::error:
-	impl->showBeep(Display::red, message.getMessage());
+	impl->showBeep2(Display::red, message.getMessage());
+	break;
+
+      case UiMessage::Type::success:
+	impl->showBeep(Display::green, message.getMessage());
 	break;
 
       case UiMessage::Type::prompt:
       case UiMessage::Type::warning:
-	impl->showBeep(Display::green, message.getMessage());
+	impl->showBeep(Display::blue, message.getMessage());
 	break;
 
       case UiMessage::Type::alarm:
