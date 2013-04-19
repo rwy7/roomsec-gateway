@@ -12,6 +12,7 @@ namespace roomsec {
   class FingerprintAuthnAdapter;
   class Lock;
   class Ui;
+  class DoorStateSensor;
   
   /**
    * This class controls the fingerprint scanning and detection
@@ -26,6 +27,7 @@ namespace roomsec {
 			  boost::shared_ptr<AuthorityAdapter> authorityAdapter,
 			  boost::shared_ptr<FingerprintAuthnAdapter> fingerprintAuthnAdapter,
 			  boost::shared_ptr<Lock> lock,
+			  boost::shared_ptr<DoorStateSensor> doorStateSensor,
 			  boost::shared_ptr<Ui> ui);
 
     FingerprintController(FingerprintController const& source) = delete;
@@ -41,6 +43,7 @@ namespace roomsec {
     boost::shared_ptr<AuthorityAdapter> authorityAdapter;
     boost::shared_ptr<FingerprintAuthnAdapter> fingerprintAuthnAdapter;
     boost::shared_ptr<Lock> lock;
+    boost::shared_ptr<DoorStateSensor> doorStateSensor;
     boost::shared_ptr<Ui> ui;
     bool stop;
   };

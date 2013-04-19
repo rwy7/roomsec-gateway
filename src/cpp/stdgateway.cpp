@@ -62,6 +62,7 @@ namespace roomsec {
 						      authorityAdapter,
 						      fingerprintAuthnAdapter,
 						      lock,
+						      doorStateSensor,
 						      ui));
 
     boost::shared_ptr<StdGateway>

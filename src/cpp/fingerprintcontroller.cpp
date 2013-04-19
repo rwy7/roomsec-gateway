@@ -5,6 +5,7 @@
 #include "gen-cpp/authorize_types.h"
 #include "authorityadapter.h"
 #include "fingerprintauthnadapter.h"
+#include "doorstatesensor.h"
 #include "ui.h"
 #include "uimessage.h"
 #include "lock.h"
@@ -17,11 +18,8 @@ namespace roomsec {
    * Logging
    */
 
-  // TODO: Repair netlogger
-  const std::string gatewayId = "gateway1";
   static log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger("roomsec.fingerprint");
   static log4cxx::LoggerPtr netLogger = log4cxx::Logger::getLogger("roomsec.net");
-
 
   /*
    * Ctor / Dtor
@@ -32,12 +30,14 @@ namespace roomsec {
 					       boost::shared_ptr<AuthorityAdapter> authorityAdapter,
 					       boost::shared_ptr<FingerprintAuthnAdapter> fingerprintAuthnAdapter,
 					       boost::shared_ptr<Lock> lock,
+					       boost::shared_ptr<DoorStateSensor> doorStateSensor,
 					       boost::shared_ptr<Ui> ui)
     : name(name),
       scanner(scanner),
       authorityAdapter(authorityAdapter),
       fingerprintAuthnAdapter(fingerprintAuthnAdapter),
       lock(lock),
+      doorStateSensor(doorStateSensor),
       ui(ui),
       stop(false)
   {
@@ -78,18 +78,26 @@ namespace roomsec {
       if (credential.token == "" &&
 	  credential.userid == "") {
 	ui->message(UiMessage::Type::error, "User Unrecognized");
-	LOG4CXX_INFO(netLogger, "roomsec." << gatewayId << ".userauth.fail");
+	LOG4CXX_INFO(netLogger, "roomsec." << name << ".userauth.fail");
       }
 
       else {
 	ui->message(UiMessage::Type::warning, "User: "+ credential.userid);
-
-	LOG4CXX_INFO(netLogger,
-		     "roomsec." << gatewayId << 
-		     ".userauth.pass." << credential.userid);
-
+	LOG4CXX_INFO(netLogger, "roomsec." << name << ".userauth.pass." << credential.userid);
 	lock->setState(LockState::unlocked);
-	std::this_thread::sleep_for(std::chrono::seconds(5));
+
+	std::chrono::system_clock::time_point
+	  unlockTime = std::chrono::system_clock::now();
+
+	const std::chrono::seconds unlockDuration(5);
+	std::this_thread::sleep_for(std::chrono::milliseconds(50));
+
+	while(doorStateSensor->getDoorState() == DoorState::closed ||
+	      std::chrono::system_clock::now() - unlockTime < unlockDuration)
+	  {
+	    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+	  }
+	
 	lock->setState(LockState::locked);
       }
 
