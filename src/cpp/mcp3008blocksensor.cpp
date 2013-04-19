@@ -64,8 +64,8 @@ static log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger("roomsec.mcp3008bl
 	if(iValue > 30)
 		printf("############## SUCCESS, iValue = %i;\n", iValue);
 	char buffer[100];
-	//sprintf(buffer, "- Complete, iValue = %i; mValue = %i", iValue, mValue);
-	LOG4CXX_DEBUG(logger, buffer);
+	sprintf(buffer, "- Complete, iValue = %i; mValue = %i", iValue, mValue);
+	//LOG4CXX_DEBUG(logger, buffer);
 
     return iValue;
   }

@@ -224,6 +224,14 @@ PassageTriple BlockAnalyzer::analyzeStreams(vector<pair<unsigned int, float> > *
 	triple.outgoing = 0;
 	triple.unknown = 0;
 
+	for(int i = 0; i < streamCount; i++)
+	{
+		if(simpleStreams[i].size() < 1)
+		{
+			LOG4CXX_DEBUG(logger, "- No data to analyse, ending analysis);
+			return 0;
+		}
+	}
 	if(streamCount >= 2)
 	{
 		int index1 = -1, index2 = -1, time = 0;
