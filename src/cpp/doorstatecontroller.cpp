@@ -99,6 +99,7 @@ namespace roomsec {
 	  // OPEN -> OPEN
 	case DoorState::open:
 	  LOG4CXX_TRACE(logger, "Next State = open");
+	  tailgateAnalyzer->update();
 	  if (startTime - doorOpenTime > maxOpenTime) {
 	    if (!alarmOn) {
 	      // TODO: Start Alarm, NetLog.
@@ -106,7 +107,6 @@ namespace roomsec {
 	      ui->startAlarm("Close door");
 	      alarmOn = true;
 	    }
-	    tailgateAnalyzer->update();
 	  }
 	  break;
 	}
