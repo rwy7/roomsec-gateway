@@ -213,7 +213,9 @@ bool BlockAnalyzer::analyze()
 
 PassageTriple BlockAnalyzer::analyzeStreams(vector<pair<unsigned int, float> > *simpleStreams)
 {
-	LOG4CXX_DEBUG(logger, "- Beginning sub analysis");
+	char buffer[100];
+	sprintf(buffer, "- Beginning sub analysis, streamCount = %i, stream length = %i", streamCount, simpleStreams[0].size());
+	LOG4CXX_DEBUG(logger, buffer);
 	if (DEBUG)
 		printf("#BlockAnalyzer::analyzeStreams(simpleStreams) - begin analysis;\n");
 	//simple implementation using no more than 2 streams
@@ -288,12 +290,18 @@ PassageTriple BlockAnalyzer::analyzeStreams(vector<pair<unsigned int, float> > *
 			index2++;
 		}
 	}
+	else
+	{
+		LOG4CXX_DEBUG(logger, "- ABORT ABORT ABANDON SHIP!!!!");
+	}
+	/*
 	else if(streamCount == 1)
 	{
 		for(int i = 0; i < simpleStreams[0].size(); i++)
 			if(simpleStreams[0][i].second >= 2)
 				triple.unknown++;
 	}
+	*/
 	LOG4CXX_DEBUG(logger, "- Sub analysis complete");
 	return triple;
 }
