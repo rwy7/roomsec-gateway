@@ -9,7 +9,7 @@ namespace roomsec {
   {
     /*  set the pins to write mode */
     this->device->setRW(this->bank, (this->device->getRW(this->bank) & ~this->pins));
-    this->device->makeHigh(this->bank, this->pins);
+    this->device->makeLow(this->bank, this->pins);
     return;
   }
 

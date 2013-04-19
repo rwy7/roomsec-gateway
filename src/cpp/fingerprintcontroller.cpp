@@ -41,13 +41,13 @@ namespace roomsec {
       ui(ui),
       stop(false)
   {
-    // Do Nothing
+    lock->setState(LockState::locked);
   }
 
 
   FingerprintController::~FingerprintController()
   {
-    // Do Nothing
+    lock->setState(LockState::locked);
   }
 
 
@@ -59,9 +59,9 @@ namespace roomsec {
   {
     LOG4CXX_DEBUG(logger, "Fingerprint Controller running");
 
-
     // lock the door
     lock->setState(LockState::locked);
+
     while(!this->stop) {
 
       // Scan for fingerprint.  This is a blocking/waiting operation.
