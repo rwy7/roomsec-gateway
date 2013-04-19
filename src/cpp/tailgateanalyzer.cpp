@@ -42,7 +42,7 @@ namespace roomsec {
 
   bool TailgateAnalyzer::update()
   {
-    constructBlockAnalyzer();
+   // constructBlockAnalyzer();
     if(sessionRunning)
       {
 	blockAnalyzer->update();
