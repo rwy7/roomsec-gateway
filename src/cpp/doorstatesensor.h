@@ -1,6 +1,8 @@
 #ifndef _DOORSTATESENSOR_H_
 #define _DOORSTATESENSOR_H_
 
+#include <mutex>
+
 namespace roomsec {
 
   /**
@@ -18,7 +20,8 @@ namespace roomsec {
        * @param pin The GPIO pin which the switch is connected to.
        */
       DoorStateSensor(int pin);
-
+      DoorStateSensor(DoorStateSensor const& other) = delete;
+      DoorStateSensor(DoorStateSensor && other) = delete;
       ~DoorStateSensor();
 
       /**
@@ -36,14 +39,8 @@ namespace roomsec {
        */
       State getDoorState();
 
-      /**
-       * @brief Sleep until the state changes.
-       * This will put the thread to sleep until there is a hardware interrupt
-       * indicating a change in state.
-       * @return The new (current) state.
-       */
-      int waitForChange(void (*callback)(void));
     private:
+      std::mutex mutex;
       State state;
       int pin;
       void update();

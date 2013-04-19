@@ -1,4 +1,5 @@
 #include "config.h"
+#include <mutex>
 #include "wiringPi/wiringPi.h"
 #include "doorstatesensor.h"
 
@@ -29,15 +30,9 @@ namespace roomsec {
   }
 
   DoorStateSensor::State DoorStateSensor::getDoorState() {
+    std::lock_guard<std::mutex> guard(mutex);
     this->update();
     return this->state;
   }
 
-  int DoorStateSensor::waitForChange(void (*callback)(void)) {
-#ifdef ENABLE_GATEWAY
-    return (wiringPiISR(this->pin, INT_EDGE_BOTH, callback));
-#else
-    return (0);
-#endif
-  }
 }
