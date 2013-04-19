@@ -101,22 +101,22 @@ int storeOptions(int argc, char* argv[], po::variables_map & vm) {
 
   po::options_description generalOptions("Configuration Options");
   generalOptions.add_options()
-    ("logconf path",
+    ("logconf",
          po::value<std::string>(),
          "log4cxx configuration file");
 
   po::options_description networkOptions("Networking Options");
   networkOptions.add_options()
-    ("fpauthn addr",
+    ("fpauthn",
          po::value<std::string>()->default_value("localhost"), 
          "Fingerprint authentication server address")
-    ("fpauthn-port port",
+    ("fpauthn-port",
          po::value<int>()->default_value(2222),
          "Fingerprint authentication server port")
-    ("authority addr",
+    ("authority",
          po::value<std::string>()->default_value("localhost"),   
          "Authority server address")
-    ("authority-port port",
+    ("authority-port",
          po::value<int>()->default_value(2223),
          "Authority server port");
 
