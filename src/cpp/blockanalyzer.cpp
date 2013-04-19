@@ -91,7 +91,7 @@ PassageTriple BlockAnalyzer::getResults()
 
 bool BlockAnalyzer::sensorValueUpdate()
 {
-	LOG4CXX_DEBUG(logger, "- Updating sensor values);
+	LOG4CXX_DEBUG(logger, "- Updating sensor values");
 	if (DEBUG)
 		printf("#BlockAnalyzer::sensorValueUpdate() - sensors.size() = %3li;", sensors.size());
 	streamSize++;
