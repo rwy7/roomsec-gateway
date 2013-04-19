@@ -9,7 +9,7 @@ static log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger("roomsec.blockanal
 
 BlockAnalyzer::BlockAnalyzer(std::vector<BlockSensor*> sensorPointers, bool debug)
 {
-	LOG4CXX_DEBUG(logger, "BlockAnalyzer constructing");
+	LOG4CXX_DEBUG(logger, "- Constructing");
 	DEBUG = debug;
 	sensors.clear();
 	streamCount = sensorPointers.size();
@@ -17,25 +17,25 @@ BlockAnalyzer::BlockAnalyzer(std::vector<BlockSensor*> sensorPointers, bool debu
 		sensors.push_back(sensorPointers[i]);
 	monitoring = false;
 	firstRun = true;
-	LOG4CXX_DEBUG(logger, "BlockAnalyzer construction complete");
+	LOG4CXX_DEBUG(logger, "- Construction complete");
 }
 
 //
 bool BlockAnalyzer::initialize()
 {
-	LOG4CXX_DEBUG(logger, "BlockAnalyzer initialize()");
+	LOG4CXX_DEBUG(logger, "- Beginning initialization");
 	initializeStreams();
 	normalSum = 0;
 	normalDistribution = new float[frameSize];
 	generateNormalDistribution();
 	blockages.clear();
-	LOG4CXX_DEBUG(logger, "BlockAnalyzer initialize() - complete");
+	LOG4CXX_DEBUG(logger, "- Initialization complete");
 	return 1;
 }
 
 bool BlockAnalyzer::initializeStreams()
 {
-	LOG4CXX_DEBUG(logger, "BlockAnalyzer initializeStreams()");
+	LOG4CXX_DEBUG(logger, "- Beginning stream initialization");
 	if( firstRun)
 		firstRun = false;
 	else
@@ -43,7 +43,7 @@ bool BlockAnalyzer::initializeStreams()
 	streamSize = 0;
 	zeroCount = 0;
 	rawStreams = new vector<float>[sensors.size()];
-	LOG4CXX_DEBUG(logger, "BlockAnalyzer initializeStreams() - complete");
+	LOG4CXX_DEBUG(logger, "- Initialization complete");
 	return 1;
 }
 
@@ -55,7 +55,10 @@ bool BlockAnalyzer::update()
 		return 0;
 	sensorValueUpdate();
 	if(zeroCount >= zeroCutOff)
+	{
+		LOG4CXX_DEBUG(logger,"- Reinitializing due to long period of dead readings");
 		initializeStreams();
+	}
 	return 1;
 }
 
@@ -64,7 +67,9 @@ bool BlockAnalyzer::update()
  */
 PassageTriple BlockAnalyzer::getResults()
 {
-	LOG4CXX_DEBUG(logger, "BlockAnalyzer getResults()");
+	LOG4CXX_DEBUG(logger, "- Grabbing Results");
+	if(monitoring)
+		LOG4CXX_DEBUG(logger, "- called during monitoring session; Possiblity of redundent or incomplete results");
 	if (DEBUG && monitoring)
 		printf("#BlockAnalyzer::getResult() - called during monitoring session; Possible incomplete results returned;\n");
 	PassageTriple totals;
@@ -77,13 +82,16 @@ PassageTriple BlockAnalyzer::getResults()
 		totals.outgoing += blockages[i].outgoing;
 		totals.unknown += blockages[i].unknown;
 	}
-	LOG4CXX_DEBUG(logger, "BlockAnalyzer getResults() - complete");
+
+	char buffer[100];
+	sprintf(buffer, "- Complete, ingoing=%i, outgoing=%i, unknown=%i", totals.ingoing, totals.outgoing,totals.unknown);
+	LOG4CXX_DEBUG(logger, buffer);
 	return totals;
 }
 
 bool BlockAnalyzer::sensorValueUpdate()
 {
-	LOG4CXX_DEBUG(logger, "BlockAnalyzer sensorValueUpdate()");
+	LOG4CXX_DEBUG(logger, "- Updating sensor values);
 	if (DEBUG)
 		printf("#BlockAnalyzer::sensorValueUpdate() - sensors.size() = %3li;", sensors.size());
 	streamSize++;
@@ -103,13 +111,13 @@ bool BlockAnalyzer::sensorValueUpdate()
 		zeroCount++;
 	else
 		zeroCount = 0;
-	LOG4CXX_DEBUG(logger, "BlockAnalyzer sensorValueUpdate() - complete");
+	LOG4CXX_DEBUG(logger, "- Update complete");
 	return 1;
 }
 
 vector<float> BlockAnalyzer::smoothStream(vector<float> raw)
 {
-	LOG4CXX_DEBUG(logger, "BlockAnalyzer smoothStream(raw)");
+	LOG4CXX_DEBUG(logger, "- Smoothing raw stream");
 	unsigned int size = raw.size();
 	vector<float> smoothed;
 	unsigned int extension = floor(frameSize/2.);
@@ -143,7 +151,7 @@ vector<float> BlockAnalyzer::smoothStream(vector<float> raw)
 		}
 		smoothed.push_back(sum/normalSum);
 	}
-	LOG4CXX_DEBUG(logger, "BlockAnalyzer smoothStream(raw) - complete");
+	LOG4CXX_DEBUG(logger, "- Smoothing complete");
 	if (DEBUG)
 		printf("#BlockAnalyzer::smoothStream(raw) - Complete;\n");
 	return smoothed;
@@ -151,12 +159,14 @@ vector<float> BlockAnalyzer::smoothStream(vector<float> raw)
 
 bool BlockAnalyzer::analyze()
 {
-	LOG4CXX_DEBUG(logger, "BlockAnalyzer analyze()");
+	char buffer[100];
+	sprintf(buffer, "- Beginning analysis, streamSize = %i; streamCount = %i;\n", streamSize, streamCount);
+	LOG4CXX_DEBUG(logger, buffer);
 	if (DEBUG)
 		printf("#BlockAnalyzer::analyze() - streamSize = %i; streamCount = %i;\n", streamSize, streamCount);
 	if(streamSize < 1 || streamCount < 1)
 	{
-		LOG4CXX_DEBUG(logger, "BlockAnalyzer analyze() - failed, no data to analyze, might not be a problem ");
+		LOG4CXX_DEBUG(logger, "- premature termination; streamSize < 1 or streamCount < 1");
 		if (DEBUG)
 			printf("#BlockAnalyzer::analyze() - premature termination; streamSize < 1 || streamCount < 1;\n");
 		return 0;
@@ -203,7 +213,7 @@ bool BlockAnalyzer::analyze()
 
 PassageTriple BlockAnalyzer::analyzeStreams(vector<pair<unsigned int, float> > *simpleStreams)
 {
-	LOG4CXX_DEBUG(logger, "BlockAnalyzer analyzeStreams(simpleStreams)");
+	LOG4CXX_DEBUG(logger, "- Beginning sub analysis");
 	if (DEBUG)
 		printf("#BlockAnalyzer::analyzeStreams(simpleStreams) - begin analysis;\n");
 	//simple implementation using no more than 2 streams
@@ -284,14 +294,14 @@ PassageTriple BlockAnalyzer::analyzeStreams(vector<pair<unsigned int, float> > *
 			if(simpleStreams[0][i].second >= 2)
 				triple.unknown++;
 	}
-	LOG4CXX_DEBUG(logger, "BlockAnalyzer analyzeStreams(simpleStreams) - complete");
+	LOG4CXX_DEBUG(logger, "- Sub analysis complete");
 	return triple;
 }
 
 
 std::vector<unsigned int> BlockAnalyzer::isolateBlocks(std::vector<float> stream)
 {
-	LOG4CXX_DEBUG(logger, "BlockAnalyzer isolateBlocks(stream)");
+	LOG4CXX_DEBUG(logger, "- Isolating data blocks");
 	if (DEBUG)
 		printf("#BlockAnalyzer::isolateBlocks(stream) - stream.size() = %lu;\n", stream.size());
 	vector<unsigned int> blockEdges;
@@ -325,7 +335,7 @@ std::vector<unsigned int> BlockAnalyzer::isolateBlocks(std::vector<float> stream
 	if(high)
 		blockEdges.push_back(stream.size());
 
-	LOG4CXX_DEBUG(logger, "BlockAnalyzer isolateBlocks(stream) - complete");
+	LOG4CXX_DEBUG(logger, "- Isolation complete");
 	if (DEBUG)
 		printf("#BlockAnalyzer::isolateBlocks(stream) - Complete; blockEdges.size() = %lu;\n", blockEdges.size());
 
@@ -334,7 +344,9 @@ std::vector<unsigned int> BlockAnalyzer::isolateBlocks(std::vector<float> stream
 
 vector<pair<unsigned int, float> > BlockAnalyzer::simplifyStreams(vector<float> stream, vector<unsigned int> blocks)
 {
-	LOG4CXX_DEBUG(logger, "BlockAnalyzer simplifyStreams(stream, blocks)");
+	char buffer[100];
+	sprintf(buffer, "- Simplifying streams, stream.size() = %lu; blocks.size() = %lu;\n", stream.size(), blocks.size());
+	LOG4CXX_DEBUG(logger, buffer);
 	if (DEBUG)
 		printf("#BlockAnalyzer::simplifyStream(stream, blocks) - stream.size() = %lu; blocks.size() = %lu;\n", stream.size(), blocks.size()); 
 
@@ -377,7 +389,7 @@ vector<pair<unsigned int, float> > BlockAnalyzer::simplifyStreams(vector<float> 
 		criticalPoints.push_back(make_pair(blocks[i+1], 0));
 	}
 
-	LOG4CXX_DEBUG(logger, "BlockAnalyzer simplifyStreams(stream, blocks) - complete");
+	LOG4CXX_DEBUG(logger, "- Simplification complete");
 	if (DEBUG)
 	{
 		printf("#BlockAnalyzer::simplifyStream(stream, blocks) - Complete; criticalPoints.size() = %lu;\n", criticalPoints.size());
@@ -390,7 +402,7 @@ bool BlockAnalyzer::beginMonitoringSession()
 {
 	if (monitoring)
 	{
-		LOG4CXX_DEBUG(logger, "BlockAnalyzer beginMonitoringSession() - failed, you called it at the wrong time");
+		LOG4CXX_DEBUG(logger, "- Failed, called improperly; monitoring = true");
 		if (DEBUG)
 			printf("#BlockAnalyzer::beginMonitoringSession() called improperly; monitoring = true;\n");
 		return false;
@@ -398,7 +410,7 @@ bool BlockAnalyzer::beginMonitoringSession()
 	
 	monitoring = true;
 	initialize();
-	LOG4CXX_DEBUG(logger, "BlockAnalyzer beginMonitoringSession() - monitoring session started");
+	LOG4CXX_DEBUG(logger, "- Monitoring session started");
 	if (DEBUG)
 		printf("#BlockAnalyzer::beginMonitoringSession() - monitoring session started;\n");
 	return true;
@@ -408,7 +420,7 @@ bool BlockAnalyzer::endMonitoringSession()
 {
 	if (!monitoring)
 	{
-		LOG4CXX_DEBUG(logger, "BlockAnalyzer endMonitoringSession() - failed, you called it at the wrong time");
+		LOG4CXX_DEBUG(logger, "- Failed, called improperly; monitoring = false");
 		if (DEBUG)
 			printf("#BlockAnalyzer::endMonitoringSession() called improperly; monitoring = false;\n");
 		return false;
@@ -417,7 +429,7 @@ bool BlockAnalyzer::endMonitoringSession()
 	monitoring = false;
 	this->initializeStreams();
 
-	LOG4CXX_DEBUG(logger, "BlockAnalyzer beginMonitoringSession() - monitoring session endedblock");
+	LOG4CXX_DEBUG(logger, "- Monitoring session ended");
 	if (DEBUG)
 		printf("#BlockAnalyzer::endMonitoringSession() - monitoring session ended;\n");
 	return true;

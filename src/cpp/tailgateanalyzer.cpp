@@ -7,35 +7,36 @@ namespace roomsec {
 
   TailgateAnalyzer::TailgateAnalyzer(std::vector<BlockSensor*> sensors, bool debug)
   {
-    LOG4CXX_DEBUG(logger, "TailgateAnalyzer constructing");
+    LOG4CXX_DEBUG(logger, "- Constructing");
     DEBUG = debug;
     sessionRunning = false;
     setSensors(sensors);
-    LOG4CXX_DEBUG(logger, "TailgateAnalyzer construction complete");
+    LOG4CXX_DEBUG(logger, "- Construction complete");
   }
 
   bool TailgateAnalyzer::setSensors(std::vector<BlockSensor *> sensors)
   {
-    LOG4CXX_DEBUG(logger, "TailgateAnalyzer setSensors(sensors)");
+    LOG4CXX_DEBUG(logger, "- Setting sensors");
     newSensors.clear();
     for (unsigned int i = 0; i < sensors.size(); i++)
-      {
+		{
 	newSensors.push_back(sensors[i]);
-      }
+		}
     return constructBlockAnalyzer();
+	LOG4CXX_DEBUG(logger, "- Setting sensors");
   }
 
   bool TailgateAnalyzer::constructBlockAnalyzer()
   {
-    LOG4CXX_DEBUG(logger, "Enter");
+    LOG4CXX_DEBUG(logger, "- Constructing BlockAnalyzer");
     if (sessionRunning || newSensors.size() == 0)
       {
-	LOG4CXX_DEBUG(logger, "failed, you either called it at the wrong time or you forgot to set the sensors");
-	return false;
+		LOG4CXX_DEBUG(logger, "- failed, sessionRunning = true || newSensors.size() == 0");
+		return false;
       }
     blockAnalyzer = new BlockAnalyzer(newSensors, DEBUG);
     newSensors.clear();
-    LOG4CXX_DEBUG(logger, "Complete");
+    LOG4CXX_DEBUG(logger, "- Construction complete");
     return true;
   }
 
@@ -51,30 +52,28 @@ namespace roomsec {
 
   bool TailgateAnalyzer::beginSession()
   {
-    LOG4CXX_DEBUG(logger, "TailgateAnalyzer beginSession()");
     if (sessionRunning || !blockAnalyzer)
       {
-	LOG4CXX_DEBUG(logger, "failed, you either called it at the wrong time or you forgot to initialize blockAnalyzer");
+	LOG4CXX_DEBUG(logger, "- Failed, called improperly, sessionRunning = true || blockAnalyzer = false");
 	return false;
       }
     sessionRunning = true;
     blockAnalyzer->beginMonitoringSession();
-    LOG4CXX_DEBUG(logger, "Complete, monitoring session started");
+    LOG4CXX_DEBUG(logger, "- Session started");
     return true;
   }
 
   bool TailgateAnalyzer::finishSession()
   {
-    LOG4CXX_DEBUG(logger, "TailgateAnalyzer finishSession()");
     if (!sessionRunning)
       {
-	LOG4CXX_DEBUG(logger, "Failed, you called it at the wrong time");
+	LOG4CXX_DEBUG(logger, "- Failed, called improperly, sessionRunning = false");
 	return false;
       }
     sessionRunning = false;
     blockAnalyzer->endMonitoringSession();
     results = blockAnalyzer->getResults();
-    LOG4CXX_DEBUG(logger, "Complete, monitoring session ended, results pulled from blockAnalyzer");
+    LOG4CXX_DEBUG(logger, "- Session ended, results pulled from blockAnalyzer");
     return true;
   }
 

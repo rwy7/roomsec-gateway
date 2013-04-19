@@ -23,7 +23,7 @@ static log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger("roomsec.mcp3008bl
 	iValue = 0;
 	mValue = 0;
 	DEBUG = debug;
-	LOG4CXX_DEBUG(logger, "MCP3008BlockSensor - construction complete");
+	LOG4CXX_DEBUG(logger, "- Construction complete");
   }
 
 
@@ -32,7 +32,7 @@ static log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger("roomsec.mcp3008bl
       
 
   int MCP3008BlockSensor::getSensorValue() {
-	LOG4CXX_DEBUG(logger, "MCP3008BlockSensor - getSensorValue()");
+	LOG4CXX_DEBUG(logger, "- Grabbing sensor values");
     int mVal, iVal;
 		
     //read from sensor value to mVal using wiringPi SPI library
@@ -61,9 +61,11 @@ static log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger("roomsec.mcp3008bl
       mValue = mVal;
       iValue = iVal;
     }
-		
-    if (DEBUG)
-      printf("#MCP3008BlockSensor::getSensorValue() - iValue = %i; mValue = %i;\n", iValue, mValue);
+	if(iValue > 30)
+		printf("############## SUCCESS, iValue = %i;\n", iValue);
+	char buffer[100];
+	sprintf(buffer, "- Complete, iValue = %i; mValue = %i", iValue, mValue);
+	LOG4CXX_DEBUG(logger, buffer);
 
     return iValue;
   }

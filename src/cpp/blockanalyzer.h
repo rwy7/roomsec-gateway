@@ -47,7 +47,7 @@ struct PassageTriple
  * after the monitoring session has been ended with endMonitoringSession(), otherwise getResults() will report incomplete data.
  */
 class BlockAnalyzer {
-	static const unsigned int frameSize = 5, low = 0, high = 1000, floorCutOff = 10, zeroCutOff = 100;
+	static const unsigned int frameSize = 5, low = 0, high = 1000, floorCutOff = 10, zeroCutOff = 25;
 	unsigned int zeroCount, streamSize, streamCount;
 	float *normalDistribution;
 	float normalSum;
