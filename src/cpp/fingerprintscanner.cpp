@@ -73,20 +73,21 @@ namespace roomsec {
 
   boost::shared_ptr<Fingerprint> FingerprintScanner::scanFingerprint() {
     struct fp_print_data *enrolled_print = NULL;
-    LOG4CXX_INFO(logger, "Scanning for fingerprint in " <<
-        fp_dev_get_nr_enroll_stages(this->fpDev) << "stages.");
+    LOG4CXX_INFO(logger, "Scanning for fingerprint in "<<
+        fp_dev_get_nr_enroll_stages(this->fpDev) <<" stages.");
 
     struct fp_img *img;
-    int r = fp_enroll_finger_img(this->fpDev, &enrolled_print, &img);
-
+    int r = 0;
     do {
+       r = fp_enroll_finger_img(this->fpDev, &enrolled_print, &img);
+
       switch (r) {
         case FP_ENROLL_COMPLETE:
           LOG4CXX_INFO(logger, "Fingerprint found and scanned");
           break;
         case FP_ENROLL_FAIL:
           LOG4CXX_INFO(logger, "Fingerprint detection failed");
-          return boost::shared_ptr<Fingerprint> ();
+          // return boost::shared_ptr<Fingerprint> ();
         case FP_ENROLL_PASS:
           LOG4CXX_INFO(logger, "One enrollment stage passed");
           break;
