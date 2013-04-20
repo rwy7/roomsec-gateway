@@ -41,7 +41,6 @@ namespace roomsec {
 
       DoorState state = sensor->getDoorState();
       bool alarmOn = false;
-      std::stringstream convert;
 
       std::chrono::system_clock::time_point
         doorOpenTime = std::chrono::system_clock::now();
@@ -50,6 +49,7 @@ namespace roomsec {
       const std::chrono::milliseconds period(10);
 
       while(!this->stop) {
+        std::stringstream convert;
 
         LOG4CXX_TRACE(logger, "Begin cycle");
 
@@ -106,7 +106,7 @@ namespace roomsec {
                 LOG4CXX_INFO(netLogger, "roomsec." << name << ".ingoing." << result.ingoing);
                 LOG4CXX_INFO(netLogger, "roomsec." << name << ".outgoing." << result.outgoing);
                 convert << "in: " << result.ingoing <<", out: " << result.outgoing;
-                ui->message(UiMessage::Type::warning, convert.str());
+                ui->message(UiMessage::Type::info, convert.str());
 
                 break;
 
