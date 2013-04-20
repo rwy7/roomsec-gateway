@@ -126,7 +126,8 @@ namespace roomsec {
 	  }
 	}
       }
-      catch(std::exception e) {
+      catch(int e) {
+      //catch(std::exception e) {
 	ui->message(UiMessage::Type::error, "Network Error");
       }
     }
