@@ -126,23 +126,27 @@ vector<float> BlockAnalyzer::smoothStream(vector<float> raw)
 	if (DEBUG)
 		printf("#BlockAnalyzer::smoothStream(raw) - stream.size() = %i; extension = %i;\n", size, extension);
 
-	for(unsigned int i = 0; i < size; i++)
-	{
-		if(raw[i] < floorCutOff)
-			flooredRaw.push_back(0);
-		else
-			flooredRaw.push_back(raw[i]);
-	}
-
 	for(unsigned int i = 0; i < extension; i++)
 	{
-		flooredRaw.insert(flooredRaw.begin(),flooredRaw.front());
-		flooredRaw.push_back(flooredRaw.back());
+		//printf("#testloop1;\n");
+		flooredRaw.push_back(0);
+		flooredRaw.insert(flooredRaw.begin(), 0);
+	}
+
+	for(unsigned int i = extension; i < size + extension; i++)
+	{
+		//printf("#testloop2;\n");
+		if(raw[i] < floorCutOff)
+			flooredRaw.push_back(0);
+		else if(raw[i-1] < floorCutOff && raw[i+1] < floorCutOff)
+			flooredRaw.push_back(raw[i]);
+		//else
+		//	flooredRaw.push_back(raw[i]);
 	}
 
 	for(unsigned int i = 0; i < size; i++)
 	{
-		
+		//printf("#testloop3;\n");
 		float sum = 0;
 
 		for(unsigned int j = 0; j < frameSize; j++)
@@ -366,11 +370,11 @@ vector<pair<unsigned int, float> > BlockAnalyzer::simplifyStreams(vector<float> 
 	if (DEBUG)
 		printf("#BlockAnalyzer::simplifyStream(stream, blocks) - stream.size() = %lu; blocks.size() = %lu;\n", stream.size(), blocks.size()); 
 
-	float highCutOff = 0.8;
+	float highCutOff = 0.5;
 	vector<pair<unsigned int, float> > criticalPoints;
 	for(unsigned int i = 0; i < blocks.size(); i+=2)
 	{
-
+		
 		unsigned int a = blocks[i], b = blocks[i+1];
 		float sum = 0, average = 0;
 		vector<float> streamBlock;
@@ -388,19 +392,27 @@ vector<pair<unsigned int, float> > BlockAnalyzer::simplifyStreams(vector<float> 
 			printf("#BlockAnalyzer::simplifyStream(stream, blocks) - average = %f; sum = %f; a = %i; b = %i;\n", average, sum, a, b);
 		bool high = false;
 		bool low = false;
-		for(unsigned int j = 0; j < (b-a); j++)
+		int pointCount = 0;
+		for(unsigned int j = 0; j < (b-a) && pointCount < 1; j++)
 		{
-			if(streamBlock[j+1] > streamBlock[j] && streamBlock[j+1] > streamBlock[j+2] && streamBlock[j+1] > average*highCutOff)
+			if(streamBlock[j+1] > average*highCutOff)
 			{
-				if(!high)
-					criticalPoints.push_back(make_pair(a+j, 2 + streamBlock[j+1]));
-				high = true;
-				low = false;
+				if(streamBlock[j+1] > streamBlock[j] && streamBlock[j+1] > streamBlock[j+2])
+				{
+					if(!high)
+					{
+						criticalPoints.push_back(make_pair(a+j, 2 + streamBlock[j+1]));
+						pointCount++;
+					high = true;
+					low = false;
+				}
 			}
 			else
 			{
 				if(!low)
+				{
 					criticalPoints.push_back(make_pair(a+j, 1));
+				}
 				high = false;
 				low = true;
 			}
@@ -457,7 +469,7 @@ bool BlockAnalyzer::endMonitoringSession()
 bool BlockAnalyzer::generateNormalDistribution()
 {
 	float u = 0;
-	float a = 0.9;
+	float a = 0.7;
 	int min = -2, max = 2;
 	float pi = 3.1415926;
 	if (DEBUG)

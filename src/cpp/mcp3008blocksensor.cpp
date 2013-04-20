@@ -47,7 +47,7 @@ static log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger("roomsec.mcp3008bl
 
     if(mVal != mValue) {	
 		mValue = mVal;
-		float fmVal = pow(((float)mVal)/1024.0, 1.7);
+		float fmVal = pow(((float)mVal)/1024.0, 1.3);
 		mVal = fmVal*1024;
       //map mVal from iLow-iHigh to iVal
       iVal = (mVal * ADC_HIGH_VOLTAGE / ADC_HIGH_DATA);
