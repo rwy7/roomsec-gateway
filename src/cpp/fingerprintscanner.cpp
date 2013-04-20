@@ -73,12 +73,14 @@ namespace roomsec {
 
   boost::shared_ptr<Fingerprint> FingerprintScanner::scanFingerprint() {
     struct fp_print_data *enrolled_print = NULL;
-    LOG4CXX_INFO(logger, "Scanning for fingerprint in "<<
-        fp_dev_get_nr_enroll_stages(this->fpDev) <<" stages.");
 
     struct fp_img *img;
     int r = 0;
     do {
+
+      LOG4CXX_INFO(logger, "Scanning for fingerprint in "<<
+        fp_dev_get_nr_enroll_stages(this->fpDev) <<" stages.");
+
        r = fp_enroll_finger_img(this->fpDev, &enrolled_print, &img);
 
       switch (r) {
@@ -93,6 +95,7 @@ namespace roomsec {
           break;
         case FP_ENROLL_RETRY:
           LOG4CXX_INFO(logger, "Fingerprint scan must retry");
+	  
           break;
         case FP_ENROLL_RETRY_TOO_SHORT:
           LOG4CXX_INFO(logger, "Fingerprint swipe too short");
