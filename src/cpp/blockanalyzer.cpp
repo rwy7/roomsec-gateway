@@ -392,14 +392,17 @@ vector<pair<unsigned int, float> > BlockAnalyzer::simplifyStreams(vector<float> 
 			printf("#BlockAnalyzer::simplifyStream(stream, blocks) - average = %f; sum = %f; a = %i; b = %i;\n", average, sum, a, b);
 		bool high = false;
 		bool low = false;
-		for(unsigned int j = 0; j < (b-a); j++)
+		int pointCount = 0;
+		for(unsigned int j = 0; j < (b-a) && pointCount < 1; j++)
 		{
 			if(streamBlock[j+1] > average*highCutOff)
 			{
 				if(streamBlock[j+1] > streamBlock[j] && streamBlock[j+1] > streamBlock[j+2])
 				{
 					if(!high)
+					{
 						criticalPoints.push_back(make_pair(a+j, 2 + streamBlock[j+1]));
+						pointCount++;
 					high = true;
 					low = false;
 				}
@@ -407,7 +410,9 @@ vector<pair<unsigned int, float> > BlockAnalyzer::simplifyStreams(vector<float> 
 			else
 			{
 				if(!low)
+				{
 					criticalPoints.push_back(make_pair(a+j, 1));
+				}
 				high = false;
 				low = true;
 			}
