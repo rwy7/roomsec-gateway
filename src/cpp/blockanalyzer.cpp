@@ -457,7 +457,7 @@ bool BlockAnalyzer::endMonitoringSession()
 bool BlockAnalyzer::generateNormalDistribution()
 {
 	float u = 0;
-	float a = 0.9;
+	float a = 0.7;
 	int min = -2, max = 2;
 	float pi = 3.1415926;
 	if (DEBUG)
