@@ -80,7 +80,7 @@ namespace roomsec {
   
 	if (credential.token == "" &&
 	    credential.userid == "") {
-	  ui->message(UiMessage::Type::error, "User Unrecognized");
+	  ui->message(UiMessage::Type::error, "User unknown");
 	  LOG4CXX_INFO(netLogger, "roomsec." << name << ".userauth.fail");
 	}
 
@@ -98,7 +98,7 @@ namespace roomsec {
 
 	  if(authzReply == iface::AuthorizationReply::grant) {
 
-	    ui->message(UiMessage::Type::info, "User: "+ credential.userid);
+	    ui->message(UiMessage::Type::success, "Access granted");
 	    LOG4CXX_INFO(netLogger, "roomsec." << name << ".userauthz.pass." << credential.userid);
 	    lock->setState(LockState::unlocked);
 
@@ -121,7 +121,7 @@ namespace roomsec {
 	  }
 
 	  else {
-	    ui->message(UiMessage::Type::error, "User not authorized");
+	    ui->message(UiMessage::Type::error, "Access denied");
 	    LOG4CXX_INFO(netLogger, "roomsec." << name << ".userauthz.fail." << credential.userid);
 	  }
 	}
