@@ -108,11 +108,11 @@ namespace roomsec {
 	    std::chrono::system_clock::time_point
 	      unlockTime = std::chrono::system_clock::now();
 
-	    const std::chrono::seconds unlockDuration(5);
+	    const std::chrono::seconds unlockDuration(4);
 	    std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
-	    while(doorStateSensor->getDoorState() == DoorState::closed ||
-		  std::chrono::system_clock::now() - unlockTime < unlockDuration)
+	    while((doorStateSensor->getDoorState() == DoorState::closed) &&
+		  ((std::chrono::system_clock::now() - unlockTime) < unlockDuration))
 	      {
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	      }
@@ -123,6 +123,7 @@ namespace roomsec {
 	  else {
 	    ui->message(UiMessage::Type::error, "Access denied");
 	    LOG4CXX_INFO(netLogger, "roomsec." << name << ".userauthz.fail." << credential.userid);
+	    
 	  }
 	}
       }
