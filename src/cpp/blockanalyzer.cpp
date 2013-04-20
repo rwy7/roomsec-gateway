@@ -139,9 +139,9 @@ vector<float> BlockAnalyzer::smoothStream(vector<float> raw)
 		if(raw[i] < floorCutOff)
 			flooredRaw.push_back(0);
 		else if(raw[i-1] < floorCutOff && raw[i+1] < floorCutOff)
-			flooredRaw.push_back(0);
-		else
 			flooredRaw.push_back(raw[i]);
+		//else
+		//	flooredRaw.push_back(raw[i]);
 	}
 
 	for(unsigned int i = 0; i < size; i++)
