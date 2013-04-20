@@ -146,7 +146,6 @@ namespace roomsec {
   Ui::~Ui()
   {
     impl->clearScreen();
-    // TODO: Disable backlight, clear screen on destruction
   }
 
 
@@ -168,17 +167,20 @@ namespace roomsec {
 	impl->show(Display::blue, message.getMessage());
 	break;
 
-      case UiMessage::Type::error:
-	impl->showBeep2(Display::red, message.getMessage());
-	break;
-
       case UiMessage::Type::success:
 	impl->showBeep(Display::green, message.getMessage());
 	break;
 
       case UiMessage::Type::prompt:
-      case UiMessage::Type::warning:
 	impl->showBeep(Display::blue, message.getMessage());
+	break;
+
+      case UiMessage::Type::warning:
+	impl->showBeep(Display::red, message.getMessage());
+	break;
+
+      case UiMessage::Type::error:
+	impl->showBeep2(Display::red, message.getMessage());
 	break;
 
       case UiMessage::Type::alarm:
