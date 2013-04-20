@@ -128,14 +128,14 @@ vector<float> BlockAnalyzer::smoothStream(vector<float> raw)
 
 	for(unsigned int i = 0; i < extension; i++)
 	{
-		printf("#testloop1;\n");
-		flooredRaw.insert(flooredRaw.begin(),flooredRaw.front());
-		flooredRaw.push_back(flooredRaw.back());
+		//printf("#testloop1;\n");
+		flooredRaw.push_back(0);
+		flooredRaw.insert(flooredRaw.begin(), 0);
 	}
 
 	for(unsigned int i = extension; i < size + extension; i++)
 	{
-		printf("#testloop2;\n");
+		//printf("#testloop2;\n");
 		if(raw[i] < floorCutOff)
 			flooredRaw.push_back(0);
 		else if(raw[i-1] < floorCutOff && raw[i+1] < floorCutOff)
@@ -146,7 +146,7 @@ vector<float> BlockAnalyzer::smoothStream(vector<float> raw)
 
 	for(unsigned int i = 0; i < size; i++)
 	{
-		printf("#testloop3;\n");
+		//printf("#testloop3;\n");
 		float sum = 0;
 
 		for(unsigned int j = 0; j < frameSize; j++)
